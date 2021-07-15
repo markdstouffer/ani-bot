@@ -1,7 +1,8 @@
 const { request } = require('graphql-request')
 const { GET_MEDIA, GET_USERINFO, GET_MEDIALIST } = require('../queries')
+const path = require('path')
 const fs = require('fs')
-let usersjson = fs.readFileSync('C:/Users/markd/projects/discord-bots/ani-bot/src/members.json', 'utf-8')
+let usersjson = fs.readFileSync(path.resolve(__dirname, '../members.json'), 'utf-8')
 let usersArray = JSON.parse(usersjson)
 
 module.exports = {
