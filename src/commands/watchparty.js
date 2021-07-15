@@ -14,17 +14,17 @@ module.exports = {
     console.log('args', args)
 
     if (args[0] === 'add') {
-      let usersjson = fs.readFileSync(path.resolve(__dirname, '../members.json'), 'utf-8')
+      let usersjson = fs.readFileSync(path.resolve(__dirname, '../data/members.json'), 'utf-8')
       let usersArray = JSON.parse(usersjson)
       const userToAdd = (!args[2]) ? { "username": args[1] } : { "id": args[2].substring(3, args[2].length-1), "username": args[1]}
       console.log('usersArray', usersArray)
       usersArray.push(userToAdd)
       usersjson = JSON.stringify(usersArray)
-      fs.writeFileSync(path.resolve(__dirname, '../members.json'), usersjson, 'utf-8')
+      fs.writeFileSync(path.resolve(__dirname, '../data/members.json'), usersjson, 'utf-8')
       msg.reply(`Added ${args[1]} to the watch-party.`)
 
     } else if (args[0] === 'remove') {
-      let usersjson = fs.readFileSync(path.resolve(__dirname, '../members.json'), 'utf-8')
+      let usersjson = fs.readFileSync(path.resolve(__dirname, '../data/members.json'), 'utf-8')
       let usersArray = JSON.parse(usersjson)
       const index = usersArray.findIndex(x => x.username.toLowerCase() === args[1].toLowerCase())
       console.log(index)
@@ -33,12 +33,12 @@ module.exports = {
         console.log('after splice', usersArray)
       }
       usersjson = JSON.stringify(usersArray)
-      fs.writeFileSync(path.resolve(__dirname, '../members.json'), usersjson, 'utf-8')
+      fs.writeFileSync(path.resolve(__dirname, '../data/members.json'), usersjson, 'utf-8')
       msg.reply(`${args[1]} has been removed from the watch-party.`)
 
     } else {
       try {
-        let usersjson = fs.readFileSync(path.resolve(__dirname, '../members.json'), 'utf-8')
+        let usersjson = fs.readFileSync(path.resolve(__dirname, '../data/members.json'), 'utf-8')
         let usersArray = JSON.parse(usersjson)
         const idData = await request('https://graphql.anilist.co', GET_MEDIA, {search: title})
         const embed = new Discord.MessageEmbed()

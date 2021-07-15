@@ -2,7 +2,7 @@ const { request } = require('graphql-request')
 const { GET_USERINFO } = require('../queries')
 const path = require('path')
 const fs = require('fs')
-let usersjson = fs.readFileSync(path.resolve(__dirname, '../members.json'), 'utf-8')
+let usersjson = fs.readFileSync(path.resolve(__dirname, '../data/members.json'), 'utf-8')
 let usersArray = JSON.parse(usersjson)
 
 module.exports = {

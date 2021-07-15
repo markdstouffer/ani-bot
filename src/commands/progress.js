@@ -2,7 +2,7 @@ const { request } = require('graphql-request')
 const { GET_MEDIA, GET_USERINFO, GET_MEDIALIST } = require('../queries')
 const path = require('path')
 const fs = require('fs')
-let usersjson = fs.readFileSync(path.resolve(__dirname, '../members.json'), 'utf-8')
+let usersjson = fs.readFileSync(path.resolve(__dirname, '../data/alias.json'), 'utf-8')
 let usersArray = JSON.parse(usersjson)
 
 module.exports = {
@@ -14,9 +14,9 @@ module.exports = {
       const title = args.splice(1, args.length).join(' ')
       const idData = await request('https://graphql.anilist.co', GET_MEDIA, {search: title})
       if (args[0].startsWith('<')) {
-        const id = args[0].slice(3, args[0].length-1)
-        const user = usersArray.find(x => x.id === id)
-        const userData = await request('https://graphql.anilist.co', GET_USERINFO, {name: user.username})
+        usersArray = usersArray[usersArray.findIndex((x) => Object.keys(x)[0] === msg.guild.id)][msg.guild.id]
+        const username = usersArray[args[0]]
+        const userData = await request('https://graphql.anilist.co', GET_USERINFO, {name: username})
         try {
           const listData = await request('https://graphql.anilist.co', GET_MEDIALIST, {userName: userData.User.name, mediaId: idData.Media.id})
           msg.reply(`${userData.User.name} has completed ${listData.MediaList.progress} episode(s) of ${listData.MediaList.media.title.romaji}`)

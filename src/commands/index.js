@@ -4,5 +4,6 @@ module.exports = {
   Recent: require('./recent'),
   Progress: require('./progress'),
   Watchparty: require('./watchparty'),
-  Help: require('./help')
+  Help: require('./help'),
+  Alias: require('./alias')
 }
