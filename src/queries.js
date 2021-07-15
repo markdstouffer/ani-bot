@@ -65,6 +65,7 @@ module.exports = {
   GET_MEDIA: gql`
   query($search: String) {
     Media(search: $search, type: ANIME) {
+      siteUrl
       title {
         romaji
       }
@@ -75,6 +76,7 @@ module.exports = {
         medium
         large
         extraLarge
+        color
       }
     }
   }

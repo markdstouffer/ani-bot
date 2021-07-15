@@ -38,19 +38,22 @@ module.exports = {
         let usersArray = JSON.parse(usersjson)
         const idData = await request('https://graphql.anilist.co', GET_MEDIA, {search: title})
         const embed = new Discord.MessageEmbed()
-        .setTitle('Watch Party')
-        .setDescription(`Progress on ${idData.Media.title.romaji}`)
-        .setThumbnail(idData.Media.coverImage.large)
+          .setColor(idData.Media.coverImage.color)
+          .setTitle('Watch Party')
+          .setDescription(`Progress on [**${idData.Media.title.romaji}**](${idData.Media.siteUrl})`)
+          .setThumbnail(idData.Media.coverImage.large)
+          .setFooter(`requested by ${msg.author.username}`, `https://cdn.discordapp.com/avatars/${msg.author.id}/${msg.author.avatar}.png`)
+          .setTimestamp()
       
       for (i = 0; i < usersArray.length; i++) {
         const user = await request('https://graphql.anilist.co', GET_USERINFO, {name: usersArray[i].username})
         try {
           const list = await request('https://graphql.anilist.co', GET_MEDIALIST, {userName: user.User.name, mediaId: idData.Media.id})
           const episodes = list.MediaList.progress
-          embed.addField(user.User.name, `${episodes}/${idData.Media.episodes}`, true)
+          embed.addField(user.User.name, `[${episodes}/${idData.Media.episodes}](${user.User.siteUrl})`, true)
         } catch {
           const episodes = 0
-          embed.addField(user.User.name, `${episodes}/${idData.Media.episodes}`, true)
+          embed.addField(user.User.name, `[${episodes}/${idData.Media.episodes}](${user.User.siteUrl})`, true)
         }
       }
       msg.reply(embed)
