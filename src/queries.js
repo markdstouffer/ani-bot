@@ -69,6 +69,7 @@ module.exports = {
         romaji
       }
       id
+      episodes
       bannerImage
       coverImage {
         medium
