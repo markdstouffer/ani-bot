@@ -12,8 +12,8 @@ module.exports = {
   async execute(msg, args) {
     try {
       if (args[0].startsWith('<')) {
-        usersArray = usersArray[usersArray.findIndex((x) => Object.keys(x)[0] === msg.guild.id)][msg.guild.id]
-        const username = usersArray[args[0]]
+        const modArray = usersArray[usersArray.findIndex((x) => Object.keys(x)[0] === msg.guild.id)][msg.guild.id]
+        const username = modArray[args[0]]
         const userData = await request('https://graphql.anilist.co', GET_USERINFO, {name: username})
         const activityData = await request('https://graphql.anilist.co', GET_ACTIVITY, {userId: userData.User.id})
         const activity = activityData.Page.activities[0]

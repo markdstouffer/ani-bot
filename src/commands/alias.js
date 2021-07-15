@@ -3,7 +3,7 @@ const fs = require('fs')
 
 module.exports = {
   name: 'alias',
-	usage: '\nadd <discord user> <anilist user>\nedit <discord user> <anilist user>\n remove <discord user>',
+	usage: '\nadd <discord user> <anilist user>\nedit <discord user> <anilist user>\nremove <discord user>',
   description: 'Alias a discord username to corresponding AniList username',
   async execute(msg, args) {
     let aliasjson= fs.readFileSync(path.resolve(__dirname, '../data/alias.json'), 'utf-8')

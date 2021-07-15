@@ -14,8 +14,8 @@ module.exports = {
       const title = args.splice(1, args.length).join(' ')
       const idData = await request('https://graphql.anilist.co', GET_MEDIA, {search: title})
       if (args[0].startsWith('<')) {
-        usersArray = usersArray[usersArray.findIndex((x) => Object.keys(x)[0] === msg.guild.id)][msg.guild.id]
-        const username = usersArray[args[0]]
+        const modArray = usersArray[usersArray.findIndex((x) => Object.keys(x)[0] === msg.guild.id)][msg.guild.id]
+        const username = modArray[args[0]]
         const userData = await request('https://graphql.anilist.co', GET_USERINFO, {name: username})
         try {
           const listData = await request('https://graphql.anilist.co', GET_MEDIALIST, {userName: userData.User.name, mediaId: idData.Media.id})
@@ -36,7 +36,8 @@ module.exports = {
         }
     }
     
-    } catch {
+    } catch (err) {
+      console.error(err) 
       msg.reply('Usage: `$progress [anilist username] [anime title]`')
     }
   }

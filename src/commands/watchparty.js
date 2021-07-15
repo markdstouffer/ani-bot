@@ -11,13 +11,11 @@ module.exports = {
   description: 'Add or remove members, or show progress of all members on given anime.',
   async execute(msg, args) {
     const title = args.slice().splice(0, args.length).join(' ')
-    console.log('args', args)
 
     if (args[0] === 'add') {
       let usersjson = fs.readFileSync(path.resolve(__dirname, '../data/members.json'), 'utf-8')
       let usersArray = JSON.parse(usersjson)
       const userToAdd = (!args[2]) ? { "username": args[1] } : { "id": args[2].substring(3, args[2].length-1), "username": args[1]}
-      console.log('usersArray', usersArray)
       usersArray.push(userToAdd)
       usersjson = JSON.stringify(usersArray)
       fs.writeFileSync(path.resolve(__dirname, '../data/members.json'), usersjson, 'utf-8')
@@ -27,10 +25,8 @@ module.exports = {
       let usersjson = fs.readFileSync(path.resolve(__dirname, '../data/members.json'), 'utf-8')
       let usersArray = JSON.parse(usersjson)
       const index = usersArray.findIndex(x => x.username.toLowerCase() === args[1].toLowerCase())
-      console.log(index)
       if (index > -1) {
         usersArray.splice(index, 1)
-        console.log('after splice', usersArray)
       }
       usersjson = JSON.stringify(usersArray)
       fs.writeFileSync(path.resolve(__dirname, '../data/members.json'), usersjson, 'utf-8')
