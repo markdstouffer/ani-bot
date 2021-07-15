@@ -1,7 +1,7 @@
 const Discord = require('discord.js')
 const { request } = require('graphql-request')
 const { GET_MEDIA, GET_USERINFO, GET_MEDIALIST } = require('../queries')
-const { names } = require('../members')
+const { users } = require('../members')
 
 module.exports = {
   name: 'watchparty',
@@ -16,8 +16,8 @@ module.exports = {
       .setDescription(`Progress on ${idData.Media.title.romaji}`)
       .setThumbnail(idData.Media.coverImage.large)
     
-    for (i = 0; i < names.length; i++) {
-      const user = await request('https://graphql.anilist.co', GET_USERINFO, {name: names[i]})
+    for (i = 0; i < users.length; i++) {
+      const user = await request('https://graphql.anilist.co', GET_USERINFO, {name: users[i].username})
       try {
         const list = await request('https://graphql.anilist.co', GET_MEDIALIST, {userName: user.User.name, mediaId: idData.Media.id})
         const episodes = list.MediaList.progress

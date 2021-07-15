@@ -1,6 +1,6 @@
 const { request } = require('graphql-request')
 const { GET_MEDIA, GET_USERINFO, GET_MEDIALIST } = require('../queries')
-const { alias } = require('../aliases')
+const { users } = require('../members')
 
 module.exports = {
   name: 'progress',
@@ -11,7 +11,7 @@ module.exports = {
     const idData = await request('https://graphql.anilist.co', GET_MEDIA, {search: title})
     if (args[0].startsWith('<')) {
       const id = args[0].slice(3, args[0].length-1)
-      const user = alias.find(x => x.id === id)
+      const user = users.find(x => x.id === id)
       const userData = await request('https://graphql.anilist.co', GET_USERINFO, {name: user.username})
       try {
         const listData = await request('https://graphql.anilist.co', GET_MEDIALIST, {userName: userData.User.name, mediaId: idData.Media.id})
