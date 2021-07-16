@@ -65,9 +65,17 @@ module.exports = {
   GET_MEDIA: gql`
   query($search: String) {
     Media(search: $search, type: ANIME) {
+      season
+      seasonYear
+      format
       streamingEpisodes {
         url
         site
+      }
+      studios(isMain: true) {
+        nodes {
+          name
+        }
       }
       genres
       status
