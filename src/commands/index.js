@@ -5,5 +5,6 @@ module.exports = {
   Progress: require('./progress'),
   Watchparty: require('./watchparty'),
   Help: require('./help'),
-  Alias: require('./alias')
+  Alias: require('./alias'),
+  Anime: require('./anime')
 }

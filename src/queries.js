@@ -65,6 +65,14 @@ module.exports = {
   GET_MEDIA: gql`
   query($search: String) {
     Media(search: $search, type: ANIME) {
+      streamingEpisodes {
+        url
+        site
+      }
+      genres
+      status
+      averageScore
+      description
       siteUrl
       title {
         romaji
