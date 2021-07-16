@@ -6,5 +6,6 @@ module.exports = {
   Watchparty: require('./watchparty'),
   Help: require('./help'),
   Alias: require('./alias'),
-  Anime: require('./anime')
+  Anime: require('./anime'),
+  Score: require('./score')
 }

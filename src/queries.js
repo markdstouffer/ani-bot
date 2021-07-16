@@ -51,8 +51,10 @@ module.exports = {
   GET_MEDIALIST: gql`
   query ($userName: String, $mediaId: Int) {
     MediaList(userName: $userName, mediaId: $mediaId) {
+      score (format: POINT_10)
       progress
       media {
+        siteUrl
         id
         title {
           romaji
