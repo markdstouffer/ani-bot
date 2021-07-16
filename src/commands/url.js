@@ -2,8 +2,6 @@ const { request } = require('graphql-request')
 const { GET_USERINFO } = require('../queries')
 const path = require('path')
 const fs = require('fs')
-let usersjson = fs.readFileSync(path.resolve(__dirname, '../data/alias.json'), 'utf-8')
-let usersArray = JSON.parse(usersjson)
 
 module.exports = {
   name: 'url',
@@ -13,6 +11,9 @@ module.exports = {
   async execute(msg, args) {
     try {
       if (args[0].startsWith('<')) {
+        let usersjson = fs.readFileSync(path.resolve(__dirname, '../data/alias.json'), 'utf-8')
+        let usersArray = JSON.parse(usersjson)
+        console.log(usersArray)
         const modArray = usersArray[usersArray.findIndex((x) => Object.keys(x)[0] === msg.guild.id)][msg.guild.id]
         const user = modArray[args[0]]
         const userData = await request('https://graphql.anilist.co', GET_USERINFO, {name: user})

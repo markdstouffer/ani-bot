@@ -2,14 +2,14 @@ const { request } = require('graphql-request')
 const { GET_MEDIA, GET_USERINFO, GET_MEDIALIST } = require('../queries')
 const path = require('path')
 const fs = require('fs')
-let usersjson = fs.readFileSync(path.resolve(__dirname, '../data/alias.json'), 'utf-8')
-let usersArray = JSON.parse(usersjson)
 
 module.exports = {
   name: 'progress',
   description: 'Returns how many episodes of an anime a user has watched, given a username and an anime title.',
 	usage: '{anilist username | discord tag} <anime title>',
   async execute(msg, args) {
+    let usersjson = fs.readFileSync(path.resolve(__dirname, '../data/alias.json'), 'utf-8')
+    let usersArray = JSON.parse(usersjson)
     try {
       const title = args.splice(1, args.length).join(' ')
       const idData = await request('https://graphql.anilist.co', GET_MEDIA, {search: title})
