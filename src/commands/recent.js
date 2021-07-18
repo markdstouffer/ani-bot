@@ -30,7 +30,7 @@ module.exports = {
             .setTitle(userData.User.name)
             .setColor(activity.media.coverImage.color)
             .setThumbnail(userData.User.avatar.large)
-            .addField(statProg, `[***${activity.media.title.romaji}***](${activity.media.siteUrl})`)
+            .addField(statProg, `[**${activity.media.title.romaji}**](${activity.media.siteUrl})`)
           msg.reply(embed)
         } else { msg.reply('This user has no recent activity :(') }
       }
@@ -50,7 +50,7 @@ module.exports = {
             .setTitle(userData.User.name)
             .setColor(activity.media.coverImage.color)
             .setThumbnail(userData.User.avatar.large)
-            .addField(statProg, `[***${activity.media.title.romaji}***](${activity.media.siteUrl})`)
+            .addField(statProg, `[**${activity.media.title.romaji}**](${activity.media.siteUrl})`)
           msg.reply(embed)
         } else { msg.reply('This user has no recent activity :(') }
         }

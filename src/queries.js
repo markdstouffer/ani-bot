@@ -57,6 +57,7 @@ module.exports = {
     MediaList(userName: $userName, mediaId: $mediaId) {
       score (format: POINT_10)
       progress
+      status
       media {
         siteUrl
         id
