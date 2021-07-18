@@ -52,7 +52,6 @@ module.exports = {
           const listData = await request('https://graphql.anilist.co', GET_MEDIALIST, {userName: userData.User.name, mediaId: idData.Media.id})
           const score = listData.MediaList.score * 10
           const color = percentToHex(score, 0, 110, 100, 50)
-          console.log(color)
           const embed = new Discord.MessageEmbed()
             .setColor(color)
             .setThumbnail(idData.Media.coverImage.large)
