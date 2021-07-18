@@ -39,6 +39,10 @@ module.exports = {
           status
           progress
           media {
+            coverImage {
+              color
+            }
+            siteUrl
             title {
               romaji
             }
