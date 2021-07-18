@@ -17,16 +17,29 @@ module.exports = {
         const userData = await request('https://graphql.anilist.co', GET_USERINFO, {name: username})
         const activityData = await request('https://graphql.anilist.co', GET_ACTIVITY, {userId: userData.User.id})
         const activity = activityData.Page.activities[0]
-        msg.reply(`${userData.User.name} - ${activity.status} ${activity.progress} (${activity.media.title.romaji})`)
+        const stat = (activity.progress && activity.progress.includes('-'))
+          ? `${activity.status}s`
+          : `${activity.status}`
+        const statProg = activity.progress
+          ? `${stat} ${activity.progress} of`
+          : `${stat}`
+        msg.reply(`${userData.User.name} - ${statProg} **${activity.media.title.romaji}**`)
       }
       else {
         const userData = await request('https://graphql.anilist.co', GET_USERINFO, {name: args[0]})
         const activityData = await request('https://graphql.anilist.co', GET_ACTIVITY, {userId: userData.User.id})
         const activity = activityData.Page.activities[0]
-        msg.reply(`${userData.User.name} - ${activity.status} ${activity.progress} (${activity.media.title.romaji})`)
-      }
-    } catch {
-      msg.reply('Usage: `$recent [anilist username]`')
+        const stat = (activity.progress && activity.progress.includes('-'))
+          ? `${activity.status}s`
+          : `${activity.status}`
+        const statProg = activity.progress
+          ? `${stat} ${activity.progress} of`
+          : `${stat}`
+          msg.reply(`${userData.User.name} - ${statProg} **${activity.media.title.romaji}**`)
+        }
+    } catch (err) {
+      console.error(err)
+      msg.reply('This user has no recent activity :(')
     }
   }
 }
