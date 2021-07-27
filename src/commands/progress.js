@@ -7,7 +7,7 @@ const fs = require('fs')
 module.exports = {
   name: 'progress',
   description: 'Returns how many episodes of an anime a user has watched, given a username and an anime title.',
-	usage: '{anilist username | discord tag} <anime title>',
+  usage: '{anilist username | discord tag} <anime title>',
   async execute(msg, args) {
     let usersjson = fs.readFileSync(path.resolve(__dirname, '../data/alias.json'), 'utf-8')
     let usersArray = JSON.parse(usersjson)
@@ -20,8 +20,8 @@ module.exports = {
         const userData = await request('https://graphql.anilist.co', GET_USERINFO, {name: username})
         try {
           const listData = await request('https://graphql.anilist.co', GET_MEDIALIST, {userName: userData.User.name, mediaId: idData.Media.id})
-          const stat = 
-            (listData.MediaList.status === 'CURRENT') ? 'Currently watching': 
+          const stat =
+            (listData.MediaList.status === 'CURRENT') ? 'Currently watching':
             (listData.MediaList.status === 'COMPLETED') ? 'Completed watching':
             (listData.MediaList.status === 'DROPPED') ? 'Dropped watching':
             (listData.MediaList.status === 'PAUSED') ? 'Paused watching' : null
@@ -40,8 +40,8 @@ module.exports = {
         const userData = await request('https://graphql.anilist.co', GET_USERINFO, {name: args[0]})
         try {
           const listData = await request('https://graphql.anilist.co', GET_MEDIALIST, {userName: userData.User.name, mediaId: idData.Media.id})
-          const stat = 
-            (listData.MediaList.status === 'CURRENT') ? 'Currently watching': 
+          const stat =
+            (listData.MediaList.status === 'CURRENT') ? 'Currently watching':
             (listData.MediaList.status === 'COMPLETED') ? 'Completed watching':
             (listData.MediaList.status === 'DROPPED') ? 'Dropped watching':
             (listData.MediaList.status === 'PAUSED') ? 'Paused watching' : null
@@ -55,10 +55,10 @@ module.exports = {
         } catch {
           msg.reply(`${userData.User.name} has not yet watched any episodes of this anime.`)
         }
-    }
-    
+      }
+
     } catch (err) {
-      console.error(err) 
+      console.error(err)
       msg.reply('Usage: `$progress [anilist username] [anime title]`')
     }
   }
