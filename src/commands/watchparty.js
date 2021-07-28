@@ -59,7 +59,7 @@ module.exports = {
         msg.reply(`Added ${args[1]} to the watch-party.`)
       }
     } else if (args[0] === 'remove') {
-      const indexToRemove = list[currentId].indexOf(args[1])
+      const indexToRemove = list[currentId].findIndex(x => args[1].toLowerCase() === x.toLowerCase())
       if (indexToRemove > -1) {
         list[currentId].splice(indexToRemove, 1)
         serversjson = JSON.stringify(allServers)
