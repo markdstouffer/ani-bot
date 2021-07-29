@@ -76,6 +76,9 @@ module.exports = {
         msg.reply('Usage: `$watchparty set <anime title>`')
       } else {
         const title = args.splice(1, args.length).join(' ')
+        thisServer['episode'] = 1
+        thisServer['episodesToday'] = null
+        thisServer['thread'] = null
         thisServer['current'] = title
         currentAnime = await request('https://graphql.anilist.co', GET_MEDIA, {search: thisServer['current']})
         currentId = currentAnime.Media.id
