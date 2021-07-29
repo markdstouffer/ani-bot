@@ -24,6 +24,7 @@ module.exports = {
         'current': 'Attack on Titan',
         'episode': 1,
         'thread': null,
+        'episodesToday': null,
         'list': {}
       }
       allServers.push(newServer)
