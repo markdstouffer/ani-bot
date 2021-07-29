@@ -105,18 +105,18 @@ module.exports = {
           list[currentId].push(authorName)
           serversjson = JSON.stringify(allServers)
           fs.writeFileSync(path.resolve(__dirname, '../data/party.json'), serversjson, 'utf-8')
-          msg.author.send(`You've chosen to join the watch-party for ${title}. Follow along in chat for updates on daily episodes/discussion threads!`)
+          msg.author.send(`You've chosen to join the watch-party for ${suggestedAnime.Media.title.romaji}. Follow along in chat for updates on daily episodes/discussion threads!`)
 
           prompt.react('👍')
           const filter = async (reaction, user) => {
             if (!user.bot) {
               const id = `<@!${user.id}>`
               const name = thisServerAliases[id]
-              if (!list[currentId].includes(name)) {
+              if (!list[currentId].includes(name) && reaction.emoji.name === '👍' && !user.bot) {
                 list[currentId].push(name)
                 serversjson = JSON.stringify(allServers)
                 fs.writeFileSync(path.resolve(__dirname, '../data/party.json'), serversjson, 'utf-8')
-                user.send(`You've chosen to join the watch-party for ${title}. Follow along in chat for updates on daily episodes/discussion threads!`)
+                user.send(`You've chosen to join the watch-party for ${suggestedAnime.Media.title.romaji}. Follow along in chat for updates on daily episodes/discussion threads!`)
               } else {
                 const warning = await msg.reply(`You're already in this watchparty!`)
                 setTimeout(() => warning.delete(), 5000)
