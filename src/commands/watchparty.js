@@ -34,8 +34,8 @@ module.exports = {
     let thisServer = allServers[serverIndex][serverId]
     let list = thisServer['list']
     
-    const currentAnime = await request('https://graphql.anilist.co', GET_MEDIA, {search: thisServer['current']})
-    const currentId = currentAnime.Media.id
+    let currentAnime = await request('https://graphql.anilist.co', GET_MEDIA, {search: thisServer['current']})
+    let currentId = currentAnime.Media.id
     let animeIndex = list[currentId]
     if (!animeIndex) {
       const newAnime = []
@@ -71,7 +71,48 @@ module.exports = {
       } else {
         msg.reply(`${args[1]} is not in this watch-party.`)
       }
-    } else {
+    } else if (args[0] === 'set') {
+      if (!args[1]) {
+        msg.reply('Usage: `$watchparty set <anime title>`')
+      } else {
+        const title = args.splice(1, args.length).join(' ')
+        thisServer['current'] = title
+        currentAnime = await request('https://graphql.anilist.co', GET_MEDIA, {search: thisServer['current']})
+        currentId = currentAnime.Media.id
+        animeIndex = list[currentId]
+        if (!animeIndex) {
+          const newAnime = []
+          list[currentId] = newAnime
+        }
+        const embed = new Discord.MessageEmbed()
+          .setColor(currentAnime.Media.coverImage.color)
+          .setTitle('Watch Party')
+          .setDescription(`The upcoming watch-party will be on [**${currentAnime.Media.title.romaji}**](${currentAnime.Media.siteUrl})
+            \nReact with a 👍 to enroll in the party.\n`)
+          .setThumbnail(currentAnime.Media.coverImage.large)
+          .setFooter(`Enrollments will end in 60 minutes.`, `https://cdn.discordapp.com/avatars/${msg.author.id}/${msg.author.avatar}.png`)
+          .setTimestamp()
+        const prompt = await msg.reply({embeds: [embed]})
+        prompt.react('👍')
+        const filter = async (reaction, user) => {
+          if (!user.bot) {
+            const id = `<@!${user.id}>`
+            let thisServerAliases = allAliases[aliasIndex][serverId]
+            const name = thisServerAliases[id]
+            list[currentId].push(name)
+            serversjson = JSON.stringify(allServers)
+            fs.writeFileSync(path.resolve(__dirname, '../data/party.json'), serversjson, 'utf-8')
+            user.send(`You've chosen to join the watch-party for ${title}. Follow along in chat for updates on daily episodes/discussion threads!`)
+          }
+          return reaction.emoji.name === '👍' && !user.bot
+        }
+        const collector = prompt.createReactionCollector({ filter, time: 3600000 })
+      }
+      serversjson = JSON.stringify(allServers)
+      fs.writeFileSync(path.resolve(__dirname, '../data/party.json'), serversjson, 'utf-8')
+    } 
+    
+    else {
       try {
         const embed = new Discord.MessageEmbed()
           .setColor(currentAnime.Media.coverImage.color)
@@ -93,7 +134,7 @@ module.exports = {
           }
         }) 
         
-      setTimeout(() => msg.delete(), 2000)
+      setTimeout(() => msg.delete(), 1000)
       await setTimeout(() => msg.channel.send({embeds: [embed]}), 500)
       } catch (err) {
         console.error(err)

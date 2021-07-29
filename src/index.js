@@ -3,7 +3,7 @@ require('dotenv').config()
 const { prefix } = require('./config.json')
 
 const myIntents = new Intents()
-myIntents.add('GUILDS', 'GUILD_MESSAGES', 'DIRECT_MESSAGES', 'DIRECT_MESSAGE_REACTIONS', 'GUILD_MEMBERS')
+myIntents.add('GUILDS', 'GUILD_MESSAGES', 'DIRECT_MESSAGES', 'DIRECT_MESSAGE_REACTIONS', 'GUILD_MEMBERS', 'GUILD_EMOJIS_AND_STICKERS', 'GUILD_MESSAGE_REACTIONS')
 
 const client = new Client({intents: myIntents})
 client.commands = new Collection()
