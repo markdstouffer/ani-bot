@@ -259,7 +259,7 @@ module.exports = {
         delete list[id]
         serversjson = JSON.stringify(allServers)
         fs.writeFileSync(path.resolve(__dirname, '../data/party.json'), serversjson, 'utf-8')
-        msg.reply(`${title} has been deleted from the suggested list.`)
+        msg.reply(`${anime.Media.title.romaji} has been deleted from the suggested list.`)
       }
     }
     
