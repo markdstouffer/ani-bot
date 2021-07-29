@@ -52,11 +52,11 @@ module.exports = {
                 allEmbed.addField(user.User.name, `[${userRating}](${user.User.siteUrl})`, true)
               }
             }
-          const avgScore = (count !== 0) ? countRating/count : 0
-          const color = percentToHex(avgScore*10, 0, 110, 100, 50)
-          allEmbed.setColor(color)
-          msg.delete({timeout: 2000})
-          msg.reply(allEmbed)
+        const avgScore = (count !== 0) ? countRating/count : 0
+        const color = percentToHex(avgScore*10, 0, 110, 100, 50)
+        allEmbed.setColor(color)
+        setTimeout(() => msg.delete(), 2000)
+        await setTimeout(() => msg.channel.send({embeds: [allEmbed]}), 500)
       }
 
        else if (args[0].startsWith('<')) {
@@ -73,7 +73,7 @@ module.exports = {
             .setDescription(`[**${animeData.Media.title.romaji}**](${animeData.Media.siteUrl})`)
             .setTitle(userData.User.name)
             .addField('Score:', `${score/10}/10`)
-          msg.reply(embed)
+          msg.reply({ embeds: [embed] })
         } catch {
           msg.reply(`${userData.User.name} has not yet rated this anime.`)
         }
@@ -90,7 +90,7 @@ module.exports = {
             .setDescription(`[**${animeData.Media.title.romaji}**](${animeData.Media.siteUrl})`)
             .setTitle(userData.User.name)
             .addField('Score:', `${score/10}/10`)
-          msg.reply(embed)
+          msg.reply({ embeds: [embed] })
         } catch {
           msg.reply(`${userData.User.name} has not yet rated this anime.`)
         }

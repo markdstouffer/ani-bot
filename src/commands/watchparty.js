@@ -22,6 +22,8 @@ module.exports = {
       const newServer = {}
       newServer[serverId] = {
         'current': 'Attack on Titan',
+        'episode': 1,
+        'thread': null,
         'list': {}
       }
       allServers.push(newServer)
@@ -38,7 +40,7 @@ module.exports = {
       const newAnime = []
       list[currentId] = newAnime
     }
-
+    
     if (args[0] === 'add') {
       let name
       if (args[1].startsWith('<')) {
@@ -90,8 +92,8 @@ module.exports = {
           }
         }) 
         
-      await msg.delete({ timeout: 2000 })
-      msg.reply(embed)
+      setTimeout(() => msg.delete(), 2000)
+      await setTimeout(() => msg.channel.send({embeds: [embed]}), 500)
       } catch (err) {
         console.error(err)
         msg.reply('Usage: \n`$watchparty\nadd <anilist username> [discord username] \nremove <anilist username> \n<anime title>`')

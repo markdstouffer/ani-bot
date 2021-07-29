@@ -1,9 +1,12 @@
-const Discord = require('discord.js')
+const {Client, Collection, Intents} = require('discord.js')
 require('dotenv').config()
 const { prefix } = require('./config.json')
 
-const client = new Discord.Client()
-client.commands = new Discord.Collection()
+const myIntents = new Intents()
+myIntents.add('GUILDS', 'GUILD_MESSAGES', 'DIRECT_MESSAGES', 'DIRECT_MESSAGE_REACTIONS', 'GUILD_MEMBERS')
+
+const client = new Client({intents: myIntents})
+client.commands = new Collection()
 const botCommands = require('./commands')
 
 Object.keys(botCommands).map(key => {
@@ -14,7 +17,11 @@ client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`)
 })
 
-client.on('message', message => {
+process.on('unhandledRejection', error => {
+  console.error('Unhandled promise rejection:', error)
+})
+
+client.on('messageCreate', message => {
   if (message.content.startsWith(prefix)) {
     const args = message.content.slice(prefix.length).trim().split(/ +/)
     const commandName = args.shift().toLowerCase()

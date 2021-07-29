@@ -5,22 +5,22 @@ module.exports = {
 	description: 'List all of my commands or info about a specific command.',
 	aliases: ['commands'],
 	usage: '[command name]',
-	execute(message, args) {
+	execute(msg, args) {
 		const data = []
-    const { commands } = message.client
+    const { commands } = msg.client
 
     if (!args.length) {
       data.push('List of commands:')
       data.push(commands.map(command => command.name).join(', '))
       data.push(`\nYou can send \`${prefix}help <command name>\` to get info on a specific command!`)
-      return message.author.send(data, { split: true })
+      return msg.author.send({content: `${data}`})
         .then(() => {
-          if (message.channel.type === 'dm') return;
-          message.reply('I\'ve sent you a DM with all of the commands!')
+          if (msg.channel.type === 'dm') return;
+          msg.reply({content: 'I\'ve sent you a DM with all of the commands!'})
         })
         .catch(error => {
-          console.error(`Could not send help DM to ${message.author.tag}.\n`, error)
-          message.reply('It seems like I can\'t DM you! Do you have DMs disabled?')
+          console.error(`Could not send help DM to ${msg.author.tag}.\n`, error)
+          msg.reply({content: 'It seems like I can\'t DM you! Do you have DMs disabled?'})
         })
     }
 
@@ -28,15 +28,15 @@ module.exports = {
     const command = commands.get(name) || commands.find(c => c.aliases && c.aliases.includes(name));
 
     if (!command) {
-	    return message.reply('that\'s not a valid command!');
+	    return msg.channel.send({ content: 'that\'s not a valid command!' });
     }
 
     data.push(`**Name:** ${command.name}`);
 
-    if (command.aliases) data.push(`**Aliases:** ${command.aliases.join(', ')}`);
-    if (command.description) data.push(`**Description:** ${command.description}`);
-    if (command.usage) data.push(`**Usage:** \`${prefix}${command.name} ${command.usage}\``);
+    if (command.aliases) data.push(`\n**Aliases:** ${command.aliases.join(', ')}`);
+    if (command.description) data.push(`\n**Description:** ${command.description}`);
+    if (command.usage) data.push(`\n**Usage:** \`${prefix}${command.name} ${command.usage}\``);
             
-    message.channel.send(data, { split: true });
+    msg.channel.send({ content: `${data}` });
 	}
 }

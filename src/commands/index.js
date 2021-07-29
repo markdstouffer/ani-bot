@@ -7,5 +7,6 @@ module.exports = {
   Help: require('./help'),
   Alias: require('./alias'),
   Anime: require('./anime'),
-  Score: require('./score')
+  Score: require('./score'),
+  Episode: require('./episode')
 }
