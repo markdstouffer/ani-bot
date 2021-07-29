@@ -7,8 +7,8 @@ const path = require('path')
 module.exports = {
   name: 'watchparty',
   aliases: ['wp'],
-	usage: '\nadd [discord username] <anilist username> \nremove <anilist username>',
-  description: 'Add or remove members, or show progress of all members of currently set anime.',
+	usage: '\nadd [discord username] <anilist username> \nremove <anilist username>\nsuggest <anime title> \nset <anime title> \njoin {anime title} \nleave {anime title} \nlist \ndelete <anime title>',
+  description: 'Manage watchparty members and subject.',
   async execute(msg, args) {
     let aliasjson = fs.readFileSync(path.resolve(__dirname, '../data/alias.json'), 'utf-8')
     let allAliases = JSON.parse(aliasjson)
@@ -21,7 +21,7 @@ module.exports = {
     if (serverIndex === -1) {
       const newServer = {}
       newServer[serverId] = {
-        'current': 'Attack on Titan',
+        'current': null,
         'episode': 1,
         'thread': null,
         'episodesToday': null,
@@ -34,12 +34,15 @@ module.exports = {
     let thisServer = allServers[serverIndex][serverId]
     let list = thisServer['list']
     
-    let currentAnime = await request('https://graphql.anilist.co', GET_MEDIA, {search: thisServer['current']})
-    let currentId = currentAnime.Media.id
-    let animeIndex = list[currentId]
-    if (!animeIndex) {
-      const newAnime = []
-      list[currentId] = newAnime
+    let currentAnime, currentId, animeIndex
+    if (thisServer['current']) {
+      currentAnime = await request('https://graphql.anilist.co', GET_MEDIA, {search: thisServer['current']})
+      currentId = currentAnime.Media.id
+      animeIndex = list[currentId]
+      if (!animeIndex) {
+        const newAnime = []
+        list[currentId] = newAnime
+      }
     }
     
     if (args[0] === 'add') {
@@ -71,16 +74,205 @@ module.exports = {
       } else {
         msg.reply(`${args[1]} is not in this watch-party.`)
       }
-    } else if (args[0] === 'set') {
+
+    } else if (args[0] === 'suggest') {
+      if (!args[1]) {
+        msg.reply('Usage: `$watchparty suggest <anime title>`')
+      } else {
+        const title = args.splice(1, args.length).join(' ')
+        const suggestedAnime = await request('https://graphql.anilist.co', GET_MEDIA, {search: title})
+        if (suggestedAnime.Media.id in thisServer['list']) {
+          msg.reply(`This anime has already been suggested. Use \`$watchparty set ${suggestedAnime.Media.title.romaji}\` to set this as the current anime.`)
+        } else {
+          currentId = suggestedAnime.Media.id
+          animeIndex = list[currentId]
+          if (!animeIndex) {
+            const newAnime = []
+            list[currentId] = newAnime
+          }
+          const embed = new Discord.MessageEmbed()
+            .setColor(suggestedAnime.Media.coverImage.color)
+            .setTitle('WP Suggestion')
+            .setDescription(`[**${suggestedAnime.Media.title.romaji}**](${suggestedAnime.Media.siteUrl}) has been suggested as a watch-party subject.
+              \nReact with a 👍 to enroll in the party.`)
+            .setThumbnail(suggestedAnime.Media.coverImage.large)
+            .setFooter(`Enrollments will end in 60 minutes.`, `https://cdn.discordapp.com/avatars/${msg.author.id}/${msg.author.avatar}.png`)
+            .setTimestamp()
+          const prompt = await msg.reply({embeds: [embed]})
+          let thisServerAliases = allAliases[aliasIndex][serverId]
+          const authorId = `<@!${msg.author.id}>`
+          const authorName = thisServerAliases[authorId]
+          list[currentId].push(authorName)
+          serversjson = JSON.stringify(allServers)
+          fs.writeFileSync(path.resolve(__dirname, '../data/party.json'), serversjson, 'utf-8')
+          msg.author.send(`You've chosen to join the watch-party for ${title}. Follow along in chat for updates on daily episodes/discussion threads!`)
+
+          prompt.react('👍')
+          const filter = async (reaction, user) => {
+            if (!user.bot) {
+              const id = `<@!${user.id}>`
+              const name = thisServerAliases[id]
+              if (!list[currentId].includes(name)) {
+                list[currentId].push(name)
+                serversjson = JSON.stringify(allServers)
+                fs.writeFileSync(path.resolve(__dirname, '../data/party.json'), serversjson, 'utf-8')
+                user.send(`You've chosen to join the watch-party for ${title}. Follow along in chat for updates on daily episodes/discussion threads!`)
+              } else {
+                const warning = await msg.reply(`You're already in this watchparty!`)
+                setTimeout(() => warning.delete(), 5000)
+              }
+            }
+            return reaction.emoji.name === '👍' && !user.bot
+          }
+          const collector = prompt.createReactionCollector({ filter, time: 3600000 })
+        }
+      }
+    } 
+    
+    else if (args[0] === 'list') {
+      if (thisServer['list'] === {}) {
+        msg.reply('No suggestions have been entered. Use `$watchparty suggest <anime title>`')
+      } else {
+        const embed = new Discord.MessageEmbed()
+          .setTitle('WP List')
+          .setFooter(`Requested by ${msg.author.username}`, `https://cdn.discordapp.com/avatars/${msg.author.id}/${msg.author.avatar}.png`)
+          .setColor('#74E6D6')
+          .setTimestamp()
+        let titles = []
+          Object.keys(thisServer['list']).forEach(async (id, index) => {
+          const oneAnime = await request('https://graphql.anilist.co', GET_MEDIA, {id: id})
+          const addToTitles = (oneAnime.Media.title.romaji === thisServer['current']) ? `[${oneAnime.Media.title.romaji}](${oneAnime.Media.siteUrl}) *` : `[${oneAnime.Media.title.romaji}](${oneAnime.Media.siteUrl})`
+          titles.push(addToTitles)
+        })
+        setTimeout(() => { 
+          titles = titles.map(entry => ' - **' + entry + '**')
+          embed.setDescription(`List of suggested anime: \n\n${titles.join('\n')}`)
+        }, 500)
+
+        setTimeout(() => msg.delete(), 1000)
+        await setTimeout(() => msg.channel.send({embeds: [embed]}), 1000)
+      }
+    }
+
+    else if (args[0] === 'join') {
+      const id = `<@!${msg.author.id}>`
+      let thisServerAliases = allAliases[aliasIndex][serverId]
+      if (!id in thisServerAliases) {
+        msg.reply('You have not yet been aliased to an AniList user. `$alias add <discord user> <anilist user>`')
+      } else if (!args[1]) { // join the CURRENT anime
+        if (thisServer['current'] === null) {
+          msg.reply('There is no anime currently set. `$wp set <anime title>`')
+        } else {
+          const animeToJoin = await request('https://graphql.anilist.co', GET_MEDIA, {search: thisServer['current']})
+          const animeToJoinId = animeToJoin.Media.id
+          const authorAniName = thisServerAliases[id]
+          if (list[animeToJoinId].includes(authorAniName)) {
+            msg.reply('You are already in this watchparty!')
+          } else {
+            list[animeToJoinId].push(authorAniName)
+            serversjson = JSON.stringify(allServers)
+            msg.reply('You have joined the current watchparty.')
+            fs.writeFileSync(path.resolve(__dirname, '../data/party.json'), serversjson, 'utf-8')
+          }
+        }
+      } else {
+        if (thisServer['current'] === null) {
+          msg.reply('There is no anime currently set. `$wp set <anime title>`')
+        } else {
+          const animeToJoinTitle = args.splice(1, args.length).join(' ')
+          const animeToJoin = await request('https://graphql.anilist.co', GET_MEDIA, {search: animeToJoinTitle})
+          const animeToJoinId = animeToJoin.Media.id
+          if (!animeToJoinId in thisServer['list']) {
+            msg.reply('This anime has not yet been suggested. `$watchparty suggest <anime title>`')
+          } else {
+            const authorAniName = thisServerAliases[id]
+            if (list[animeToJoinId].includes(authorAniName)) {
+              msg.reply('You are already in this watchparty!')
+            } else {
+              list[animeToJoinId].push(authorAniName)
+              serversjson = JSON.stringify(allServers)
+              msg.reply(`You have joined the watchparty for **${animeToJoinTitle}**.`)
+              fs.writeFileSync(path.resolve(__dirname, '../data/party.json'), serversjson, 'utf-8')
+            }
+          }
+        }
+      }
+    }
+
+    else if (args[0] === 'leave') {
+      const id = `<@!${msg.author.id}>`
+      let thisServerAliases = allAliases[aliasIndex][serverId]
+      if (!id in thisServerAliases) {
+        msg.reply('You have not yet been aliased to an AniList user. `$alias add <discord user> <anilist user>`')
+      } else if (!args[1]) { // leave the CURRENT anime
+        if (thisServer['current'] === null) {
+          msg.reply('There is no anime currently set. `$wp set <anime title>`')
+        } else {
+          const animeToLeave = await request('https://graphql.anilist.co', GET_MEDIA, {search: thisServer['current']})
+          const animeToLeaveId = animeToLeave.Media.id
+          const authorAniName = thisServerAliases[id]
+          if (list[animeToLeaveId].includes(authorAniName)) {
+            const authorIndex = list[animeToLeaveId].findIndex(x => x === id)
+            list[animeToLeaveId].splice(authorIndex, 1)
+            serversjson = JSON.stringify(allServers)
+            fs.writeFileSync(path.resolve(__dirname, '../data/party.json'), serversjson, 'utf-8')
+            msg.reply('You have been removed from the current watchparty.')
+          } else {
+            msg.reply('You are not in the current watchparty.')
+          }
+        }
+      } else {
+        if (thisServer['current'] === null) {
+          msg.reply('There is no anime currently set. `$wp set <anime title>`')
+        } else {
+          const animeToLeaveTitle = args.splice(1, args.length).join(' ')
+          const animeToLeave = await request('https://graphql.anilist.co', GET_MEDIA, {search: animeToLeaveTitle})
+          const animeToLeaveId = animeToLeave.Media.id
+          if (!animeToLeaveId in thisServer['list']) {
+            msg.reply('This anime has not yet been suggested. `$watchparty suggest <anime title>`')
+          } else {
+            const authorAniName = thisServerAliases[id]
+            if (list[animeToLeaveId].includes(authorAniName)) {
+              const authorIndex = list[animeToLeaveId].findIndex(x => x === id)
+              list[animeToLeaveId].splice(authorIndex, 1)
+              serversjson = JSON.stringify(allServers)
+              fs.writeFileSync(path.resolve(__dirname, '../data/party.json'), serversjson, 'utf-8')
+              msg.reply(`You have left the watchparty for **${animeToLeaveTitle}**.`)
+            } else {
+              msg.reply('You are not in this watchparty.')
+            }
+          }
+        }
+      }
+    }
+
+    else if (args[0] === 'delete') {
+      const title = args.splice(1, args.length).join(' ')
+      const anime = await request('https://graphql.anilist.co', GET_MEDIA, {search: title})
+      const id = anime.Media.id
+      if (!id in thisServer['list']) {
+        msg.reply('This anime is not in the suggested list.')
+      } else if (thisServer['current'] === anime.Media.title.romaji) {
+        msg.reply('You cannot delete the current anime. Set a new anime first and then delete the desired one.')
+      } else {
+        console.log('list', list, 'id', id)
+        delete list[id]
+        serversjson = JSON.stringify(allServers)
+        fs.writeFileSync(path.resolve(__dirname, '../data/party.json'), serversjson, 'utf-8')
+        msg.reply(`${title} has been deleted from the suggested list.`)
+      }
+    }
+    
+    else if (args[0] === 'set') {
       if (!args[1]) {
         msg.reply('Usage: `$watchparty set <anime title>`')
       } else {
         const title = args.splice(1, args.length).join(' ')
+        currentAnime = await request('https://graphql.anilist.co', GET_MEDIA, {search: title})
         thisServer['episode'] = 1
         thisServer['episodesToday'] = null
         thisServer['thread'] = null
-        thisServer['current'] = title
-        currentAnime = await request('https://graphql.anilist.co', GET_MEDIA, {search: thisServer['current']})
+        thisServer['current'] = currentAnime.Media.title.romaji
         currentId = currentAnime.Media.id
         animeIndex = list[currentId]
         if (!animeIndex) {
@@ -90,26 +282,11 @@ module.exports = {
         const embed = new Discord.MessageEmbed()
           .setColor(currentAnime.Media.coverImage.color)
           .setTitle('Watch Party')
-          .setDescription(`The upcoming watch-party will be on [**${currentAnime.Media.title.romaji}**](${currentAnime.Media.siteUrl})
-            \nReact with a 👍 to enroll in the party.\n`)
+          .setDescription(`The upcoming watch-party will be on [**${currentAnime.Media.title.romaji}**](${currentAnime.Media.siteUrl}).`)
           .setThumbnail(currentAnime.Media.coverImage.large)
-          .setFooter(`Enrollments will end in 60 minutes.`, `https://cdn.discordapp.com/avatars/${msg.author.id}/${msg.author.avatar}.png`)
+          .setFooter(`Set by ${msg.author.username}`, `https://cdn.discordapp.com/avatars/${msg.author.id}/${msg.author.avatar}.png`)
           .setTimestamp()
-        const prompt = await msg.reply({embeds: [embed]})
-        prompt.react('👍')
-        const filter = async (reaction, user) => {
-          if (!user.bot) {
-            const id = `<@!${user.id}>`
-            let thisServerAliases = allAliases[aliasIndex][serverId]
-            const name = thisServerAliases[id]
-            list[currentId].push(name)
-            serversjson = JSON.stringify(allServers)
-            fs.writeFileSync(path.resolve(__dirname, '../data/party.json'), serversjson, 'utf-8')
-            user.send(`You've chosen to join the watch-party for ${title}. Follow along in chat for updates on daily episodes/discussion threads!`)
-          }
-          return reaction.emoji.name === '👍' && !user.bot
-        }
-        const collector = prompt.createReactionCollector({ filter, time: 3600000 })
+        msg.reply({embeds: [embed]})
       }
       serversjson = JSON.stringify(allServers)
       fs.writeFileSync(path.resolve(__dirname, '../data/party.json'), serversjson, 'utf-8')
@@ -141,7 +318,7 @@ module.exports = {
       await setTimeout(() => msg.channel.send({embeds: [embed]}), 500)
       } catch (err) {
         console.error(err)
-        msg.reply('Usage: \n`$watchparty\nadd <anilist username> [discord username] \nremove <anilist username> \n<anime title>`')
+        msg.reply('Usage: \n`$watchparty\nadd [discord username] <anilist username> \nremove <anilist username>\nsuggest <anime title> \nset <anime title> \njoin {anime title} \nleave {anime title} \nlist \ndelete <anime title>`')
       }
     } 
   }

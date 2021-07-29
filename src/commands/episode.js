@@ -6,8 +6,8 @@ const path = require('path')
 module.exports = {
   name: 'episode',
   aliases: ['ep'],
-  usage: 'FILL PLEASE',
-  description: 'FILL PLEASE',
+  usage: '\ntoday\nnext <# of episodes>',
+  description: 'Check assigned episodes for watchparty, or set episodes (also creates/archives discussion thread).',
   async execute(msg, args) {
     let serversjson = fs.readFileSync(path.resolve(__dirname, '../data/party.json'), 'utf-8')
     let allServers = JSON.parse(serversjson)
