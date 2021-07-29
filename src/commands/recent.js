@@ -31,7 +31,7 @@ module.exports = {
             .setColor(activity.media.coverImage.color)
             .setThumbnail(userData.User.avatar.large)
             .addField(statProg, `[**${activity.media.title.romaji}**](${activity.media.siteUrl})`)
-          msg.reply(embed)
+          msg.reply({ embeds: [embed] })
         } else { msg.reply('This user has no recent activity :(') }
       }
       else {
@@ -51,7 +51,7 @@ module.exports = {
             .setColor(activity.media.coverImage.color)
             .setThumbnail(userData.User.avatar.large)
             .addField(statProg, `[**${activity.media.title.romaji}**](${activity.media.siteUrl})`)
-          msg.reply(embed)
+          msg.reply({ embeds: [embed] })
         } else { msg.reply('This user has no recent activity :(') }
         }
     } catch (err) {
