@@ -7,7 +7,7 @@ const path = require('path')
 module.exports = {
   name: 'watchparty',
   aliases: ['wp'],
-	usage: '\nadd [discord username] <anilist username> \nremove <anilist username>\nsuggest <anime title> \nset <anime title> \njoin {anime title} \nleave {anime title} \nlist \ndelete <anime title>',
+	usage: '\nsuggest <anime title> \nset <anime title> \njoin {anime title} \nleave {anime title} \ndelete <anime title> \nlist',
   description: 'Manage watchparty members and subject.',
   async execute(msg, args) {
     let aliasjson = fs.readFileSync(path.resolve(__dirname, '../data/alias.json'), 'utf-8')
@@ -318,7 +318,7 @@ module.exports = {
       await setTimeout(() => msg.channel.send({embeds: [embed]}), 500)
       } catch (err) {
         console.error(err)
-        msg.reply('Usage: \n`$watchparty\nadd [discord username] <anilist username> \nremove <anilist username>\nsuggest <anime title> \nset <anime title> \njoin {anime title} \nleave {anime title} \nlist \ndelete <anime title>`')
+        msg.reply('Usage: \n`$watchparty\nsuggest <anime title> \nset <anime title> \njoin {anime title} \nleave {anime title} \ndelete <anime title> \nlist`')
       }
     } 
   }

@@ -37,6 +37,6 @@ module.exports = {
     if (command.description) data.push(`\n**Description:** ${command.description}`);
     if (command.usage) data.push(`\n**Usage:** \`${prefix}${command.name} ${command.usage}\``);
             
-    msg.channel.send({ content: `${data}` });
+    msg.channel.send({ content: `${data.join(' ')}` });
 	}
 }
