@@ -37,6 +37,7 @@ module.exports = {
                 allEmbed.addField(user.User.name, `[${oneEpisodes}/${animeData.Media.episodes}](${user.User.siteUrl})`, true)
               }
             }
+          msg.channel.sendTyping()
           setTimeout(() => msg.delete(), 1000)
           await setTimeout(() => msg.channel.send({ embeds: [allEmbed] }), 500)
         } 

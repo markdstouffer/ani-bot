@@ -149,6 +149,7 @@ module.exports = {
           embed.setDescription(`List of suggested anime: \n\n${titles.join('\n')}`)
         }, 500)
 
+        msg.channel.sendTyping()
         setTimeout(() => msg.delete(), 1000)
         await setTimeout(() => msg.channel.send({embeds: [embed]}), 1000)
       }
@@ -313,7 +314,7 @@ module.exports = {
             embed.addField(user.User.name, `[${episodes}/${currentAnime.Media.episodes}](${user.User.siteUrl})`, true)
           }
         }) 
-        
+      msg.channel.sendTyping()
       setTimeout(() => msg.delete(), 1000)
       await setTimeout(() => msg.channel.send({embeds: [embed]}), 500)
       } catch (err) {
