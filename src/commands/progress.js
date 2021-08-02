@@ -87,6 +87,7 @@ module.exports = {
       
           }
     } catch (err) {
+      console.log('User failed to use $progress, sent usage help.')
       console.error(err)
       msg.reply('Usage: \n`$progress {anilist username | discord tag} <anime title>`\n`$progress all <anime title>`')
     }

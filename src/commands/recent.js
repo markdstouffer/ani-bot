@@ -55,6 +55,7 @@ module.exports = {
         } else { msg.reply('This user has no recent activity :(') }
         }
     } catch (err) {
+      console.log('User failed to use $recent, sent usage help.')
       console.error(err)
       msg.reply('Usage: `$recent [anilist username | discord tag]`')
     }

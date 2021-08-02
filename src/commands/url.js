@@ -24,6 +24,7 @@ module.exports = {
         msg.reply(userData.User.siteUrl)
       }
     } catch (err) {
+      console.log('User failed to use $url, sent usage help.')
       console.error(err)
       msg.reply('Usage: `$url [anilist username]`')
     }

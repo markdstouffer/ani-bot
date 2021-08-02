@@ -17,6 +17,11 @@ module.exports = {
     const serverId = msg.guild.id
 
     let aliasIndex = allAliases.findIndex(x => Object.keys(x)[0] === serverId)
+    if (aliasIndex === -1) {
+      const newServer = {}
+      newServer[serverId] = {}
+      allAliases.push(newServer)
+    }
     let serverIndex = allServers.findIndex(x => Object.keys(x)[0] === serverId)
     if (serverIndex === -1) {
       const newServer = {}
@@ -102,24 +107,36 @@ module.exports = {
           let thisServerAliases = allAliases[aliasIndex][serverId]
           const authorId = `<@!${msg.author.id}>`
           const authorName = thisServerAliases[authorId]
-          list[currentId].push(authorName)
-          serversjson = JSON.stringify(allServers)
-          fs.writeFileSync(path.resolve(__dirname, '../data/party.json'), serversjson, 'utf-8')
-          msg.author.send(`You've chosen to join the watch-party for ${suggestedAnime.Media.title.romaji}. Follow along in chat for updates on daily episodes/discussion threads!`)
-
+          if (!(authorId in thisServerAliases)) {
+            msg.reply('You have not yet been aliased to an AniList user. `$alias add <discord user> <anilist user>`')
+          } else {
+            list[currentId].push(authorName)
+            serversjson = JSON.stringify(allServers)
+            fs.writeFileSync(path.resolve(__dirname, '../data/party.json'), serversjson, 'utf-8')
+            msg.author.send(`You've chosen to join the watch-party for ${suggestedAnime.Media.title.romaji}. Follow along in chat for updates on daily episodes/discussion threads!`)  
+          }
+          
           prompt.react('👍')
           const filter = async (reaction, user) => {
             if (!user.bot) {
+              let refreshAlias = fs.readFileSync(path.resolve(__dirname, '../data/alias.json'), 'utf-8')
+              let refreshAllAliases = JSON.parse(refreshAlias)
+
               const id = `<@!${user.id}>`
-              const name = thisServerAliases[id]
-              if (!list[currentId].includes(name) && reaction.emoji.name === '👍' && !user.bot) {
-                list[currentId].push(name)
-                serversjson = JSON.stringify(allServers)
-                fs.writeFileSync(path.resolve(__dirname, '../data/party.json'), serversjson, 'utf-8')
-                user.send(`You've chosen to join the watch-party for ${suggestedAnime.Media.title.romaji}. Follow along in chat for updates on daily episodes/discussion threads!`)
+              let thisServerAliases = refreshAllAliases[aliasIndex][serverId]
+              if (!(id in thisServerAliases)) {
+                msg.reply('You have not yet been aliased to an AniList user. `$alias add <discord user> <anilist user>`')
+              } else {
+                const name = thisServerAliases[id] 
+                if (!list[currentId].includes(name) && reaction.emoji.name === '👍' && !user.bot) {
+                  list[currentId].push(name)
+                  serversjson = JSON.stringify(allServers)
+                  fs.writeFileSync(path.resolve(__dirname, '../data/party.json'), serversjson, 'utf-8')
+                  user.send(`You've chosen to join the watch-party for ${suggestedAnime.Media.title.romaji}. Follow along in chat for updates on daily episodes/discussion threads!`)
               } else {
                 const warning = await msg.reply(`You're already in this watchparty!`)
                 setTimeout(() => warning.delete(), 5000)
+              }
               }
             }
             return reaction.emoji.name === '👍' && !user.bot
@@ -158,7 +175,9 @@ module.exports = {
     else if (args[0] === 'join') {
       const id = `<@!${msg.author.id}>`
       let thisServerAliases = allAliases[aliasIndex][serverId]
-      if (!id in thisServerAliases) {
+      console.log('TSA', thisServerAliases)
+      console.log('id', id)
+      if (!(id in thisServerAliases)) {
         msg.reply('You have not yet been aliased to an AniList user. `$alias add <discord user> <anilist user>`')
       } else if (!args[1]) { // join the CURRENT anime
         if (thisServer['current'] === null) {
@@ -318,6 +337,7 @@ module.exports = {
       setTimeout(() => msg.delete(), 1000)
       await setTimeout(() => msg.channel.send({embeds: [embed]}), 500)
       } catch (err) {
+        console.log('User failed to use $wp, sent usage help.')
         console.error(err)
         msg.reply('Usage: \n`$watchparty\nsuggest <anime title> \nset <anime title> \njoin {anime title} \nleave {anime title} \ndelete <anime title> \nlist`')
       }

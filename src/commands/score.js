@@ -97,6 +97,7 @@ module.exports = {
     }
     
     } catch (err) {
+      console.log('User failed to use $score, sent usage help.')
       console.error(err) 
       msg.reply('Usage: \n`$score {anilist username | discord tag} <anime title>`\n`$score all <anime title>')
     }
