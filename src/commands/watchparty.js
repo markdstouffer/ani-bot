@@ -124,21 +124,30 @@ module.exports = {
               let refreshAlias = fs.readFileSync(path.resolve(__dirname, '../data/alias.json'), 'utf-8')
               let refreshAllAliases = JSON.parse(refreshAlias)
 
-              const id = `<@!${user.id}>`
-              let thisServerAliases = refreshAllAliases[aliasIndex][serverId]
-              if (!(id in thisServerAliases)) {
+              let refreshAliasIndex = refreshAllAliases.findIndex(x => Object.keys(x)[0] === serverId)
+
+              if (refreshAliasIndex === -1) {
                 msg.reply('You have not yet been aliased to an AniList user. `$alias add <discord user> <anilist user>`')
               } else {
-                const name = thisServerAliases[id] 
-                if (!list[currentId].includes(name) && reaction.emoji.name === '👍' && !user.bot) {
-                  list[currentId].push(name)
-                  serversjson = JSON.stringify(allServers)
-                  fs.writeFileSync(path.resolve(__dirname, '../data/party.json'), serversjson, 'utf-8')
-                  user.send(`You've chosen to join the watch-party for ${suggestedAnime.Media.title.romaji}. Follow along in chat for updates on daily episodes/discussion threads!`)
-              } else {
-                const warning = await msg.reply(`You're already in this watchparty!`)
-                setTimeout(() => warning.delete(), 5000)
-              }
+                const id = `<@!${user.id}>`
+                let thisServerAliases = refreshAllAliases[refreshAliasIndex][serverId]
+                if (!thisServerAliases) {
+                  msg.reply('You have not yet been aliased to an AniList user. `$alias add <discord user> <anilist user>`')
+                }
+                else if (!(id in thisServerAliases)) {
+                  msg.reply('You have not yet been aliased to an AniList user. `$alias add <discord user> <anilist user>`')
+                } else {
+                  const name = thisServerAliases[id] 
+                  if (!list[currentId].includes(name) && reaction.emoji.name === '👍' && !user.bot) {
+                    list[currentId].push(name)
+                    serversjson = JSON.stringify(allServers)
+                    fs.writeFileSync(path.resolve(__dirname, '../data/party.json'), serversjson, 'utf-8')
+                    user.send(`You've chosen to join the watch-party for ${suggestedAnime.Media.title.romaji}. Follow along in chat for updates on daily episodes/discussion threads!`)
+                } else {
+                  const warning = await msg.reply(`You're already in this watchparty!`)
+                  setTimeout(() => warning.delete(), 5000)
+                }
+                }
               }
             }
             return reaction.emoji.name === '👍' && !user.bot
