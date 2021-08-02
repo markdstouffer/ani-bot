@@ -22,6 +22,8 @@ module.exports = {
       newServer[serverId] = {}
       allAliases.push(newServer)
     }
+    aliasIndex = allAliases.findIndex(x => Object.keys(x)[0] === serverId)
+
     let serverIndex = allServers.findIndex(x => Object.keys(x)[0] === serverId)
     if (serverIndex === -1) {
       const newServer = {}
