@@ -6,15 +6,15 @@ const fs = require('fs')
 
 module.exports = {
   name: 'recent',
-  description: 'Return the most recent activity given a username.',
-	usage: '{anilist username | discord tag}',
-  async execute(msg, args) {
+  async execute(interaction) {
     let usersjson = fs.readFileSync(path.resolve(__dirname, '../data/alias.json'), 'utf-8')
     let usersArray = JSON.parse(usersjson)
+    const name = interaction.options.getString('name')
+
     try {
-      if (args[0].startsWith('<')) {
-        const modArray = usersArray[usersArray.findIndex((x) => Object.keys(x)[0] === msg.guild.id)][msg.guild.id]
-        const username = modArray[args[0]]
+      if (name.startsWith('<')) {
+        const modArray = usersArray[usersArray.findIndex((x) => Object.keys(x)[0] === interaction.guildId)][interaction.guildId]
+        const username = modArray[name]
         const userData = await request('https://graphql.anilist.co', GET_USERINFO, {name: username})
         const activityData = await request('https://graphql.anilist.co', GET_ACTIVITY, {userId: userData.User.id})
         const activity = activityData.Page.activities[0]
@@ -31,11 +31,11 @@ module.exports = {
             .setColor(activity.media.coverImage.color)
             .setThumbnail(userData.User.avatar.large)
             .addField(statProg, `[**${activity.media.title.romaji}**](${activity.media.siteUrl})`)
-          msg.reply({ embeds: [embed] })
-        } else { msg.reply('This user has no recent activity :(') }
+          interaction.reply({ embeds: [embed] })
+        } else { interaction.reply('This user has no recent activity :(') }
       }
       else {
-        const userData = await request('https://graphql.anilist.co', GET_USERINFO, {name: args[0]})
+        const userData = await request('https://graphql.anilist.co', GET_USERINFO, { name })
         const activityData = await request('https://graphql.anilist.co', GET_ACTIVITY, {userId: userData.User.id})
         const activity = activityData.Page.activities[0]
         if (activity) {
@@ -51,13 +51,13 @@ module.exports = {
             .setColor(activity.media.coverImage.color)
             .setThumbnail(userData.User.avatar.large)
             .addField(statProg, `[**${activity.media.title.romaji}**](${activity.media.siteUrl})`)
-          msg.reply({ embeds: [embed] })
-        } else { msg.reply('This user has no recent activity :(') }
+          interaction.reply({ embeds: [embed] })
+        } else { interaction.reply('This user has no recent activity :(') }
         }
     } catch (err) {
-      console.log('User failed to use $recent, sent usage help.')
+      console.log('User failed to use /recent')
       console.error(err)
-      msg.reply('Usage: `$recent [anilist username | discord tag]`')
+      interaction.reply({ content: 'Command failed, check usage', ephemeral: true })
     }
   }
 }

@@ -5,11 +5,8 @@ const path = require('path')
 const fs = require('fs')
 
 module.exports = {
-  name: 'score',
-  aliases: ['rating'],
-  description: 'Returns the score given to an anime, given a username and an anime title.',
-	usage: '\n{anilist username | discord tag} <anime title>\nall <anime title>',
-  async execute(msg, args) {
+  name: 'rating',
+  async execute(interaction) {
     function percentToHex(percent, start, end, s, l) {
       l /= 100
       const x = (percent/100), y = (end-start) * x, 
@@ -24,19 +21,22 @@ module.exports = {
     } //function to convert percent to HEX (adapted from u/icl7126, u/Mattisdada)
     let aliasjson = fs.readFileSync(path.resolve(__dirname, '../data/alias.json'), 'utf-8')
     let allAliases = JSON.parse(aliasjson)
-    const serverId = msg.guild.id
+    const serverId = interaction.guildId
     const aliasIndex = allAliases.findIndex(x => Object.keys(x)[0] === serverId)
     let thisServerAliases = allAliases[aliasIndex][serverId]
-    const title = args.splice(1, args.length).join(' ')
+    const sub = interaction.options._subCommand
+    const name = interaction.options.getString('name')
+    const title = interaction.options.getString('title')
+
     try {
       const animeData = await request('https://graphql.anilist.co', GET_MEDIA, {search: title})
 
-      if (args[0] === 'all') {
+      if (sub === 'all') {
         const allEmbed = new Discord.MessageEmbed()
           .setTitle('Ratings')
           .setDescription(`Server members' ratings for [**${animeData.Media.title.romaji}**](${animeData.Media.siteUrl})`)
           .setThumbnail(animeData.Media.coverImage.large)
-          .setFooter(`requested by ${msg.author.username}`, `https://cdn.discordapp.com/avatars/${msg.author.id}/${msg.author.avatar}.png`)
+          .setFooter(`requested by ${interaction.user.username}`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
           .setTimestamp()
         let countRating = 0, count = 0
           for (const [key, value] of Object.entries(thisServerAliases)) {
@@ -55,13 +55,13 @@ module.exports = {
         const avgScore = (count !== 0) ? countRating/count : 0
         const color = percentToHex(avgScore*10, 0, 110, 100, 50)
         allEmbed.setColor(color)
-        setTimeout(() => msg.delete(), 2000)
-        await setTimeout(() => msg.channel.send({embeds: [allEmbed]}), 500)
+
+        await setTimeout(() => interaction.reply({embeds: [allEmbed]}), 500)
       }
 
-       else if (args[0].startsWith('<')) {
-        const modArray = allAliases[allAliases.findIndex((x) => Object.keys(x)[0] === msg.guild.id)][msg.guild.id]
-        const username = modArray[args[0]]
+       else if (name.startsWith('<')) {
+        const modArray = allAliases[allAliases.findIndex((x) => Object.keys(x)[0] === interaction.guildId)][interaction.guildId]
+        const username = modArray[name]
         const userData = await request('https://graphql.anilist.co', GET_USERINFO, {name: username})
         try {
           const listData = await request('https://graphql.anilist.co', GET_MEDIALIST, {userName: userData.User.name, mediaId: animeData.Media.id})
@@ -73,13 +73,13 @@ module.exports = {
             .setDescription(`[**${animeData.Media.title.romaji}**](${animeData.Media.siteUrl})`)
             .setTitle(userData.User.name)
             .addField('Score:', `${score/10}/10`)
-          msg.reply({ embeds: [embed] })
+          interaction.reply({ embeds: [embed] })
         } catch {
-          msg.reply(`${userData.User.name} has not yet rated this anime.`)
+          interaction.reply(`${userData.User.name} has not yet rated this anime.`)
         }
       }
       else {
-        const userData = await request('https://graphql.anilist.co', GET_USERINFO, {name: args[0]})
+        const userData = await request('https://graphql.anilist.co', GET_USERINFO, { name })
         try {
           const listData = await request('https://graphql.anilist.co', GET_MEDIALIST, {userName: userData.User.name, mediaId: animeData.Media.id})
           const score = listData.MediaList.score * 10
@@ -90,16 +90,16 @@ module.exports = {
             .setDescription(`[**${animeData.Media.title.romaji}**](${animeData.Media.siteUrl})`)
             .setTitle(userData.User.name)
             .addField('Score:', `${score/10}/10`)
-          msg.reply({ embeds: [embed] })
+          interaction.reply({ embeds: [embed] })
         } catch {
-          msg.reply(`${userData.User.name} has not yet rated this anime.`)
+          interaction.reply(`${userData.User.name} has not yet rated this anime.`)
         }
     }
     
     } catch (err) {
-      console.log('User failed to use $score, sent usage help.')
+      console.log('User failed to use /score')
       console.error(err) 
-      msg.reply('Usage: \n`$score {anilist username | discord tag} <anime title>`\n`$score all <anime title>')
+      interaction.reply({ content: 'Command failed', ephemeral: true })
     }
   }
 }
