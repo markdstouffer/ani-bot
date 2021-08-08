@@ -7,5 +7,6 @@ module.exports = {
   Alias: require('./alias'),
   Search: require('./search'),
   Rating: require('./rating'),
-  Ep: require('./ep')
+  Ep: require('./ep'),
+  Remind: require('./remind')
 }

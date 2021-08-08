@@ -17,7 +17,6 @@ module.exports = {
     const sub = interaction.options.getSubcommand()
     const title = interaction.options.getString('anime')
     const user = interaction.options.getString('user')
-    console.log(sub)
     try {
         const animeData = await request('https://graphql.anilist.co', GET_MEDIA, {search: title})
         if (sub === 'all') {

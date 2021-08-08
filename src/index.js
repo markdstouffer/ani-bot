@@ -33,14 +33,24 @@ client.on('interactionCreate', async interaction => {
 
 })
 
-const guildId = '503045148570288129'
-
 client.on('messageCreate', async message => {
 
   if (!client.application?.owner) await client.application?.fetch()
 
   if (message.content.toLowerCase() === '!deploy' && message.author.id === client.application?.owner.id) {
     const data = [
+      {
+        name: 'remind',
+        description: 'Remind someone to watch an anime.',
+        options: [
+          {
+            name: 'discord',
+            description: 'Discord tag',
+            type: 9,
+            required: true
+          }
+        ]
+      },
       {
         name: 'progress',
         description: 'Returns how many episodes of an anime a user has watched.',
@@ -271,7 +281,7 @@ client.on('messageCreate', async message => {
     ]
     const emptyData = []
 
-    const commands = await client.guilds.cache.get(guildId)?.commands.set(data)
+    const commands = await client.application?.commands.set(data)
   }
 })
 
