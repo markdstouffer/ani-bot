@@ -5,28 +5,25 @@ const fs = require('fs')
 
 module.exports = {
   name: 'url',
-  aliases: ['user', 'u'],
-	usage: '<anilist username>',
-  description: 'Return the url of an anilist user, given their username.',
-  async execute(msg, args) {
+  async execute(interaction) {
+    const name = interaction.options.getString('user')
+    
     try {
-      if (args[0].startsWith('<')) {
+      if (name.startsWith('<')) {
         let usersjson = fs.readFileSync(path.resolve(__dirname, '../data/alias.json'), 'utf-8')
         let usersArray = JSON.parse(usersjson)
-        console.log(usersArray)
-        const modArray = usersArray[usersArray.findIndex((x) => Object.keys(x)[0] === msg.guild.id)][msg.guild.id]
-        const user = modArray[args[0]]
+        const modArray = usersArray[usersArray.findIndex((x) => Object.keys(x)[0] === interaction.guildId)][interaction.guildId]
+        const user = modArray[name]
         const userData = await request('https://graphql.anilist.co', GET_USERINFO, {name: user})
-        msg.reply(userData.User.siteUrl)
+        interaction.reply(userData.User.siteUrl)
       }
       else {
-        const userData = await request('https://graphql.anilist.co', GET_USERINFO, {name: args[0]})
-        msg.reply(userData.User.siteUrl)
+        const userData = await request('https://graphql.anilist.co', GET_USERINFO, { name })
+        interaction.reply(userData.User.siteUrl)
       }
     } catch (err) {
-      console.log('User failed to use $url, sent usage help.')
-      console.error(err)
-      msg.reply('Usage: `$url [anilist username]`')
+      console.log('User failed to use /url')
+      interaction.reply({ content: 'Command failed, user might not be aliased. `/alias add`', ephemeral: true })
     }
   }
 }

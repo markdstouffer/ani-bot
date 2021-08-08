@@ -4,9 +4,9 @@ module.exports = {
   Recent: require('./recent'),
   Progress: require('./progress'),
   Watchparty: require('./watchparty'),
-  Help: require('./help'),
   Alias: require('./alias'),
-  Anime: require('./anime'),
-  Score: require('./score'),
-  Episode: require('./episode')
+  Search: require('./search'),
+  Rating: require('./rating'),
+  Ep: require('./ep'),
+  Remind: require('./remind')
 }

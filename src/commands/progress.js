@@ -8,22 +8,24 @@ module.exports = {
   name: 'progress',
   description: 'Returns how many episodes of an anime a user has watched, given a username and an anime title.',
   usage: '\n{anilist username | discord tag} <anime title>\nall <anime title>',
-  async execute(msg, args) {
+  async execute(interaction) {
     let aliasjson = fs.readFileSync(path.resolve(__dirname, '../data/alias.json'), 'utf-8')
     let allAliases = JSON.parse(aliasjson)
-    const serverId = msg.guild.id
+    const serverId = interaction.guildId
     const aliasIndex = allAliases.findIndex(x => Object.keys(x)[0] === serverId)
     let thisServerAliases = allAliases[aliasIndex][serverId]
-    const title = args.splice(1, args.length).join(' ')
+    const sub = interaction.options.getSubcommand()
+    const title = interaction.options.getString('anime')
+    const user = interaction.options.getString('user')
     try {
         const animeData = await request('https://graphql.anilist.co', GET_MEDIA, {search: title})
-        if (args[0] === 'all') {
+        if (sub === 'all') {
           const allEmbed = new Discord.MessageEmbed()
             .setColor(animeData.Media.coverImage.color)
             .setTitle('Progress')
             .setDescription(`Server members' progress on [**${animeData.Media.title.romaji}**](${animeData.Media.siteUrl})`)
             .setThumbnail(animeData.Media.coverImage.large)
-            .setFooter(`requested by ${msg.author.username}`, `https://cdn.discordapp.com/avatars/${msg.author.id}/${msg.author.avatar}.png`)
+            .setFooter(`requested by ${interaction.user.username}`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
             .setTimestamp()
     
           for (const [key, value] of Object.entries(thisServerAliases)) {
@@ -37,14 +39,14 @@ module.exports = {
                 allEmbed.addField(user.User.name, `[${oneEpisodes}/${animeData.Media.episodes}](${user.User.siteUrl})`, true)
               }
             }
-          msg.channel.sendTyping()
-          setTimeout(() => msg.delete(), 1000)
-          await setTimeout(() => msg.channel.send({ embeds: [allEmbed] }), 500)
+          // msg.channel.sendTyping()
+          // setTimeout(() => msg.delete(), 1000)
+          await setTimeout(() => interaction.reply({ embeds: [allEmbed] }), 500)
         } 
         else {
-            if (args[0].startsWith('<')) {
-              const modArray = allAliases[allAliases.findIndex((x) => Object.keys(x)[0] === msg.guild.id)][msg.guild.id]
-              const username = modArray[args[0]]
+            if (user.startsWith('<')) {
+              const modArray = allAliases[allAliases.findIndex((x) => Object.keys(x)[0] === serverId)][serverId]
+              const username = modArray[user]
               const userData = await request('https://graphql.anilist.co', GET_USERINFO, {name: username})
               try {
                 const listData = await request('https://graphql.anilist.co', GET_MEDIALIST, {userName: userData.User.name, mediaId: animeData.Media.id})
@@ -59,13 +61,13 @@ module.exports = {
                   .setThumbnail(animeData.Media.coverImage.large)
                   .setDescription(`Progress on [**${animeData.Media.title.romaji}**](${animeData.Media.siteUrl})`)
                   .addField(stat, `${listData.MediaList.progress}/${animeData.Media.episodes}`)
-                msg.reply({ embeds: [embed] })
+                interaction.reply({ embeds: [embed] })
               } catch {
-                msg.reply(`${userData.User.name} has not yet watched any episodes of this anime.`)
+                interaction.reply(`${userData.User.name} has not yet watched any episodes of this anime.`)
               }
             }
             else {
-              const userData = await request('https://graphql.anilist.co', GET_USERINFO, {name: args[0]})
+              const userData = await request('https://graphql.anilist.co', GET_USERINFO, {name: user})
               try {
                 const listData = await request('https://graphql.anilist.co', GET_MEDIALIST, {userName: userData.User.name, mediaId: animeData.Media.id})
                 const stat =
@@ -79,9 +81,9 @@ module.exports = {
                   .setThumbnail(animeData.Media.coverImage.large)
                   .setDescription(`Progress on [**${animeData.Media.title.romaji}**](${animeData.Media.siteUrl})`)
                   .addField(stat, `${listData.MediaList.progress}/${animeData.Media.episodes}`)
-                msg.reply({ embeds: [embed] })
+                interaction.reply({ embeds: [embed] })
               } catch {
-                msg.reply(`${userData.User.name} has not yet watched any episodes of this anime.`)
+                interaction.reply(`${userData.User.name} has not yet watched any episodes of this anime.`)
               }
             }
       
@@ -89,7 +91,7 @@ module.exports = {
     } catch (err) {
       console.log('User failed to use $progress, sent usage help.')
       console.error(err)
-      msg.reply('Usage: \n`$progress {anilist username | discord tag} <anime title>`\n`$progress all <anime title>`')
+      interaction.reply('Usage: \n`$progress {anilist username | discord tag} <anime title>`\n`$progress all <anime title>`')
     }
     }
   }

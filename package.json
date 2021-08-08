@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@apollo/client": "^3.3.20",
-    "discord.js": "^13.0.0-dev.4f1f32f.1627517033",
+    "discord.js": "^13.0.1",
     "dotenv": "^10.0.0",
     "fs": "^0.0.1-security",
     "graphql": "^15.5.1",
