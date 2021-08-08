@@ -15,7 +15,7 @@ module.exports = {
     let currentEpisode = thisServer['episode']
     let todayEp = thisServer['episodesToday']
     const currentAnime = await request('https://graphql.anilist.co', GET_MEDIA, { search: thisServer['current'] })
-    const sub = interaction.options._subCommand
+    const sub = interaction.options.getSubcommand()
     const amount = interaction.options.getInteger('amount')
 
     if (sub === 'today') {

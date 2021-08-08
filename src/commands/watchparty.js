@@ -13,7 +13,7 @@ module.exports = {
     let serversjson = fs.readFileSync(path.resolve(__dirname, '../data/party.json'), 'utf-8')
     let allServers = JSON.parse(serversjson)
     const serverId = interaction.guildId
-    const sub = interaction.options._subCommand
+    const sub = interaction.options.getSubcommand()
     const title = interaction.options.getString('title')
 
     let aliasIndex = allAliases.findIndex(x => Object.keys(x)[0] === serverId)

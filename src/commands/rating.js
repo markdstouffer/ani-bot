@@ -24,7 +24,7 @@ module.exports = {
     const serverId = interaction.guildId
     const aliasIndex = allAliases.findIndex(x => Object.keys(x)[0] === serverId)
     let thisServerAliases = allAliases[aliasIndex][serverId]
-    const sub = interaction.options._subCommand
+    const sub = interaction.options.getSubcommand()
     const name = interaction.options.getString('name')
     const title = interaction.options.getString('title')
 

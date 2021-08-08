@@ -33,6 +33,8 @@ client.on('interactionCreate', async interaction => {
 
 })
 
+const guildId = '503045148570288129'
+
 client.on('messageCreate', async message => {
 
   if (!client.application?.owner) await client.application?.fetch()
@@ -267,9 +269,9 @@ client.on('messageCreate', async message => {
         ]
       }
     ]
+    const emptyData = []
 
-    const commands = await client.application?.commands.set(data)
-    console.log(commands)
+    const commands = await client.guilds.cache.get(guildId)?.commands.set(data)
   }
 })
 

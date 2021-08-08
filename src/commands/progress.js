@@ -14,9 +14,10 @@ module.exports = {
     const serverId = interaction.guildId
     const aliasIndex = allAliases.findIndex(x => Object.keys(x)[0] === serverId)
     let thisServerAliases = allAliases[aliasIndex][serverId]
-    const sub = interaction.options._subCommand
+    const sub = interaction.options.getSubcommand()
     const title = interaction.options.getString('anime')
     const user = interaction.options.getString('user')
+    console.log(sub)
     try {
         const animeData = await request('https://graphql.anilist.co', GET_MEDIA, {search: title})
         if (sub === 'all') {

@@ -7,7 +7,7 @@ module.exports = {
     let aliasjson= fs.readFileSync(path.resolve(__dirname, '../data/alias.json'), 'utf-8')
     let allAliasArray = JSON.parse(aliasjson)
     const server = interaction.guildId
-    const sub = interaction.options._subCommand
+    const sub = interaction.options.getSubcommand()
     const discord = `<@!${interaction.options.getMentionable('discord').user.id}>`
     const anilist = interaction.options.getString('anilist')
     
