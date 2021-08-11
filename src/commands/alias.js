@@ -1,8 +1,39 @@
 const path = require('path')
 const fs = require('fs')
+const { SlashCommandBuilder } = require('@discordjs/builders')
 
 module.exports = {
-  name: 'alias',
+  data: new SlashCommandBuilder()
+    .setName('alias')
+    .setDescription('Link a Discord tag to an AniList username')
+    .addSubcommand(subcommand =>
+      subcommand
+        .setName('add')
+        .setDescription('Add an alias, or edit an existing one')
+        .addMentionableOption(option =>
+          option
+            .setName('discord')
+            .setDescription('Discord tag')
+            .setRequired(true)
+          )
+        .addStringOption(option =>
+          option
+            .setName('anilist')
+            .setDescription('AniList username')
+            .setRequired(true)
+          )
+      )
+    .addSubcommand(subcommand =>
+      subcommand
+        .setName('remove')
+        .setDescription('Remove alias from a Discord user')
+        .addMentionableOption(option =>
+          option
+            .setName('discord')
+            .setDescription('Discord tag')
+            .setRequired(true)
+          )
+      ),
   async execute(interaction) {
     let aliasjson= fs.readFileSync(path.resolve(__dirname, '../data/alias.json'), 'utf-8')
     let allAliasArray = JSON.parse(aliasjson)

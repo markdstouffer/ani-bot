@@ -1,9 +1,18 @@
 const Discord = require('discord.js')
 const { request } = require('graphql-request')
+const { SlashCommandBuilder } = require('@discordjs/builders')
 const { GET_MEDIA } = require('../queries')
 
 module.exports = {
-  name: 'search',
+  data: new SlashCommandBuilder()
+    .setName('search')
+    .setDescription('Search for an anime')
+    .addStringOption(opt =>
+      opt
+        .setName('title')
+        .setDescription('Anime title')
+        .setRequired(true)
+      ),
   async execute(interaction) {
     const title = interaction.options.getString('title')
     const media = await request('https://graphql.anilist.co', GET_MEDIA, {search: title})

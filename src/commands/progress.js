@@ -1,13 +1,42 @@
 const { request } = require('graphql-request')
 const { GET_MEDIA, GET_USERINFO, GET_MEDIALIST } = require('../queries')
+const { SlashCommandBuilder } = require('@discordjs/builders')
 const path = require('path')
 const Discord = require('discord.js')
 const fs = require('fs')
 
 module.exports = {
-  name: 'progress',
-  description: 'Returns how many episodes of an anime a user has watched, given a username and an anime title.',
-  usage: '\n{anilist username | discord tag} <anime title>\nall <anime title>',
+  data: new SlashCommandBuilder()
+    .setName('progress')
+    .setDescription('Returns how many episodes of an anime a user has watched.')
+    .addSubcommand(sub =>
+      sub
+        .setName('all')
+        .setDescription('Get progress for all aliased members in the server')
+        .addStringOption(opt =>
+          opt
+            .setName('anime')
+            .setDescription('Anime title')
+            .setRequired(true)
+          )
+      )
+    .addSubcommand(sub =>
+      sub
+        .setName('user')
+        .setDescription('Get progress for one user')
+        .addStringOption(opt =>
+          opt
+            .setName('user')
+            .setDescription('AniList username')
+            .setRequired(true)
+          )
+        .addStringOption(opt =>
+          opt
+            .setName('anime')
+            .setDescription('Anime title')
+            .setRequired(true)
+          )
+      ),
   async execute(interaction) {
     let aliasjson = fs.readFileSync(path.resolve(__dirname, '../data/alias.json'), 'utf-8')
     let allAliases = JSON.parse(aliasjson)

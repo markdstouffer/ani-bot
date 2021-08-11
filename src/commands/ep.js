@@ -2,9 +2,28 @@ const fs = require('fs')
 const { request } = require('graphql-request')
 const { GET_MEDIA } = require('../queries')
 const path = require('path')
+const { SlashCommandBuilder } = require('@discordjs/builders')
 
 module.exports = {
-  name: 'ep',
+  data: new SlashCommandBuilder()
+    .setName('ep')
+    .setDescription('Check or set current watch-party assigned episodes')
+    .addSubcommand(subcommand =>
+      subcommand
+        .setName('today')
+        .setDescription('View today\'s assigned episodes')
+      )
+    .addSubcommand(subcommand =>
+      subcommand
+        .setName('next')
+        .setDescription('Increment episodes and create a discussion thread')
+        .addIntegerOption(option =>
+          option
+            .setName('amount')
+            .setDescription('Amount of episodes to assign')
+            .setRequired(true)
+          )
+      ),
   async execute(interaction) {
     let serversjson = fs.readFileSync(path.resolve(__dirname, '../data/party.json'), 'utf-8')
     let allServers = JSON.parse(serversjson)

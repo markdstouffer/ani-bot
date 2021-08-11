@@ -2,11 +2,55 @@ const Discord = require('discord.js')
 const fs = require('fs')
 const { request } = require('graphql-request')
 const { GET_MEDIA, GET_USERINFO, GET_MEDIALIST } = require('../queries')
+const { SlashCommandBuilder } = require('@discordjs/builders')
 const path = require('path')
 const wait = require('util').promisify(setTimeout)
 
 module.exports = {
-  name: 'wp',
+  data: new SlashCommandBuilder()
+    .setName('wp')
+    .setDescription('Anime watch-parties')
+    .addSubcommand(sub =>
+      sub
+        .setName('view')
+        .setDescription('View watch-party progress')
+      )
+    .addSubcommand(sub =>
+      sub
+        .setName('suggest')
+        .setDescription('Suggest a watch-party subject')
+        .addStringOption(opt =>
+          opt
+            .setName('title')
+            .setDescription('Anime title')
+            .setRequired(true)
+          )
+      )
+    .addSubcommand(sub =>
+      sub
+        .setName('set')
+        .setDescription('Set one of the suggested watch-parties as the current one')
+      )
+    .addSubcommand(sub =>
+      sub
+        .setName('delete')
+        .setDescription('Delete a suggested watch-party from the list.')
+      )
+    .addSubcommand(sub =>
+      sub
+        .setName('list')
+        .setDescription('List all the suggested watch-parties.')
+      )
+    .addSubcommand(sub =>
+      sub
+        .setName('join')
+        .setDescription('Join a watch-party')
+      )
+    .addSubcommand(sub =>
+      sub
+        .setName('leave')
+        .setDescription('Leave a watch-party')
+      ),
   async execute(interaction) {
     let aliasjson = fs.readFileSync(path.resolve(__dirname, '../data/alias.json'), 'utf-8')
     let allAliases = JSON.parse(aliasjson)

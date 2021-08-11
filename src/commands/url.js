@@ -1,10 +1,19 @@
 const { request } = require('graphql-request')
 const { GET_USERINFO } = require('../queries')
 const path = require('path')
+const { SlashCommandBuilder } = require('@discordjs/builders')
 const fs = require('fs')
 
 module.exports = {
-  name: 'url',
+  data: new SlashCommandBuilder()
+    .setName('url')
+    .setDescription('Return the url of an AniList user')
+    .addStringOption(opt =>
+      opt
+        .setName('user')
+        .setDescription('AniList username or Discord tag')
+        .setRequired(true)
+      ),
   async execute(interaction) {
     const name = interaction.options.getString('user')
     

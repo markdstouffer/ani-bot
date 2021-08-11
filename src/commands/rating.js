@@ -1,11 +1,42 @@
 const { request } = require('graphql-request')
 const { GET_MEDIA, GET_USERINFO, GET_MEDIALIST } = require('../queries')
+const { SlashCommandBuilder } = require('@discordjs/builders')
 const Discord = require('discord.js')
 const path = require('path')
 const fs = require('fs')
 
 module.exports = {
-  name: 'rating',
+  data: new SlashCommandBuilder()
+    .setName('rating')
+    .setDescription('Returns a user\'s rating of an anime.')
+    .addSubcommand(sub =>
+      sub
+        .setName('all')
+        .setDescription('Returns all aliased server members ratings for an anime')
+        .addStringOption(opt =>
+          opt
+            .setName('title')
+            .setDescription('Anime title')
+            .setRequired(true)
+          )
+      )
+    .addSubcommand(sub =>
+      sub
+        .setName('user')
+        .setDescription('Returns rating of one user')
+        .addStringOption(opt =>
+          opt
+            .setName('name')
+            .setDescription('AniList username or Discord tag')
+            .setRequired(true)
+          )
+        .addStringOption(opt =>
+          opt
+            .setName('title')
+            .setDescription('Anime title')
+            .setRequired(true)
+          )
+      ),
   async execute(interaction) {
     function percentToHex(percent, start, end, s, l) {
       l /= 100

@@ -1,11 +1,20 @@
 const { request } = require('graphql-request')
 const { GET_ACTIVITY, GET_USERINFO } = require('../queries')
+const { SlashCommandBuilder } = require('@discordjs/builders')
 const Discord = require('discord.js')
 const path = require('path')
 const fs = require('fs')
 
 module.exports = {
-  name: 'recent',
+  data: new SlashCommandBuilder()
+    .setName('recent')
+    .setDescription('Returns a user\'s most recent anime-list activity.')
+    .addStringOption(opt =>
+      opt
+        .setName('name')
+        .setDescription('AniList username or Discord tag')
+        .setRequired(true)
+    ),
   async execute(interaction) {
     let usersjson = fs.readFileSync(path.resolve(__dirname, '../data/alias.json'), 'utf-8')
     let usersArray = JSON.parse(usersjson)
