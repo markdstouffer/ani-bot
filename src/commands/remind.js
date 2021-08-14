@@ -1,6 +1,6 @@
-const fs = require('fs')
-const path = require('path')
 const { SlashCommandBuilder } = require('@discordjs/builders')
+const conn = require('../connections/anidata_conn')
+const Party = conn.models.Party
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -13,15 +13,23 @@ module.exports = {
         .setRequired(true)
       ),
   async execute(interaction) {
-    const discord = interaction.options.getMentionable('discord')
-    let serversjson = fs.readFileSync(path.resolve(__dirname, '../data/party.json'), 'utf-8')
-    let allServers = JSON.parse(serversjson)
     const serverId = interaction.guildId
-    let serverIndex = allServers.findIndex(x => Object.keys(x)[0] === serverId)
-    let thisServer = allServers[serverIndex][serverId]
+    const query = { 'server.serverId': serverId }
+    const discord = interaction.options.getMentionable('discord')
 
-    const currentAnime = thisServer['current']
+    let countPartyServerDocs = await Party.find(query).limit(1).countDocuments()
+    let partyServerExists = (countPartyServerDocs > 0)
+    let thisServerParty = await Party.findOne(query)
 
-    interaction.reply({ content: `Ummm... ${discord}.. please don't forget to watch today's episodes of **${currentAnime}**, UwU.. Arigato! ^_^`})
+    if (partyServerExists) {
+      const currentAnime = thisServerParty.server.current
+      if (currentAnime) {
+        interaction.reply({ content: `Ummm... ${discord}.. please don't forget to watch today's episodes of **${currentAnime}**, UwU.. Arigato! ^_^`})
+      } else {
+        interaction.reply('There is no current watch-party.')
+      }
+    } else {
+      interaction.reply('There is no current watch-party.')
+    }
   }
 }

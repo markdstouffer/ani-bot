@@ -1,6 +1,7 @@
-const path = require('path')
-const fs = require('fs')
 const { SlashCommandBuilder } = require('@discordjs/builders')
+
+const conn = require('../connections/anidata_conn')
+const Alias = conn.models.Alias
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -35,30 +36,41 @@ module.exports = {
           )
       ),
   async execute(interaction) {
-    let aliasjson= fs.readFileSync(path.resolve(__dirname, '../data/alias.json'), 'utf-8')
-    let allAliasArray = JSON.parse(aliasjson)
-    const server = interaction.guildId
-    const sub = interaction.options.getSubcommand()
+    const serverId = interaction.guildId
     const discord = `<@!${interaction.options.getMentionable('discord').user.id}>`
     const anilist = interaction.options.getString('anilist')
-    
-    let ind = allAliasArray.findIndex((x) => Object.keys(x)[0] === server)
-    if (ind === -1) {
-      const newServer = {}
-      newServer[server] = {}
-      allAliasArray.push(newServer)
+    const query = { 'server.serverId': serverId }
+    const sub = interaction.options.getSubcommand()
+
+    const countServerDocs = await Alias.find({ 'server.serverId': serverId }).limit(1).countDocuments()
+    let serverExists = (countServerDocs > 0)
+
+    if (!serverExists) {
+      const newServer = new Alias({
+        server: {
+          serverId: serverId,
+          users: []
+        }
+      })
+      await newServer.save()
     }
-    ind = allAliasArray.findIndex((x) => Object.keys(x)[0] === server)
-    
-    let serverAliasArray = allAliasArray[ind][server]
+
     if (sub === 'add') {
-      serverAliasArray[discord] = anilist
+      const newUser = {
+        username: anilist,
+        userId: discord
+      }
+      const eraseOld = { userId: discord }
+      await Alias.findOneAndUpdate(query, { $pull: { 'server.users': eraseOld } })
+      let changedDoc = await Alias.findOneAndUpdate(query, { $push: { 'server.users': newUser } }, { new: true })
       interaction.reply(`Aliased ${discord} to ${anilist}`)
-    } else if (sub == 'remove') {
-      delete serverAliasArray[discord]
+    } else if (sub === 'remove') {
+      const userToRemove = {
+        userId: discord
+      }
+      let changedDoc = await Alias.findOneAndUpdate(query, { $pull: { 'server.users': userToRemove } })
+      console.log(changedDoc)
       interaction.reply(`Removed ${discord}'s alias`)
     }
-    aliasjson = JSON.stringify(allAliasArray)
-    fs.writeFileSync(path.resolve(__dirname, '../data/alias.json'), aliasjson, 'utf-8')
   }
 }

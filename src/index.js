@@ -17,7 +17,11 @@ const commandFiles = fs.readdirSync(path.resolve(__dirname, './commands')).filte
 for (const file of commandFiles) {
   const command = require(`./commands/${file}`)
   client.commands.set(command.data.name, command)
-  commands.push(command.data.toJSON())
+  if (command.data.name === 'url-quick') {
+    commands.push(command.data)
+  } else {
+    commands.push(command.data.toJSON())
+  }
 }
 
 const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
@@ -26,10 +30,10 @@ const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
   try {
     console.log('Started refreshing slash commands...')
     await rest.put(
-      Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
-      { body: commands }
-      //Routes.applicationCommands(process.env.CLIENT_ID),
-      //{body: commands }
+      // Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
+      // { body: commands }
+      Routes.applicationCommands(process.env.CLIENT_ID),
+      {body: commands }
     )
     console.log('Successfully refreshed slash commands!')
   } catch (error) {
@@ -47,7 +51,7 @@ process.on('unhandledRejection', error => {
 })
 
 client.on('interactionCreate', async interaction => {
-  if (!interaction.isCommand()) return;
+  if (!interaction.isCommand() && !interaction.isContextMenu()) return;
   if (!client.commands.has(interaction.commandName)) return;
 
   try {
