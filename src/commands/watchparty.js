@@ -304,7 +304,7 @@ module.exports = {
                 const anime = await request('https://graphql.anilist.co', GET_MEDIA, { search: titleToLeave })
                 const animeId = anime.Media.id
                 if (thisServerParty.server.list.find(x => x.animeId === animeId).members.includes(authorAniName)) {
-                  const authorIndex = thisServerParty.server.list.find(x => x.animeId === animeId).members.findIndex(x => x === id)
+                  const authorIndex = thisServerParty.server.list.find(x => x.animeId === animeId).members.findIndex(x => x === authorAniName)
                   thisServerParty.server.list.find(x => x.animeId === animeId).members.splice(authorIndex, 1)
                   thisServerParty.save()
                   i.reply({content: `You have left the watch-party for **${titleToLeave}**`, ephemeral: true})
