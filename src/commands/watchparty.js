@@ -440,6 +440,7 @@ module.exports = {
                 .setThumbnail(anime.Media.coverImage.large)
                 .setFooter(`Set by ${interaction.user.username}`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
                 .setTimestamp()
+              i.channel.setTopic(`${anime.Media.title.romaji} (${anime.Media.siteUrl})`)
               i.reply({ embeds: [embed] })
             }
             return i.user.id === interaction.user.id
