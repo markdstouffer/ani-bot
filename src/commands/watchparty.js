@@ -101,7 +101,7 @@ module.exports = {
       const found = thisServerParty.server.list.find(x => x.animeId === animeId)
 
       if (found) {
-        interaction.reply('This anime has already been suggested. Use `/watchparty set` to set this as the current anime.')
+        interaction.reply({content: 'This anime has already been suggested. Use `/watchparty set` to set this as the current anime.', ephemeral: true})
       } else {
         const newAnime = {
           animeId: animeId,
@@ -155,14 +155,14 @@ module.exports = {
 
           if (!serverExists) {
             console.log('failed at !serverExists')
-            i.reply('You have not yet been aliased to an AniList user. `/alias add`')
+            i.reply({content: 'You have not yet been aliased to an AniList user. `/alias add`', ephemeral: true})
           } else {
             const id = `<@!${i.user.id}>`
             const userList = serverAliases.server.users
             const user = userList.find(x => x.userId === id)
             if (!user) {
               console.log('failed at !user')
-              i.reply('You have not yet been aliased to an AniList user. `/alias add`')
+              i.reply({content: 'You have not yet been aliased to an AniList user. `/alias add`', ephemeral: true})
             } else {
               const name = user.username
               if (!thisServerParty.server.list.find(x => x.animeId === animeId).members.includes(name)) {
@@ -211,7 +211,7 @@ module.exports = {
         const user = userList.find(x => x.userId === id)
         if (user) {
           if (thisServerParty.server.list.length === 0) {
-            interaction.reply('There are no joinable watch-parties at the moment. `/watchparty suggest`')
+            interaction.reply({content: 'There are no joinable watch-parties at the moment. `/watchparty suggest`', ephemeral: true})
           } else {
             let titles = []
             thisServerParty.server.list.forEach(async obj => {
@@ -235,8 +235,7 @@ module.exports = {
               })
             })
 
-            await interaction.reply({ content: 'Select a watch-party to join:', components: [row] })
-            const response = await interaction.fetchReply()
+            await interaction.reply({ content: 'Select a watch-party to join:', components: [row], ephemeral: true })
 
             const filter = async i => {
               if (i.user.id === interaction.user.id) {
@@ -245,22 +244,22 @@ module.exports = {
                 const animeId = anime.Media.id
                 const authorAniName = user.username
                 if (thisServerParty.server.list.find(x => x.animeId === animeId).members.includes(authorAniName)) {
-                  i.reply('You are already in this watch-party!')
+                  i.reply({content: 'You are already in this watch-party!', ephemeral: true})
                 } else {
                   thisServerParty.server.list.find(x => x.animeId === animeId).members.push(authorAniName)
                   thisServerParty.save()
-                  i.reply(`You have joined the watch-party for **${anime.Media.title.romaji}**`)
+                  i.reply({content: `You have joined the watch-party for **${anime.Media.title.romaji}**`, ephemeral: true})
                 }
               }
               return i.user.id === interaction.user.id
             }
-            response.awaitMessageComponent({ filter, componentType: 'SELECT_MENU', time: 15000 })
+            interaction.channel.awaitMessageComponent({ filter, componentType: 'SELECT_MENU', time: 15000 })
           }
         } else {
-          interaction.reply('You have not yet been aliased to an AniList user. `/alias add`')
+          interaction.reply({content: 'You have not yet been aliased to an AniList user. `/alias add`', ephemeral: true})
         }
       } else {
-        interaction.reply('You have not yet been aliased to an AniList user. `/alias add`')
+        interaction.reply({content: 'You have not yet been aliased to an AniList user. `/alias add`', ephemeral: true})
       }
     }
 
@@ -272,7 +271,7 @@ module.exports = {
         const user = userList.find(x => x.userId === id)
         if (user) {
           if (thisServerParty.server.list.length === 0) {
-            interaction.reply('There are no leaveable watch-parties at the moment.')
+            interaction.reply({content: 'There are no leaveable watch-parties at the moment.', ephemeral: true})
           } else {
             const authorAniName = user.username
             let titles = []
@@ -297,8 +296,7 @@ module.exports = {
               })
             })
 
-            await interaction.reply({ content: 'Select a watch-party to leave:', components: [row] })
-            const response = await interaction.fetchReply()
+            await interaction.reply({ content: 'Select a watch-party to leave:', components: [row], ephemeral: true })
 
             const filter = async i => {
               if (i.user.id === interaction.user.id) {
@@ -309,33 +307,33 @@ module.exports = {
                   const authorIndex = thisServerParty.server.list.find(x => x.animeId === animeId).members.findIndex(x => x === id)
                   thisServerParty.server.list.find(x => x.animeId === animeId).members.splice(authorIndex, 1)
                   thisServerParty.save()
-                  i.reply(`You have left the watch-party for **${titleToLeave}**`)
+                  i.reply({content: `You have left the watch-party for **${titleToLeave}**`, ephemeral: true})
                 } else {
-                  i.reply('You are not in this watch-party.')
+                  i.reply({content: 'You are not in this watch-party.', ephemeral: true})
                 }
                 return i.user.id === interaction.user.id
               }
             }
 
-            response.awaitMessageComponent({ filter, componentType: 'SELECT_MENU', time: 15000 })
+            interaction.channel.awaitMessageComponent({ filter, componentType: 'SELECT_MENU', time: 15000 })
           }
         } else {
-          interaction.reply('You have not yet been aliased to an AniList user. `/alias add`')
+          interaction.reply({content: 'You have not yet been aliased to an AniList user. `/alias add`', ephemeral: true})
         }
       } else {
-        interaction.reply('You have not yet been aliased to an AniList user. `/alias add`')
+        interaction.reply({content: 'You have not yet been aliased to an AniList user. `/alias add`', ephemeral: true})
       }
     }
 
     else if (sub === 'delete') {
       if (thisServerParty.server.list.length === 0) {
-        interaction.reply('There are currently no deletable watch-party suggestions.')
+        interaction.reply({content: 'There are currently no deletable watch-party suggestions.', ephemeral: true})
       } else {
         const oneId = await request('https://graphql.anilist.co', GET_MEDIA, { id: thisServerParty.server.list[0].animeId })
         const oneTitle = oneId.Media.title.romaji
         const isCurrent = (oneTitle === thisServerParty.server.current)
         if (thisServerParty.server.list.length === 1 && isCurrent) {
-          interaction.reply('There are currently no deletable watch-party suggestions.')
+          interaction.reply({content: 'There are currently no deletable watch-party suggestions.', ephemeral: true})
         } else {
           let titles = []
           thisServerParty.server.list.forEach(async obj => {
@@ -361,9 +359,8 @@ module.exports = {
             })
           })
 
-          await interaction.reply({ content: 'Choose an anime to remove from the queue:', components: [row] })
+          await interaction.reply({ content: 'Choose an anime to remove from the queue:', components: [row], ephemeral: true })
 
-          const response = await interaction.fetchReply()
           const filter = async i => {
             const titleToDelete = i.values[0]
             const anime = await request('https://graphql.anilist.co', GET_MEDIA, { search: titleToDelete })
@@ -371,25 +368,25 @@ module.exports = {
             const index = thisServerParty.server.list.findIndex(x => x.animeId === id)
             thisServerParty.server.list.splice(index, 1)
             thisServerParty.save()
-            i.reply(`${anime.Media.title.romaji} has been deleted from the suggested list.`)
+            i.reply(`${i.user.username} has deleted **${anime.Media.title.romaji}** from the suggested list.`)
 
             return i.user.id === interaction.user.id
           }
 
-          response.awaitMessageComponent({ filter, componentType: 'SELECT_MENU', time: 15000 })
+          interaction.channel.awaitMessageComponent({ filter, componentType: 'SELECT_MENU', time: 15000 })
         }
       }
     }
 
     else if (sub === 'set') {
       if (thisServerParty.server.list.length === 0) {
-        interaction.reply('There are currently no settable watch-party suggestions.')
+        interaction.reply({content: 'There are currently no settable watch-party suggestions.', ephemeral: true})
       } else {
         const oneId = await request('https://graphql.anilist.co', GET_MEDIA, { id: thisServerParty.server.list[0].animeId })
         const oneTitle = oneId.Media.title.romaji
         const isCurrent = (oneTitle === thisServerParty.server.current)
         if (thisServerParty.server.list.length === 1 && isCurrent) {
-          interaction.reply('There are currently no settable watch-party suggestions.')
+          interaction.reply({content: 'There are currently no settable watch-party suggestions.', ephemeral: true})
         } else {
           let titles = []
           thisServerParty.server.list.forEach(async obj => {
@@ -415,8 +412,7 @@ module.exports = {
             })
           })
 
-          await interaction.reply({ content: 'Select a watch-party to set as current:', components: [row] })
-          const response = await interaction.fetchReply()
+          await interaction.reply({ content: 'Select a watch-party to set as current:', components: [row], ephemeral: true })
 
           const filter = async i => {
             if (i.user.id === interaction.user.id) {
@@ -448,7 +444,7 @@ module.exports = {
             }
             return i.user.id === interaction.user.id
           }
-          response.awaitMessageComponent({ filter, componentType: 'SELECT_MENU', time: 15000 })
+          interaction.channel.awaitMessageComponent({ filter, componentType: 'SELECT_MENU', time: 15000 })
         }
       }
     }

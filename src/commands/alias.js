@@ -62,15 +62,16 @@ module.exports = {
       }
       const eraseOld = { userId: discord }
       await Alias.findOneAndUpdate(query, { $pull: { 'server.users': eraseOld } })
-      let changedDoc = await Alias.findOneAndUpdate(query, { $push: { 'server.users': newUser } }, { new: true })
-      interaction.reply(`Aliased ${discord} to ${anilist}`)
+      await Alias.findOneAndUpdate(query, { $push: { 'server.users': newUser } }, { new: true })
+      console.log(`${interaction.user.username} removed alias for ${newUser.userId}`)
+      interaction.reply({content: `Aliased ${discord} to ${anilist}`, ephemeral: true})
     } else if (sub === 'remove') {
       const userToRemove = {
         userId: discord
       }
+      console.log(`${interaction.user.username} removed alias for ${userToRemove.userId}`)
       let changedDoc = await Alias.findOneAndUpdate(query, { $pull: { 'server.users': userToRemove } })
-      console.log(changedDoc)
-      interaction.reply(`Removed ${discord}'s alias`)
+      interaction.reply({content: `Removed ${discord}'s alias`, ephemeral: true})
     }
   }
 }
