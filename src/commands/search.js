@@ -16,8 +16,6 @@ module.exports = {
   async execute(interaction) {
     const title = interaction.options.getString('title')
     const media = await request('https://graphql.anilist.co', GET_MEDIA, { search: title })
-    console.log(media.Media)
-    console.log(interaction.channel.nsfw)
     if (media.Media.isAdult && !interaction.channel.nsfw) {
       interaction.reply({ content: `${media.Media.title.romaji} is an adult-themed anime, and this channel does not support NSFW content!`, ephemeral: true })
     } else {

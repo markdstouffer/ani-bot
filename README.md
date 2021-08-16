@@ -1,7 +1,7 @@
 # Ani-Bot
-A Discord bot for searching anime, user scores/progress, and managing watch-parties.
+A Discord bot for searching anime, user scores/progress, and managing watch-parties. Ani-Bot queries data from AniList's GraphQL API, and is written entirely in JavaScript, using the newest features available in the Discord.js library.
 
-Ani-Bot queries data from AniList's GraphQL API, and is written entirely in JavaScript, using the Discord.js library.
+Head over to [Getting Started](Getting%20Started.md) to learn more about the commands.
 
 ### Watch-parties
 The main feature of Ani-Bot is the creation of watch-parties. The first step is *suggesting* an anime for your group of friends to watch together (`/wp suggest <anime title>`). Any member of the server may choose to partake, either by reacting to a prompt, or by using `/wp join`. The watchparty command can then be used to check the progress of all members on the anime.
