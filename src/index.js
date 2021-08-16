@@ -1,3 +1,10 @@
+// const express = require('express')
+// const app = express();
+// const port = 3000;
+// app.get('/', (req, res) => res.send('Hello World!'))
+// app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`))
+// ABOVE IS CODE JUST REQUIRED TO HOST ON REPL
+
 const {Client, Collection, Intents} = require('discord.js')
 require('dotenv').config()
 const { REST } = require('@discordjs/rest')
@@ -17,7 +24,7 @@ const commandFiles = fs.readdirSync(path.resolve(__dirname, './commands')).filte
 for (const file of commandFiles) {
   const command = require(`./commands/${file}`)
   client.commands.set(command.data.name, command)
-  if (command.data.name === 'url-quick') {
+  if (!command.data.options) {
     commands.push(command.data)
   } else {
     commands.push(command.data.toJSON())
@@ -30,10 +37,10 @@ const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
   try {
     console.log('Started refreshing slash commands...')
     await rest.put(
-      // Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
-      // { body: commands }
-      Routes.applicationCommands(process.env.CLIENT_ID),
-      {body: commands }
+      Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
+      { body: commands }
+      // Routes.applicationCommands(process.env.CLIENT_ID),
+      // {body: [] }
     )
     console.log('Successfully refreshed slash commands!')
   } catch (error) {
