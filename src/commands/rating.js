@@ -84,11 +84,10 @@ module.exports = {
               const userRating = oneList.MediaList.score
               countRating += userRating
               count += 1
-              allEmbed.addField(user.User.name, `[${userRating}/10](${user.User.siteUrl})`, true)
-            } catch {
-              const userRating = 'N/A'
-              allEmbed.addField(user.User.name, `[${userRating}](${user.User.siteUrl})`, true)
-            }
+              if (oneList.MediaList.status === 'COMPLETED') {
+                allEmbed.addField(user.User.name, `[${userRating}/10](${user.User.siteUrl})`, true)
+              }
+            } catch {}
           })
           await wait(1000)
   
