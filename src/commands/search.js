@@ -23,12 +23,10 @@ module.exports = {
     } else {
       const description = (td.turndown(media.Media.description))
       const trimmedDesc = (description.length > 200) ? `${description.substring(0, 200).trim()}...` : `${description}`
-      const slimSetDesc = `__${media.Media.title.romaji}__ on [**Anilist**](${media.Media.siteUrl})\n\n${trimmedDesc}`
-      const fullSetDesc = `__${media.Media.title.romaji}__ on [**Anilist**](${media.Media.siteUrl})\n\n${description}`
 
       const embed = new Discord.MessageEmbed()
         .setColor(media.Media.coverImage.color)
-        .setDescription(slimSetDesc)
+        .setDescription(trimmedDesc)
         .setTitle(media.Media.title.romaji)
         .setThumbnail(media.Media.coverImage.large)
         .addField('Avg. score: ', `${media.Media.averageScore}\%`, true)
@@ -45,11 +43,11 @@ module.exports = {
       let full = false
       function swapDesc() {
         if (full) {
-          embed.setDescription(slimSetDesc)
+          embed.setDescription(trimmedDesc)
           row.components[0].setLabel('Show full description')
           full = false
         } else {
-          embed.setDescription(fullSetDesc)
+          embed.setDescription(description)
           row.components[0].setLabel('Shorten description')
           full = true
         }
@@ -58,29 +56,34 @@ module.exports = {
       const row = new Discord.MessageActionRow()
         .addComponents(
           new Discord.MessageButton()
-            .setCustomId('primary')
+            .setCustomId('toggle')
             .setLabel('Show full description')
-            .setStyle('PRIMARY')
+            .setStyle('PRIMARY'),
+          new Discord.MessageButton()
+            .setLabel(`${media.Media.title.romaji} on AniList`)
+            .setURL(`${media.Media.siteUrl}`)
+            .setStyle('LINK')
         )
 
       interaction.reply({ embeds: [embed], components: [row] })
       setTimeout(() => {
-        interaction.editReply({ components: [] })
-      }, 60000)
+        row.components[0].setDisabled(true)
+        interaction.editReply({ components: [row] })
+      }, 120000)
 
       const response = await interaction.fetchReply()
 
-      const filter = async i => {
-        return i.user.id === interaction.user.id
-      }
-
-      const collector = response.createMessageComponentCollector({ filter, time: 60000 })
+      const collector = response.createMessageComponentCollector({ componentType: 'BUTTON', time: 120000 })
       collector.on('collect', async i => {
-        swapDesc()
-        await i.update({ components: [row] })
-        interaction.editReply({ embeds: [embed] })
+        if (i.user.id === interaction.user.id) {
+          swapDesc()
+          await i.update({ components: [row] })
+          interaction.editReply({ embeds: [embed] })
+        } else {
+          i.reply({ content: 'This button is not for you!', ephemeral: true })
+        }
       })
-      
+
     }
   }
 }
