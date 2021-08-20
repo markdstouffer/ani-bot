@@ -75,13 +75,9 @@ module.exports = {
 
       const collector = response.createMessageComponentCollector({ componentType: 'BUTTON', time: 120000 })
       collector.on('collect', async i => {
-        if (i.user.id === interaction.user.id) {
-          swapDesc()
-          await i.update({ components: [row] })
-          interaction.editReply({ embeds: [embed] })
-        } else {
-          i.reply({ content: 'This button is not for you!', ephemeral: true })
-        }
+        swapDesc()
+        await i.update({ components: [row] })
+        interaction.editReply({ embeds: [embed] })
       })
 
     }
