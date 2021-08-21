@@ -1,3 +1,8 @@
+//import types
+import { SlashCommandStringOption } from '@discordjs/builders'
+import { CommandInteraction } from 'discord.js'
+import { Aliases } from '../types'
+
 const { request } = require('graphql-request')
 const { GET_USERINFO } = require('../queries')
 const { SlashCommandBuilder } = require('@discordjs/builders')
@@ -8,21 +13,21 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName('url')
     .setDescription('Return the url of an AniList user')
-    .addStringOption(opt =>
+    .addStringOption((opt: SlashCommandStringOption) =>
       opt
         .setName('user')
         .setDescription('AniList username or Discord tag')
         .setRequired(true)
     ),
-  async execute(interaction) {
+  async execute(interaction: CommandInteraction) {
     const name = interaction.options.getString('user')
     const serverId = interaction.guildId
     const countServerDocs = await Alias.find({ 'server.serverId': serverId }).limit(1).countDocuments()
     let serverExists = (countServerDocs > 0)
-    let serverAliases = await Alias.findOne({ 'server.serverId': serverId })
+    let serverAliases: Aliases = await Alias.findOne({ 'server.serverId': serverId })
 
     try {
-      if (name.startsWith('<')) {
+      if (name!.startsWith('<')) {
         if (serverExists) {
           const userList = serverAliases.server.users
           const user = userList.find(x => x.userId === name)
@@ -43,7 +48,7 @@ module.exports = {
       }
     } catch (err) {
       console.error(err)
-      interaction.reply({ content: 'Command failed, user might not be aliased. `/alias add`', ephemeral: true })
+      interaction.reply({ content: 'Command failed, check that the user is aliased or you spelled it right. `/alias add`', ephemeral: true })
     }
 
   }

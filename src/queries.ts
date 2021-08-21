@@ -1,6 +1,5 @@
 const { gql } = require('graphql-request')
 
-
 module.exports = { 
   GET_USERINFO: gql`
   query ($name: String) {

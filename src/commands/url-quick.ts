@@ -1,3 +1,7 @@
+//import types
+import { CommandInteraction } from 'discord.js'
+import { Aliases } from '../types'
+
 const { request } = require('graphql-request')
 const { GET_USERINFO } = require('../queries')
 
@@ -9,13 +13,13 @@ module.exports = {
     name: 'url-quick',
     type: 2
   },
-  async execute(interaction) {
+  async execute(interaction: CommandInteraction) {
     const discord = interaction.options.getUser('user')
-    const id = `<@!${discord.id}>`
+    const id = `<@!${discord!.id}>`
     const serverId = interaction.guildId
     const countServerDocs = await Alias.find({ 'server.serverId': serverId }).limit(1).countDocuments()
     let serverExists = (countServerDocs > 0)
-    let serverAliases = await Alias.findOne({ 'server.serverId': serverId })
+    let serverAliases: Aliases = await Alias.findOne({ 'server.serverId': serverId })
 
     if (serverExists) {
       const userList = serverAliases.server.users

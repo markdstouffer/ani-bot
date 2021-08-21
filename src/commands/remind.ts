@@ -1,3 +1,8 @@
+//import types
+import { SlashCommandMentionableOption } from '@discordjs/builders'
+import { CommandInteraction } from 'discord.js'
+import { Parties } from '../types'
+
 const { SlashCommandBuilder } = require('@discordjs/builders')
 const conn = require('../connections/anidata_conn')
 const Party = conn.models.Party
@@ -6,20 +11,20 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName('remind')
     .setDescription('Remind a baka to watch the current WP episodes')
-    .addMentionableOption(opt =>
+    .addMentionableOption((opt: SlashCommandMentionableOption) =>
       opt
         .setName('discord')
         .setDescription('Discord tag')
         .setRequired(true)
       ),
-  async execute(interaction) {
+  async execute(interaction: CommandInteraction) {
     const serverId = interaction.guildId
     const query = { 'server.serverId': serverId }
     const discord = interaction.options.getMentionable('discord')
 
-    let countPartyServerDocs = await Party.find(query).limit(1).countDocuments()
+    let countPartyServerDocs: number = await Party.find(query).limit(1).countDocuments()
     let partyServerExists = (countPartyServerDocs > 0)
-    let thisServerParty = await Party.findOne(query)
+    let thisServerParty: Parties = await Party.findOne(query)
 
     if (partyServerExists) {
       const currentAnime = thisServerParty.server.current

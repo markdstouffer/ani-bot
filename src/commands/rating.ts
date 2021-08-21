@@ -1,3 +1,8 @@
+//import types
+import { SlashCommandSubcommandBuilder } from '@discordjs/builders'
+import { CommandInteraction } from 'discord.js'
+import { Aliases, AniList, AniMedia, AniUser } from '../types'
+
 const { request } = require('graphql-request')
 const { GET_MEDIA, GET_USERINFO, GET_MEDIALIST } = require('../queries')
 const { SlashCommandBuilder } = require('@discordjs/builders')
@@ -11,7 +16,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName('rating')
     .setDescription('Returns a user\'s rating of an anime.')
-    .addSubcommand(sub =>
+    .addSubcommand((sub: SlashCommandSubcommandBuilder) =>
       sub
         .setName('all')
         .setDescription('Returns all aliased server members ratings for an anime')
@@ -22,7 +27,7 @@ module.exports = {
             .setRequired(true)
         )
     )
-    .addSubcommand(sub =>
+    .addSubcommand((sub: SlashCommandSubcommandBuilder) =>
       sub
         .setName('user')
         .setDescription('Returns rating of one user')
@@ -39,13 +44,13 @@ module.exports = {
             .setRequired(true)
         )
     ),
-  async execute(interaction) {
-    function percentToHex(percent, start, end, s, l) {
+  async execute(interaction: CommandInteraction) {
+    function percentToHex(percent: number, start: number, end: number, s: number, l: number): string {
       l /= 100
       const x = (percent / 100), y = (end - start) * x,
         h = y + start
       const a = s * Math.min(l, 1 - l) / 100;
-      const f = n => {
+      const f = (n: number) => {
         const k = (n + h / 30) % 12
         const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1)
         return Math.round(255 * color).toString(16).padStart(2, '0')
@@ -54,16 +59,16 @@ module.exports = {
     } //function to convert percent to HEX (adapted from u/icl7126, u/Mattisdada)
 
     const serverId = interaction.guildId
-    const countServerDocs = await Alias.find({ 'server.serverId': serverId }).limit(1).countDocuments()
+    const countServerDocs: number = await Alias.find({ 'server.serverId': serverId }).limit(1).countDocuments()
     let serverExists = (countServerDocs > 0)
-    let serverAliases = await Alias.findOne({ 'server.serverId': serverId })
+    let serverAliases: Aliases = await Alias.findOne({ 'server.serverId': serverId })
 
     const sub = interaction.options.getSubcommand()
     const name = interaction.options.getString('name')
     const title = interaction.options.getString('title')
 
     try {
-      const animeData = await request('https://graphql.anilist.co', GET_MEDIA, { search: title })
+      const animeData: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { search: title })
 
       if (sub === 'all') {
         if (serverExists) {
@@ -78,9 +83,9 @@ module.exports = {
             .setTimestamp()
           let countRating = 0, count = 0
           userList.forEach(async u => {
-            const user = await request('https://graphql.anilist.co', GET_USERINFO, { name: u.username })
+            const user: AniUser = await request('https://graphql.anilist.co', GET_USERINFO, { name: u.username })
             try {
-              const oneList = await request('https://graphql.anilist.co', GET_MEDIALIST, { userName: user.User.name, mediaId: animeData.Media.id })
+              const oneList: AniList = await request('https://graphql.anilist.co', GET_MEDIALIST, { userName: user.User.name, mediaId: animeData.Media.id })
               const userRating = oneList.MediaList.score
               countRating += userRating
               count += 1
@@ -101,14 +106,14 @@ module.exports = {
         }
       }
 
-      else if (name.startsWith('<')) {
+      else if (name!.startsWith('<')) {
         if (serverExists) {
           const userList = serverAliases.server.users
           const user = userList.find(x => x.userId === name)
           if (user) {
-            const userData = await request('https://graphql.anilist.co', GET_USERINFO, { name: user.username })
+            const userData: AniUser = await request('https://graphql.anilist.co', GET_USERINFO, { name: user.username })
             try {
-              const listData = await request('https://graphql.anilist.co', GET_MEDIALIST, { userName: userData.User.name, mediaId: animeData.Media.id })
+              const listData: AniList = await request('https://graphql.anilist.co', GET_MEDIALIST, { userName: userData.User.name, mediaId: animeData.Media.id })
               const score = listData.MediaList.score * 10
               const color = percentToHex(score, 0, 110, 100, 50)
               const embed = new Discord.MessageEmbed()
@@ -129,9 +134,9 @@ module.exports = {
         }
       }
       else {
-        const userData = await request('https://graphql.anilist.co', GET_USERINFO, { name })
+        const userData: AniUser = await request('https://graphql.anilist.co', GET_USERINFO, { name })
         try {
-          const listData = await request('https://graphql.anilist.co', GET_MEDIALIST, { userName: userData.User.name, mediaId: animeData.Media.id })
+          const listData: AniList = await request('https://graphql.anilist.co', GET_MEDIALIST, { userName: userData.User.name, mediaId: animeData.Media.id })
           const score = listData.MediaList.score * 10
           const color = percentToHex(score, 0, 110, 100, 50)
           const embed = new Discord.MessageEmbed()
@@ -147,9 +152,9 @@ module.exports = {
       }
 
     } catch (err) {
-      console.log('User failed to use /score')
+      console.log('User failed to use /score... sub: ', sub, ' name: ', name, ' title: ', title )
       console.error(err)
-      interaction.reply({ content: 'Command failed', ephemeral: true })
+      interaction.reply({ content: 'Command failed, check usage.', ephemeral: true })
     }
   }
 }

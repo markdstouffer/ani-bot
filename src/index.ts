@@ -5,6 +5,9 @@
 // app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`))
 // ABOVE IS CODE JUST REQUIRED TO HOST ON REPL
 
+//import types
+import { Interaction } from 'discord.js'
+
 const {Client, Collection, Intents} = require('discord.js')
 require('dotenv').config()
 const { REST } = require('@discordjs/rest')
@@ -19,7 +22,7 @@ const client = new Client({intents: myIntents})
 client.commands = new Collection()
 
 let commands = []
-const commandFiles = fs.readdirSync(path.resolve(__dirname, './commands')).filter(file => file.endsWith('.js'))
+const commandFiles = fs.readdirSync(path.resolve(__dirname, './commands'))
 
 for (const file of commandFiles) {
   const command = require(`./commands/${file}`)
@@ -37,10 +40,10 @@ const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
   try {
     console.log('Started refreshing slash commands...')
     await rest.put(
-      Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
-      { body: commands }
-      // Routes.applicationCommands(process.env.CLIENT_ID),
-      // {body: [] }
+      // Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
+      // { body: commands }
+      Routes.applicationCommands(process.env.CLIENT_ID),
+      {body: commands }
     )
     console.log('Successfully refreshed slash commands!')
   } catch (error) {
@@ -57,7 +60,7 @@ process.on('unhandledRejection', error => {
   console.error('Unhandled promise rejection:', error)
 })
 
-client.on('interactionCreate', async interaction => {
+client.on('interactionCreate', async (interaction: Interaction) => {
   if (!interaction.isCommand() && !interaction.isContextMenu()) return;
   if (!client.commands.has(interaction.commandName)) return;
 

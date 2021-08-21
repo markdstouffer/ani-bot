@@ -1,5 +1,5 @@
 # Ani-Bot
-A Discord bot for searching anime, user scores/progress, and managing watch-parties. Ani-Bot queries data from AniList's GraphQL API, and is written entirely in JavaScript, using the newest features available in the Discord.js library.
+A Discord bot for searching anime, user scores/progress, and managing watch-parties. Ani-Bot queries data from AniList's GraphQL API, and is written entirely in TypeScript, using the newest features available in the Discord.js library.
 
 Head over to [Getting Started](Getting%20Started.md) to learn more about the commands.
 
