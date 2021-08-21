@@ -332,7 +332,7 @@ module.exports = {
         if (thisServerParty.server.list.length === 1 && isCurrent) {
           interaction.reply({ content: 'There are currently no deletable watch-party suggestions.', ephemeral: true })
         } else {
-          let titles: string[] = []
+          const titles: string[] = []
           thisServerParty.server.list.forEach(async obj => {
             const oneAnime: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { id: obj.animeId })
             const addToTitles = `${oneAnime.Media.title.romaji}`

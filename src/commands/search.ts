@@ -48,7 +48,7 @@ module.exports = {
         : embed.addField('Streaming: ', 'Torrent it!', true)
 
       let full: boolean = false
-      function swapDesc() {
+      function swapDesc () {
         if (full) {
           embed.setDescription(trimmedDesc)
           row.spliceComponents(0, 1, [

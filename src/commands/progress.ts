@@ -94,12 +94,15 @@ module.exports = {
               const userData: AniUser = await request('https://graphql.anilist.co', GET_USERINFO, { name: anilist })
               try {
                 const listData: AniList = await request('https://graphql.anilist.co', GET_MEDIALIST, { userName: userData.User.name, mediaId: animeData.Media.id })
-                const stat =
-                  (listData.MediaList.status === 'CURRENT') ? 'Currently watching'
-                    : (listData.MediaList.status === 'COMPLETED') ? 'Completed watching'
-                      : (listData.MediaList.status === 'DROPPED') ? 'Dropped watching'
-                        : (listData.MediaList.status === 'PAUSED') ? 'Paused watching'
-                          : null
+                const stat = (listData.MediaList.status === 'CURRENT')
+                  ? 'Currently watching'
+                  : (listData.MediaList.status === 'COMPLETED')
+                      ? 'Completed watching'
+                      : (listData.MediaList.status === 'DROPPED')
+                          ? 'Dropped watching'
+                          : (listData.MediaList.status === 'PAUSED')
+                              ? 'Paused watching'
+                              : null
                 const embed = new Discord.MessageEmbed()
                   .setTitle(userData.User.name)
                   .setColor(animeData.Media.coverImage.color)
@@ -121,11 +124,15 @@ module.exports = {
           try {
             const listData: AniList = await request('https://graphql.anilist.co', GET_MEDIALIST, { userName: userData.User.name, mediaId: animeData.Media.id })
             const stat =
-              (listData.MediaList.status === 'CURRENT') ? 'Currently watching'
-                : (listData.MediaList.status === 'COMPLETED') ? 'Completed watching'
-                  : (listData.MediaList.status === 'DROPPED') ? 'Dropped watching'
-                    : (listData.MediaList.status === 'PAUSED') ? 'Paused watching'
-                      : null
+              (listData.MediaList.status === 'CURRENT')
+                ? 'Currently watching'
+                : (listData.MediaList.status === 'COMPLETED')
+                    ? 'Completed watching'
+                    : (listData.MediaList.status === 'DROPPED')
+                        ? 'Dropped watching'
+                        : (listData.MediaList.status === 'PAUSED')
+                            ? 'Paused watching'
+                            : null
             const embed = new Discord.MessageEmbed()
               .setTitle(userData.User.name)
               .setColor(animeData.Media.coverImage.color)
