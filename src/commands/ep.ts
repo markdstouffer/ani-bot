@@ -1,4 +1,4 @@
-//import types
+// import types
 import { SlashCommandSubcommandBuilder } from '@discordjs/builders'
 import { CommandInteraction, TextChannel } from 'discord.js'
 import { AniMedia, Parties } from '../types'
@@ -30,14 +30,14 @@ module.exports = {
             .setRequired(true)
         )
     ),
-  async execute(interaction: CommandInteraction) {
+  async execute (interaction: CommandInteraction) {
     const sub = interaction.options.getSubcommand()
     const amount = interaction.options.getInteger('amount')
     const serverId = interaction.guildId
     const query = { 'server.serverId': serverId }
-    let countPartyServerDocs: number = await Party.find(query).limit(1).countDocuments()
-    let partyServerExists = (countPartyServerDocs > 0)
-    let thisServerParty: Parties = await Party.findOne(query)
+    const countPartyServerDocs: number = await Party.find(query).limit(1).countDocuments()
+    const partyServerExists = (countPartyServerDocs > 0)
+    const thisServerParty: Parties = await Party.findOne(query)
 
     if (!partyServerExists) {
       interaction.reply('There is no current watchparty. `/watchparty suggest`')
@@ -56,7 +56,6 @@ module.exports = {
             interaction.reply(`Today's episode is **${currentEpisode - 1}**.`)
           }
         }
-
       } else if (sub === 'next') {
         if (thisServerParty.server.current) {
           const channel: TextChannel = interaction.channel as TextChannel
@@ -84,7 +83,7 @@ module.exports = {
           channel.messages.fetch(thread.id).then(x => x.delete())
           thisServerParty.save()
         } else {
-          interaction.reply({ content: 'There is no watch-party currently set. `/wp set`', ephemeral: true})
+          interaction.reply({ content: 'There is no watch-party currently set. `/wp set`', ephemeral: true })
         }
       }
     }

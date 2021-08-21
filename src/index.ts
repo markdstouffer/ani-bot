@@ -5,10 +5,10 @@
 // app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`))
 // ABOVE IS CODE JUST REQUIRED TO HOST ON REPL
 
-//import types
+// import types
 import { Interaction } from 'discord.js'
 
-const {Client, Collection, Intents} = require('discord.js')
+const { Client, Collection, Intents } = require('discord.js')
 require('dotenv').config()
 const { REST } = require('@discordjs/rest')
 const { Routes } = require('discord-api-types/v9')
@@ -18,10 +18,10 @@ const path = require('path')
 const myIntents = new Intents()
 myIntents.add('GUILDS', 'GUILD_MESSAGES', 'DIRECT_MESSAGES', 'DIRECT_MESSAGE_REACTIONS', 'GUILD_MEMBERS', 'GUILD_EMOJIS_AND_STICKERS', 'GUILD_MESSAGE_REACTIONS')
 
-const client = new Client({intents: myIntents})
+const client = new Client({ intents: myIntents })
 client.commands = new Collection()
 
-let commands = []
+const commands = []
 const commandFiles = fs.readdirSync(path.resolve(__dirname, './commands'))
 
 for (const file of commandFiles) {
@@ -43,14 +43,13 @@ const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
       // Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
       // { body: commands }
       Routes.applicationCommands(process.env.CLIENT_ID),
-      {body: commands }
+      { body: commands }
     )
     console.log('Successfully refreshed slash commands!')
   } catch (error) {
     console.error(error)
   }
 })()
-
 
 client.on('ready', async () => {
   console.log(`Logged in as ${client.user.tag}!`)
@@ -61,8 +60,8 @@ process.on('unhandledRejection', error => {
 })
 
 client.on('interactionCreate', async (interaction: Interaction) => {
-  if (!interaction.isCommand() && !interaction.isContextMenu()) return;
-  if (!client.commands.has(interaction.commandName)) return;
+  if (!interaction.isCommand() && !interaction.isContextMenu()) return
+  if (!client.commands.has(interaction.commandName)) return
 
   try {
     await client.commands.get(interaction.commandName).execute(interaction)
@@ -70,7 +69,6 @@ client.on('interactionCreate', async (interaction: Interaction) => {
     console.error(error)
     await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true })
   }
-
 })
 
 client.login(process.env.TOKEN)

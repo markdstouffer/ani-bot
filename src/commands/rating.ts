@@ -1,4 +1,4 @@
-//import types
+// import types
 import { SlashCommandSubcommandBuilder } from '@discordjs/builders'
 import { CommandInteraction } from 'discord.js'
 import { Aliases, AniList, AniMedia, AniUser } from '../types'
@@ -44,24 +44,25 @@ module.exports = {
             .setRequired(true)
         )
     ),
-  async execute(interaction: CommandInteraction) {
-    function percentToHex(percent: number, start: number, end: number, s: number, l: number): string {
+  async execute (interaction: CommandInteraction) {
+    function percentToHex (percent: number, start: number, end: number, s: number, l: number): string {
       l /= 100
-      const x = (percent / 100), y = (end - start) * x,
-        h = y + start
-      const a = s * Math.min(l, 1 - l) / 100;
+      const x = (percent / 100)
+      const y = (end - start) * x
+      const h = y + start
+      const a = s * Math.min(l, 1 - l) / 100
       const f = (n: number) => {
         const k = (n + h / 30) % 12
         const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1)
         return Math.round(255 * color).toString(16).padStart(2, '0')
       }
       return `#${f(0)}${f(8)}${f(4)}`
-    } //function to convert percent to HEX (adapted from u/icl7126, u/Mattisdada)
+    } // function to convert percent to HEX (adapted from u/icl7126, u/Mattisdada)
 
     const serverId = interaction.guildId
     const countServerDocs: number = await Alias.find({ 'server.serverId': serverId }).limit(1).countDocuments()
-    let serverExists = (countServerDocs > 0)
-    let serverAliases: Aliases = await Alias.findOne({ 'server.serverId': serverId })
+    const serverExists = (countServerDocs > 0)
+    const serverAliases: Aliases = await Alias.findOne({ 'server.serverId': serverId })
 
     const sub = interaction.options.getSubcommand()
     const name = interaction.options.getString('name')
@@ -74,14 +75,15 @@ module.exports = {
         if (serverExists) {
           interaction.deferReply()
           const userList = serverAliases.server.users
-  
+
           const allEmbed = new Discord.MessageEmbed()
             .setTitle('Ratings')
             .setDescription(`Server members' ratings for [**${animeData.Media.title.romaji}**](${animeData.Media.siteUrl})`)
             .setThumbnail(animeData.Media.coverImage.large)
             .setFooter(`requested by ${interaction.user.username}`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
             .setTimestamp()
-          let countRating = 0, count = 0
+          let countRating = 0
+          let count = 0
           userList.forEach(async u => {
             const user: AniUser = await request('https://graphql.anilist.co', GET_USERINFO, { name: u.username })
             try {
@@ -92,21 +94,19 @@ module.exports = {
               if (oneList.MediaList.status === 'COMPLETED') {
                 allEmbed.addField(user.User.name, `[${userRating}/10](${user.User.siteUrl})`, true)
               }
-            } catch {}
+            } catch { }
           })
           await wait(1000)
-  
+
           const avgScore = (count !== 0) ? countRating / count : 0
           const color = percentToHex(avgScore * 10, 0, 110, 100, 50)
           allEmbed.setColor(color)
-  
+
           interaction.editReply({ embeds: [allEmbed] })
         } else {
           interaction.reply('You must alias at least one user first. `/alias add`')
         }
-      }
-
-      else if (name!.startsWith('<')) {
+      } else if (name!.startsWith('<')) {
         if (serverExists) {
           const userList = serverAliases.server.users
           const user = userList.find(x => x.userId === name)
@@ -132,8 +132,7 @@ module.exports = {
         } else {
           interaction.reply('This user has not yet been aliased to an Anilist user. `/alias add`')
         }
-      }
-      else {
+      } else {
         const userData: AniUser = await request('https://graphql.anilist.co', GET_USERINFO, { name })
         try {
           const listData: AniList = await request('https://graphql.anilist.co', GET_MEDIALIST, { userName: userData.User.name, mediaId: animeData.Media.id })
@@ -150,9 +149,8 @@ module.exports = {
           interaction.reply(`${userData.User.name} has not yet rated this anime.`)
         }
       }
-
     } catch (err) {
-      console.log('User failed to use /score... sub: ', sub, ' name: ', name, ' title: ', title )
+      console.log('User failed to use /score... sub: ', sub, ' name: ', name, ' title: ', title)
       console.error(err)
       interaction.reply({ content: 'Command failed, check usage.', ephemeral: true })
     }

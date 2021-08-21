@@ -1,4 +1,4 @@
-//import types
+// import types
 import { SlashCommandSubcommandBuilder } from '@discordjs/builders'
 import { CommandInteraction, User } from 'discord.js'
 
@@ -20,14 +20,14 @@ module.exports = {
             .setName('discord')
             .setDescription('Discord tag')
             .setRequired(true)
-          )
+        )
         .addStringOption(option =>
           option
             .setName('anilist')
             .setDescription('AniList username')
             .setRequired(true)
-          )
-      )
+        )
+    )
     .addSubcommand((sub: SlashCommandSubcommandBuilder) =>
       sub
         .setName('remove')
@@ -37,9 +37,9 @@ module.exports = {
             .setName('discord')
             .setDescription('Discord tag')
             .setRequired(true)
-          )
-      ),
-  async execute(interaction: CommandInteraction) {
+        )
+    ),
+  async execute (interaction: CommandInteraction) {
     const serverId = interaction.guildId
     const mentionable: User = interaction.options.getMentionable('discord') as User
     const discord = `<@!${mentionable!.id}>`
@@ -48,7 +48,7 @@ module.exports = {
     const sub = interaction.options.getSubcommand()
 
     const countServerDocs: number = await Alias.find({ 'server.serverId': serverId }).limit(1).countDocuments()
-    let serverExists = (countServerDocs > 0)
+    const serverExists = (countServerDocs > 0)
 
     if (!serverExists) {
       const newServer = new Alias({
@@ -69,14 +69,14 @@ module.exports = {
       await Alias.findOneAndUpdate(query, { $pull: { 'server.users': eraseOld } })
       await Alias.findOneAndUpdate(query, { $push: { 'server.users': newUser } }, { new: true })
       console.log(`${interaction.user.username} added/edited alias for ${newUser.userId}`)
-      interaction.reply({content: `Aliased ${discord} to ${anilist}`, ephemeral: true})
+      interaction.reply({ content: `Aliased ${discord} to ${anilist}`, ephemeral: true })
     } else if (sub === 'remove') {
       const userToRemove = {
         userId: discord
       }
       console.log(`${interaction.user.username} removed alias for ${userToRemove.userId}`)
       await Alias.findOneAndUpdate(query, { $pull: { 'server.users': userToRemove } })
-      interaction.reply({content: `Removed ${discord}'s alias`, ephemeral: true})
+      interaction.reply({ content: `Removed ${discord}'s alias`, ephemeral: true })
     }
   }
 }

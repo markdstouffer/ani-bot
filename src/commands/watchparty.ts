@@ -1,4 +1,4 @@
-//import types
+// import types
 import { SlashCommandSubcommandBuilder } from '@discordjs/builders'
 import { CommandInteraction, Message, MessageComponentInteraction, SelectMenuInteraction } from 'discord.js'
 import { AniMedia, Parties, Aliases, AniUser, AniList } from '../types'
@@ -58,14 +58,14 @@ module.exports = {
         .setName('leave')
         .setDescription('Leave a watch-party')
     ),
-  async execute(interaction: CommandInteraction) {
+  async execute (interaction: CommandInteraction) {
     const serverId = interaction.guildId
     const sub = interaction.options.getSubcommand()
     const title = interaction.options.getString('title')
     const query = { 'server.serverId': serverId }
 
-    let countPartyServerDocs: number = await Party.find(query).limit(1).countDocuments()
-    let partyServerExists = (countPartyServerDocs > 0)
+    const countPartyServerDocs: number = await Party.find(query).limit(1).countDocuments()
+    const partyServerExists = (countPartyServerDocs > 0)
     let thisServerParty: Parties = await Party.findOne(query)
 
     let countServerDocs: number = await Alias.find(query).limit(1).countDocuments()
@@ -107,7 +107,7 @@ module.exports = {
       const found = thisServerParty.server.list.find(x => x.animeId === animeId)
 
       if (found) {
-        interaction.reply({content: 'This anime has already been suggested. Use `/watchparty set` to set this as the current anime.', ephemeral: true})
+        interaction.reply({ content: 'This anime has already been suggested. Use `/watchparty set` to set this as the current anime.', ephemeral: true })
       } else {
         const newAnime = {
           animeId: animeId,
@@ -122,7 +122,7 @@ module.exports = {
           .setDescription(`[**${suggestedAnime.Media.title.romaji}**](${suggestedAnime.Media.siteUrl}) has been suggested as a watch-party subject.
               \nClick the button to enroll in the party.`)
           .setThumbnail(suggestedAnime.Media.coverImage.large)
-          .setFooter(`Enrollments will end in 60 minutes.`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
+          .setFooter('Enrollments will end in 60 minutes.', `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
           .setTimestamp()
 
         const row = new Discord.MessageActionRow()
@@ -161,14 +161,14 @@ module.exports = {
 
           if (!serverExists) {
             console.log('failed at !serverExists')
-            i.reply({content: 'You have not yet been aliased to an AniList user. `/alias add`', ephemeral: true})
+            i.reply({ content: 'You have not yet been aliased to an AniList user. `/alias add`', ephemeral: true })
           } else {
             const id = `<@!${i.user.id}>`
             const userList = serverAliases.server.users
             const user = userList.find(x => x.userId === id)
             if (!user) {
               console.log('failed at !user')
-              i.reply({content: 'You have not yet been aliased to an AniList user. `/alias add`', ephemeral: true})
+              i.reply({ content: 'You have not yet been aliased to an AniList user. `/alias add`', ephemeral: true })
             } else {
               const name = user.username
               if (!thisServerParty.server.list.find(x => x.animeId === animeId)!.members.includes(name)) {
@@ -176,17 +176,15 @@ module.exports = {
                 thisServerParty.save()
                 i.user.send(`You've chosen to join the watch-party for ${suggestedAnime.Media.title.romaji}. Follow along in chat for updates on daily episodes/discussion threads!`)
               } else {
-                await i.reply({ content: `You're already in this watch-party!`, ephemeral: true })
+                await i.reply({ content: 'You\'re already in this watch-party!', ephemeral: true })
               }
             }
           }
-          return true;
+          return true
         }
         prompt.createMessageComponentCollector({ filter, componentType: 'BUTTON', time: 3600000 })
       }
-    }
-
-    else if (sub === 'list') {
+    } else if (sub === 'list') {
       if (thisServerParty.server.list.length === 0) {
         interaction.reply('No suggestions have been entered. Use `/watchparty suggest`')
       } else {
@@ -208,18 +206,16 @@ module.exports = {
 
         interaction.editReply({ embeds: [embed] })
       }
-    }
-
-    else if (sub === 'join') {
+    } else if (sub === 'join') {
       const id = `<@!${interaction.user.id}>`
       if (serverExists) {
         const userList = serverAliases.server.users
         const user = userList.find(x => x.userId === id)
         if (user) {
           if (thisServerParty.server.list.length === 0) {
-            interaction.reply({content: 'There are no joinable watch-parties at the moment. `/watchparty suggest`', ephemeral: true})
+            interaction.reply({ content: 'There are no joinable watch-parties at the moment. `/watchparty suggest`', ephemeral: true })
           } else {
-            let titles: string[] = []
+            const titles: string[] = []
             thisServerParty.server.list.forEach(async obj => {
               const oneAnime: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { id: obj.animeId })
               const addToTitles = `${oneAnime.Media.title.romaji}`
@@ -250,11 +246,11 @@ module.exports = {
                 const animeId = anime.Media.id
                 const authorAniName = user.username
                 if (thisServerParty.server.list.find(x => x.animeId === animeId)!.members.includes(authorAniName)) {
-                  i.reply({content: 'You are already in this watch-party!', ephemeral: true})
+                  i.reply({ content: 'You are already in this watch-party!', ephemeral: true })
                 } else {
                   thisServerParty.server.list.find(x => x.animeId === animeId)!.members.push(authorAniName)
                   thisServerParty.save()
-                  i.reply({content: `You have joined the watch-party for **${anime.Media.title.romaji}**`, ephemeral: true})
+                  i.reply({ content: `You have joined the watch-party for **${anime.Media.title.romaji}**`, ephemeral: true })
                 }
               }
               return i.user.id === interaction.user.id
@@ -262,25 +258,22 @@ module.exports = {
             interaction.channel!.awaitMessageComponent({ filter, componentType: 'SELECT_MENU', time: 15000 })
           }
         } else {
-          interaction.reply({content: 'You have not yet been aliased to an AniList user. `/alias add`', ephemeral: true})
+          interaction.reply({ content: 'You have not yet been aliased to an AniList user. `/alias add`', ephemeral: true })
         }
       } else {
-        interaction.reply({content: 'You have not yet been aliased to an AniList user. `/alias add`', ephemeral: true})
+        interaction.reply({ content: 'You have not yet been aliased to an AniList user. `/alias add`', ephemeral: true })
       }
-    }
-
-
-    else if (sub === 'leave') {
+    } else if (sub === 'leave') {
       const id = `<@!${interaction.user.id}>`
       if (serverExists) {
         const userList = serverAliases.server.users
         const user = userList.find(x => x.userId === id)
         if (user) {
           if (thisServerParty.server.list.length === 0) {
-            interaction.reply({content: 'There are no leaveable watch-parties at the moment.', ephemeral: true})
+            interaction.reply({ content: 'There are no leaveable watch-parties at the moment.', ephemeral: true })
           } else {
             const authorAniName = user.username
-            let titles: string[] = []
+            const titles: string[] = []
             thisServerParty.server.list.forEach(async obj => {
               const oneAnime: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { id: obj.animeId })
               const addToTitles = `${oneAnime.Media.title.romaji}`
@@ -313,34 +306,31 @@ module.exports = {
                   const authorIndex = thisServerParty.server.list.find(x => x.animeId === animeId)!.members.findIndex(x => x === authorAniName)
                   thisServerParty.server.list.find(x => x.animeId === animeId)!.members.splice(authorIndex, 1)
                   thisServerParty.save()
-                  i.reply({content: `You have left the watch-party for **${titleToLeave}**`, ephemeral: true})
+                  i.reply({ content: `You have left the watch-party for **${titleToLeave}**`, ephemeral: true })
                 } else {
-                  i.reply({content: 'You are not in this watch-party.', ephemeral: true})
+                  i.reply({ content: 'You are not in this watch-party.', ephemeral: true })
                 }
                 return i.user.id === interaction.user.id
               }
               return i.user.id === interaction.user.id
             }
-
             interaction.channel!.awaitMessageComponent({ filter, componentType: 'SELECT_MENU', time: 15000 })
           }
         } else {
-          interaction.reply({content: 'You have not yet been aliased to an AniList user. `/alias add`', ephemeral: true})
+          interaction.reply({ content: 'You have not yet been aliased to an AniList user. `/alias add`', ephemeral: true })
         }
       } else {
-        interaction.reply({content: 'You have not yet been aliased to an AniList user. `/alias add`', ephemeral: true})
+        interaction.reply({ content: 'You have not yet been aliased to an AniList user. `/alias add`', ephemeral: true })
       }
-    }
-
-    else if (sub === 'delete') {
+    } else if (sub === 'delete') {
       if (thisServerParty.server.list.length === 0) {
-        interaction.reply({content: 'There are currently no deletable watch-party suggestions.', ephemeral: true})
+        interaction.reply({ content: 'There are currently no deletable watch-party suggestions.', ephemeral: true })
       } else {
         const oneId: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { id: thisServerParty.server.list[0].animeId })
         const oneTitle = oneId.Media.title.romaji
         const isCurrent = (oneTitle === thisServerParty.server.current)
         if (thisServerParty.server.list.length === 1 && isCurrent) {
-          interaction.reply({content: 'There are currently no deletable watch-party suggestions.', ephemeral: true})
+          interaction.reply({ content: 'There are currently no deletable watch-party suggestions.', ephemeral: true })
         } else {
           let titles: string[] = []
           thisServerParty.server.list.forEach(async obj => {
@@ -383,19 +373,17 @@ module.exports = {
           interaction.channel!.awaitMessageComponent({ filter, componentType: 'SELECT_MENU', time: 15000 })
         }
       }
-    }
-
-    else if (sub === 'set') {
+    } else if (sub === 'set') {
       if (thisServerParty.server.list.length === 0) {
-        interaction.reply({content: 'There are currently no settable watch-party suggestions.', ephemeral: true})
+        interaction.reply({ content: 'There are currently no settable watch-party suggestions.', ephemeral: true })
       } else {
         const oneId: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { id: thisServerParty.server.list[0].animeId })
         const oneTitle = oneId.Media.title.romaji
         const isCurrent = (oneTitle === thisServerParty.server.current)
         if (thisServerParty.server.list.length === 1 && isCurrent) {
-          interaction.reply({content: 'There are currently no settable watch-party suggestions.', ephemeral: true})
+          interaction.reply({ content: 'There are currently no settable watch-party suggestions.', ephemeral: true })
         } else {
-          let titles: string[] = []
+          const titles: string[] = []
           thisServerParty.server.list.forEach(async obj => {
             const oneAnime: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { id: obj.animeId })
             const addToTitles = `${oneAnime.Media.title.romaji}`
@@ -454,12 +442,10 @@ module.exports = {
           interaction.channel!.awaitMessageComponent({ filter, componentType: 'SELECT_MENU', time: 15000 })
         }
       }
-    }
-
-    else if (sub === 'view') {
+    } else if (sub === 'view') {
       try {
         if (!currentAnime) {
-          interaction.reply({ content: 'There is no currently set anime. `/wp set`', ephemeral: true})
+          interaction.reply({ content: 'There is no currently set anime. `/wp set`', ephemeral: true })
         } else {
           interaction.deferReply()
           const embed = new Discord.MessageEmbed()
@@ -469,7 +455,7 @@ module.exports = {
             .setThumbnail(currentAnime.Media.coverImage.large)
             .setFooter(`requested by ${interaction.user.username}`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
             .setTimestamp()
-  
+
           thisServerParty.server.list.find(x => x.animeId === currentId)!.members.forEach(async x => {
             const user: AniUser = await request('https://graphql.anilist.co', GET_USERINFO, { name: x })
             try {
@@ -482,13 +468,13 @@ module.exports = {
             }
           })
           await wait(1000)
-  
+
           interaction.editReply({ embeds: [embed] })
         }
       } catch (err) {
         console.log('Failed to use /wp view')
         console.error(err)
-        interaction.reply({ content: 'Command failed, check usage', ephemeral: true})
+        interaction.reply({ content: 'Command failed, check usage', ephemeral: true })
       }
     }
   }

@@ -1,4 +1,4 @@
-//import types
+// import types
 import { SlashCommandStringOption } from '@discordjs/builders'
 import { CommandInteraction, Message, MessageActionRow, MessageEmbed, TextChannel } from 'discord.js'
 import TurndownService from 'turndown'
@@ -8,7 +8,7 @@ const Discord = require('discord.js')
 const { request } = require('graphql-request')
 const { SlashCommandBuilder } = require('@discordjs/builders')
 const { GET_MEDIA } = require('../queries')
-const tds = require('turndown')
+const Tds = require('turndown')
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -20,8 +20,8 @@ module.exports = {
         .setDescription('Anime title')
         .setRequired(true)
     ),
-  async execute(interaction: CommandInteraction) {
-    const td: TurndownService = new tds()
+  async execute (interaction: CommandInteraction) {
+    const td: TurndownService = new Tds()
     const title: string | null = interaction.options.getString('title')
     const media: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { search: title })
     const channel: TextChannel = interaction.channel as TextChannel
@@ -36,7 +36,7 @@ module.exports = {
         .setDescription(trimmedDesc)
         .setTitle(media.Media.title.romaji)
         .setThumbnail(media.Media.coverImage.large)
-        .addField('Avg. score: ', `${media.Media.averageScore}\%`, true)
+        .addField('Avg. score: ', `${media.Media.averageScore}%`, true)
         .addField('# of episodes: ', `${media.Media.episodes}`, true)
         .addField('Status: ', `\`${media.Media.status}\``, true)
         .setFooter(`${media.Media.format}, by ${media.Media.studios.nodes[0].name} • ${media.Media.season} ${media.Media.seasonYear}`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
@@ -45,7 +45,7 @@ module.exports = {
         : embed.addField('Genre: ', `${media.Media.genres[0]}`, true)
       media.Media.streamingEpisodes[0]
         ? embed.addField('Streaming: ', `[${media.Media.streamingEpisodes[0].site}](${media.Media.streamingEpisodes[0].url})`, true)
-        : embed.addField('Streaming: ', `Torrent it!`, true)
+        : embed.addField('Streaming: ', 'Torrent it!', true)
 
       let full: boolean = false
       function swapDesc() {
@@ -53,18 +53,18 @@ module.exports = {
           embed.setDescription(trimmedDesc)
           row.spliceComponents(0, 1, [
             new Discord.MessageButton()
-            .setCustomId('toggle')
-            .setLabel('Show full description')
-            .setStyle('PRIMARY')
+              .setCustomId('toggle')
+              .setLabel('Show full description')
+              .setStyle('PRIMARY')
           ])
           full = false
         } else {
           embed.setDescription(description)
           row.spliceComponents(0, 1, [
             new Discord.MessageButton()
-            .setCustomId('toggle')
-            .setLabel('Shorten description')
-            .setStyle('PRIMARY')
+              .setCustomId('toggle')
+              .setLabel('Shorten description')
+              .setStyle('PRIMARY')
           ])
           full = true
         }
@@ -96,7 +96,6 @@ module.exports = {
         await i.update({ components: [row] })
         interaction.editReply({ embeds: [embed] })
       })
-
     }
   }
 }

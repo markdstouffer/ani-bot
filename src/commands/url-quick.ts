@@ -1,4 +1,4 @@
-//import types
+// import types
 import { CommandInteraction } from 'discord.js'
 import { Aliases } from '../types'
 
@@ -13,20 +13,20 @@ module.exports = {
     name: 'url-quick',
     type: 2
   },
-  async execute(interaction: CommandInteraction) {
+  async execute (interaction: CommandInteraction) {
     const discord = interaction.options.getUser('user')
     const id = `<@!${discord!.id}>`
     const serverId = interaction.guildId
-    const countServerDocs = await Alias.find({ 'server.serverId': serverId }).limit(1).countDocuments()
-    let serverExists = (countServerDocs > 0)
-    let serverAliases: Aliases = await Alias.findOne({ 'server.serverId': serverId })
+    const countServerDocs: number = await Alias.find({ 'server.serverId': serverId }).limit(1).countDocuments()
+    const serverExists = (countServerDocs > 0)
+    const serverAliases: Aliases = await Alias.findOne({ 'server.serverId': serverId })
 
     if (serverExists) {
       const userList = serverAliases.server.users
       const user = userList.find(x => x.userId === id)
       if (user) {
         const anilist = user.username
-        const userData = await request('https://graphql.anilist.co', GET_USERINFO, {name: anilist})
+        const userData = await request('https://graphql.anilist.co', GET_USERINFO, { name: anilist })
         interaction.reply(userData.User.siteUrl)
       } else {
         interaction.reply('This user has not yet been aliased to an Anilist user. `/alias add`')
