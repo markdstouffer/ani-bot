@@ -1,12 +1,11 @@
-// const express = require('express')
-// const app = express();
-// const port = 3000;
-// app.get('/', (req, res) => res.send('Hello World!'))
-// app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`))
-// ABOVE IS CODE JUST REQUIRED TO HOST ON REPL
-
 // import types
 import { Interaction } from 'discord.js'
+// import express from 'express'
+// const app = express()
+// const port = 3000
+// app.get('/', (_req, res) => res.send('Hello World!'))
+// app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`))
+// ABOVE IS CODE JUST REQUIRED TO HOST ON REPL
 
 const { Client, Collection, Intents } = require('discord.js')
 require('dotenv').config()
