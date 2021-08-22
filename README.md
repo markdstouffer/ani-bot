@@ -6,7 +6,8 @@ Head over to [Getting Started](Getting%20Started.md) to learn more about the com
 
 ## Watch-parties
 
-The main feature of Ani-Bot is the creation of watch-parties. The first step is *suggesting* an anime for your group of friends to watch together (`/wp suggest <anime title>`). Any member of the server may choose to partake, either by reacting to a prompt, or by using `/wp join`. The watchparty command can then be used to check the progress of all members on the anime.
+The main feature of Ani-Bot is the creation of watch-parties.
+The first step is *suggesting* an anime for your group of friends to watch together (`/wp suggest <anime title>`). Any member of the server may choose to partake, either by reacting to a prompt, or by using `/wp join`. The watchparty command can then be used to check the progress of all members on the anime.
 
 ## Threads
 
