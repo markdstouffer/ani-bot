@@ -1,3 +1,4 @@
+export {}
 const mongoose = require('mongoose')
 
 const aliasSchema = new mongoose.Schema({

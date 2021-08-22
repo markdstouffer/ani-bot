@@ -1,35 +1,42 @@
+// import types
+import { SlashCommandStringOption } from '@discordjs/builders'
+import { CommandInteraction, Message, MessageActionRow, MessageEmbed, TextChannel } from 'discord.js'
+import TurndownService from 'turndown'
+import { AniMedia } from '../types'
+
 const Discord = require('discord.js')
 const { request } = require('graphql-request')
 const { SlashCommandBuilder } = require('@discordjs/builders')
 const { GET_MEDIA } = require('../queries')
-const TurndownService = require('turndown')
+const Tds = require('turndown')
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('search')
     .setDescription('Search for an anime')
-    .addStringOption(opt =>
+    .addStringOption((opt: SlashCommandStringOption) =>
       opt
         .setName('title')
         .setDescription('Anime title')
         .setRequired(true)
     ),
-  async execute(interaction) {
-    const td = new TurndownService()
-    const title = interaction.options.getString('title')
-    const media = await request('https://graphql.anilist.co', GET_MEDIA, { search: title })
-    if (media.Media.isAdult && !interaction.channel.nsfw) {
+  async execute (interaction: CommandInteraction) {
+    const td: TurndownService = new Tds()
+    const title: string | null = interaction.options.getString('title')
+    const media: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { search: title })
+    const channel: TextChannel = interaction.channel as TextChannel
+    if (media.Media.isAdult && !channel.nsfw) {
       interaction.reply({ content: `${media.Media.title.romaji} is an adult-themed anime, and this channel does not support NSFW content!`, ephemeral: true })
     } else {
-      const description = (td.turndown(media.Media.description))
-      const trimmedDesc = (description.length > 200) ? `${description.substring(0, 200).trim()}...` : `${description}`
+      const description: string = (td.turndown(media.Media.description))
+      const trimmedDesc: string = (description.length > 200) ? `${description.substring(0, 200).trim()}...` : `${description}`
 
-      const embed = new Discord.MessageEmbed()
+      const embed: MessageEmbed = new Discord.MessageEmbed()
         .setColor(media.Media.coverImage.color)
         .setDescription(trimmedDesc)
         .setTitle(media.Media.title.romaji)
         .setThumbnail(media.Media.coverImage.large)
-        .addField('Avg. score: ', `${media.Media.averageScore}\%`, true)
+        .addField('Avg. score: ', `${media.Media.averageScore}%`, true)
         .addField('# of episodes: ', `${media.Media.episodes}`, true)
         .addField('Status: ', `\`${media.Media.status}\``, true)
         .setFooter(`${media.Media.format}, by ${media.Media.studios.nodes[0].name} • ${media.Media.season} ${media.Media.seasonYear}`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
@@ -38,22 +45,32 @@ module.exports = {
         : embed.addField('Genre: ', `${media.Media.genres[0]}`, true)
       media.Media.streamingEpisodes[0]
         ? embed.addField('Streaming: ', `[${media.Media.streamingEpisodes[0].site}](${media.Media.streamingEpisodes[0].url})`, true)
-        : embed.addField('Streaming: ', `Torrent it!`, true)
+        : embed.addField('Streaming: ', 'Torrent it!', true)
 
-      let full = false
-      function swapDesc() {
+      let full: boolean = false
+      function swapDesc () {
         if (full) {
           embed.setDescription(trimmedDesc)
-          row.components[0].setLabel('Show full description')
+          row.spliceComponents(0, 1, [
+            new Discord.MessageButton()
+              .setCustomId('toggle')
+              .setLabel('Show full description')
+              .setStyle('PRIMARY')
+          ])
           full = false
         } else {
           embed.setDescription(description)
-          row.components[0].setLabel('Shorten description')
+          row.spliceComponents(0, 1, [
+            new Discord.MessageButton()
+              .setCustomId('toggle')
+              .setLabel('Shorten description')
+              .setStyle('PRIMARY')
+          ])
           full = true
         }
       }
 
-      const row = new Discord.MessageActionRow()
+      const row: MessageActionRow = new Discord.MessageActionRow()
         .addComponents(
           new Discord.MessageButton()
             .setCustomId('toggle')
@@ -71,15 +88,14 @@ module.exports = {
         interaction.editReply({ components: [row] })
       }, 120000)
 
-      const response = await interaction.fetchReply()
+      const response: Message = await interaction.fetchReply() as Message
 
       const collector = response.createMessageComponentCollector({ componentType: 'BUTTON', time: 120000 })
-      collector.on('collect', async i => {
+      collector.on('collect', async (i: typeof Discord.Interaction) => {
         swapDesc()
         await i.update({ components: [row] })
         interaction.editReply({ embeds: [embed] })
       })
-
     }
   }
 }

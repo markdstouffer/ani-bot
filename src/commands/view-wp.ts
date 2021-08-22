@@ -1,3 +1,7 @@
+// import types
+import { CommandInteraction } from 'discord.js'
+import { Parties } from '../types'
+
 const Discord = require('discord.js')
 const { request } = require('graphql-request')
 const { GET_MEDIA, GET_USERINFO, GET_MEDIALIST } = require('../queries')
@@ -11,14 +15,14 @@ module.exports = {
     name: 'view-wp',
     type: 3
   },
-  async execute(interaction) {
+  async execute (interaction: CommandInteraction) {
     const serverId = interaction.guildId
     const query = { 'server.serverId': serverId }
 
-    let countPartyServerDocs = await Party.find(query).limit(1).countDocuments()
-    let partyServerExists = (countPartyServerDocs > 0)
-    let thisServerParty = await Party.findOne(query)
-    let title = thisServerParty.server.current
+    const countPartyServerDocs: number = await Party.find(query).limit(1).countDocuments()
+    const partyServerExists = (countPartyServerDocs > 0)
+    const thisServerParty: Parties = await Party.findOne(query)
+    const title = thisServerParty.server.current
 
     if (partyServerExists && title) {
       const currentAnime = await request('https://graphql.anilist.co', GET_MEDIA, { search: title })
@@ -32,8 +36,8 @@ module.exports = {
           .setThumbnail(currentAnime.Media.coverImage.large)
           .setFooter(`requested by ${interaction.user.username}`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
           .setTimestamp()
-  
-        thisServerParty.server.list.find(x => x.animeId === currentId).members.forEach(async x => {
+
+        thisServerParty.server.list.find(x => x.animeId === currentId)!.members.forEach(async x => {
           const user = await request('https://graphql.anilist.co', GET_USERINFO, { name: x })
           try {
             const list = await request('https://graphql.anilist.co', GET_MEDIALIST, { userName: user.User.name, mediaId: currentAnime.Media.id })
@@ -45,7 +49,7 @@ module.exports = {
           }
         })
         await wait(1000)
-  
+
         interaction.editReply({ embeds: [embed] })
       } catch (err) {
         console.log('User failed to use /wp, sent usage help.')
