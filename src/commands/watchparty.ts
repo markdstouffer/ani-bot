@@ -7,7 +7,6 @@ const Discord = require('discord.js')
 const fs = require('fs')
 const path = require('path')
 const { SlashCommandBuilder } = require('@discordjs/builders')
-
 const subcommands = new Discord.Collection()
 const subFiles = fs.readdirSync(path.resolve(__dirname, './subcommands/watchparty')).filter((file: string) => file.endsWith('.ts'))
 
