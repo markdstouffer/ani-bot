@@ -1,5 +1,5 @@
 // import types
-import { Interaction } from 'discord.js'
+import { Interaction, Message } from 'discord.js'
 // import express from 'express'
 // const app = express()
 // const port = 3000
@@ -20,7 +20,7 @@ myIntents.add('GUILDS', 'GUILD_MESSAGES', 'DIRECT_MESSAGES', 'DIRECT_MESSAGE_REA
 const client = new Client({ intents: myIntents })
 client.commands = new Collection()
 
-const commands = []
+const commands: any[] = []
 const commandFiles = fs.readdirSync(path.resolve(__dirname, './commands'))
 
 for (const file of commandFiles) {
@@ -33,29 +33,32 @@ for (const file of commandFiles) {
   }
 }
 
-const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
-
-(async () => {
-  try {
-    console.log('Started refreshing slash commands...')
-    await rest.put(
-      // Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
-      // { body: commands }
-      Routes.applicationCommands(process.env.CLIENT_ID),
-      { body: commands }
-    )
-    console.log('Successfully refreshed slash commands!')
-  } catch (error) {
-    console.error(error)
-  }
-})()
-
 client.on('ready', async () => {
   console.log(`Logged in as ${client.user.tag}!`)
 })
 
 process.on('unhandledRejection', error => {
   console.error('Unhandled promise rejection:', error)
+})
+
+client.on('messageCreate', async (message: Message) => {
+  if (message.content === '$deploy') {
+    const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
+    (async () => {
+      try {
+        console.log('Started refreshing slash commands...')
+        await rest.put(
+          // Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
+          // { body: commands }
+          Routes.applicationCommands(process.env.CLIENT_ID),
+          { body: commands }
+        )
+        console.log('Successfully refreshed slash commands!')
+      } catch (error) {
+        console.error(error)
+      }
+    })()
+  }
 })
 
 client.on('interactionCreate', async (interaction: Interaction) => {
