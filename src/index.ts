@@ -21,7 +21,7 @@ const client = new Client({ intents: myIntents })
 client.commands = new Collection()
 
 const commands: any[] = []
-const commandFiles = fs.readdirSync(path.resolve(__dirname, './commands'))
+const commandFiles = fs.readdirSync(path.resolve(__dirname, './commands')).filter((file: string) => file.endsWith('.ts'))
 
 for (const file of commandFiles) {
   const command = require(`./commands/${file}`)
