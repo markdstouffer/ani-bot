@@ -34,7 +34,7 @@ module.exports = {
       })
       .catch((err: any) => {
         console.log(err)
-        interaction.reply('This anime might not have any quotes listed yet! >_<')
+        interaction.reply({ content: 'This anime might not have any quotes listed yet! >_<', ephemeral: true })
       })
   }
 }

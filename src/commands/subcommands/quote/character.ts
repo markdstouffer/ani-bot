@@ -34,7 +34,7 @@ module.exports = {
       })
       .catch((err: any) => {
         console.log(err)
-        interaction.reply('This character might not have any quotes listed yet! >_<')
+        interaction.reply({ content: 'This character might not have any quotes listed yet! >_<', ephemeral: true })
       })
   }
 }
