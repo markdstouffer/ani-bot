@@ -120,3 +120,9 @@ export interface Parties {
   }
   save(): void;
 }
+
+export interface Quote {
+  anime: string;
+  character: string;
+  quote: string
+}

@@ -103,5 +103,14 @@ module.exports = {
       }
     }
   }
+  `,
+  GET_CHARACTER: gql`
+  query($search: String) {
+    Character(search: $search) {
+      image {
+        large
+      }
+    }
+  }
   `
 }
