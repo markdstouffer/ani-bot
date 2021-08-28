@@ -1,5 +1,5 @@
 // import types
-import { Interaction, Message } from 'discord.js'
+import { CommandInteraction, Message } from 'discord.js'
 
 const { Client, Collection, Intents } = require('discord.js')
 require('dotenv').config()
@@ -11,7 +11,7 @@ const path = require('path')
 const myIntents = new Intents()
 myIntents.add('GUILDS', 'GUILD_MESSAGES', 'DIRECT_MESSAGES', 'DIRECT_MESSAGE_REACTIONS', 'GUILD_MEMBERS', 'GUILD_EMOJIS_AND_STICKERS', 'GUILD_MESSAGE_REACTIONS')
 
-const client = new Client({ intents: myIntents })
+export const client = new Client({ intents: myIntents })
 client.commands = new Collection()
 
 const commands: any[] = []
@@ -42,7 +42,7 @@ client.on('messageCreate', async (message: Message) => {
       try {
         console.log('Started refreshing slash commands...')
         await rest.put(
-          Routes.applicationCommands(process.env.CLIENT_ID),
+          Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
           { body: commands }
         )
         console.log('Successfully refreshed slash commands!')
@@ -53,8 +53,8 @@ client.on('messageCreate', async (message: Message) => {
   }
 })
 
-client.on('interactionCreate', async (interaction: Interaction) => {
-  if (!interaction.isCommand() && !interaction.isContextMenu()) return
+client.on('interactionCreate', async (interaction: CommandInteraction) => {
+  if (!interaction.isCommand()) return
   if (!client.commands.has(interaction.commandName)) return
 
   try {

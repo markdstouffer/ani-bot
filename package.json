@@ -24,6 +24,7 @@
     "graphql": "^15.5.1",
     "graphql-request": "^3.4.0",
     "mongoose": "^5.13.7",
+    "node-fetch": "^2.6.1",
     "path": "^0.12.7",
     "pm2": "^5.1.1",
     "ts-node": "^10.2.1",
