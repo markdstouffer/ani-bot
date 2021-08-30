@@ -20,17 +20,18 @@ module.exports = {
     try {
       const listEntry: AniList = await client.request(GET_MEDIALIST, { userName: username, mediaId: anime.Media.id })
       let currentProgress = listEntry.MediaList.progress
+      const initialProgress = listEntry.MediaList.progress
 
       const math: MessageActionRow = new MessageActionRow()
         .addComponents(
           new MessageButton()
-            .setLabel('+')
-            .setCustomId('add')
-            .setStyle('SUCCESS'),
-          new MessageButton()
             .setLabel('-')
             .setCustomId('subtract')
-            .setStyle('DANGER')
+            .setStyle('DANGER'),
+          new MessageButton()
+            .setLabel('+')
+            .setCustomId('add')
+            .setStyle('SUCCESS')
         )
       interaction.editReply({ embeds: [embed], components: [math] })
 
@@ -67,6 +68,16 @@ module.exports = {
         }
         return i.user.id === interaction.user.id
       }
+      setTimeout(() => {
+        interaction.deleteReply()
+        if (currentProgress > initialProgress) {
+          if ((initialProgress + 1) === currentProgress) {
+            interaction.followUp(`<@${interaction.user.id}> watched episode ${currentProgress} of **${anime.Media.title.romaji}**`)
+          } else {
+            interaction.followUp(`<@${interaction.user.id}> watched episodes ${initialProgress + 1}-${currentProgress} of **${anime.Media.title.romaji}**`)
+          }
+        }
+      }, 30000)
       reply.createMessageComponentCollector({ filter, componentType: 'BUTTON', time: 30000 })
     } catch (err) {
       console.error(err)
