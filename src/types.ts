@@ -95,6 +95,11 @@ export interface AniMedia {
   }
 }
 
+export interface Viewer {
+  name: string;
+  id: number;
+}
+
 export interface Aliases {
   server: {
     serverId: string;
