@@ -74,9 +74,6 @@ module.exports = {
           return i.user.id === interaction.user.id
         }
         reply.awaitMessageComponent({ filter, componentType: 'BUTTON', time: 30000 })
-        setTimeout(() => {
-          interaction.deleteReply()
-        }, 30000)
       } catch {
         interaction.reply({ content: `Make sure you have an existing AniList entry for [**${anime.Media.title.romaji}**](${anime.Media.siteUrl}).`, ephemeral: true })
       }

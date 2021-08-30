@@ -15,7 +15,7 @@ module.exports = {
 
     const authUser = await getAuthUser(discord)
     const headers = authUser.headers
-
+    let curScore: number = 0
     const ratings = new MessageActionRow()
       .addComponents(
         new MessageSelectMenu()
@@ -76,12 +76,16 @@ module.exports = {
         i.reply({ content: 'This menu is not for you!', ephemeral: true })
       } else {
         const score = Number(i.values[0])
+        curScore = score
         await client.request(RATE, { mediaId: anime.Media.id, score: score }, headers)
         embed.spliceFields(1, 1, { name: 'Rating', value: `${score}/10`, inline: true })
         i.deferUpdate()
         menu.delete()
         interaction.editReply({ embeds: [embed] })
-        setTimeout(() => interaction.deleteReply(), 5000)
+        setTimeout(() => {
+          interaction.deleteReply()
+          interaction.followUp(`<@${interaction.user.id}> gave **${anime.Media.title.romaji}** a ${curScore}/10.`)
+        }, 5000)
       }
       return i.user.id === interaction.user.id
     }
