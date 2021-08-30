@@ -1,3 +1,4 @@
+export {}
 const { gql } = require('graphql-request')
 
 module.exports = {
@@ -110,6 +111,14 @@ module.exports = {
       image {
         large
       }
+    }
+  }
+  `,
+  GET_VIEWER: gql`
+  query {
+    Viewer {
+      name
+      id
     }
   }
   `
