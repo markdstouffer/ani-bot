@@ -31,10 +31,15 @@ module.exports = {
           new MessageButton()
             .setLabel('+')
             .setCustomId('add')
-            .setStyle('SUCCESS')
+            .setStyle('SUCCESS'),
+          new MessageButton()
+            .setLabel('Done!')
+            .setCustomId('done')
+            .setStyle('SECONDARY')
         )
       interaction.editReply({ embeds: [embed], components: [math] })
 
+      let done: boolean = false
       const filter = async (i: MessageComponentInteraction) => {
         if (i.user.id !== interaction.user.id) {
           i.reply({ content: 'This button is not for you!', ephemeral: true })
@@ -64,17 +69,29 @@ module.exports = {
               i.deferUpdate()
               interaction.editReply({ embeds: [embed] })
             }
+          } else if (i.customId === 'done') {
+            done = true
+            interaction.deleteReply()
+            if (currentProgress > initialProgress) {
+              if ((initialProgress + 1) === currentProgress) {
+                interaction.followUp(`<@${interaction.user.id}> watched episode ${currentProgress} of **${anime.Media.title.romaji}**`)
+              } else {
+                interaction.followUp(`<@${interaction.user.id}> watched episodes ${initialProgress + 1}-${currentProgress} of **${anime.Media.title.romaji}**`)
+              }
+            }
           }
         }
         return i.user.id === interaction.user.id
       }
       setTimeout(() => {
-        interaction.deleteReply()
-        if (currentProgress > initialProgress) {
-          if ((initialProgress + 1) === currentProgress) {
-            interaction.followUp(`<@${interaction.user.id}> watched episode ${currentProgress} of **${anime.Media.title.romaji}**`)
-          } else {
-            interaction.followUp(`<@${interaction.user.id}> watched episodes ${initialProgress + 1}-${currentProgress} of **${anime.Media.title.romaji}**`)
+        if (!done) {
+          interaction.deleteReply()
+          if (currentProgress > initialProgress) {
+            if ((initialProgress + 1) === currentProgress) {
+              interaction.followUp(`<@${interaction.user.id}> watched episode ${currentProgress} of **${anime.Media.title.romaji}**`)
+            } else {
+              interaction.followUp(`<@${interaction.user.id}> watched episodes ${initialProgress + 1}-${currentProgress} of **${anime.Media.title.romaji}**`)
+            }
           }
         }
       }, 30000)
