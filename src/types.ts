@@ -46,6 +46,7 @@ export interface AniActivity {
 
 export interface AniList {
   MediaList: {
+    id: number;
     score: number;
     progress: number;
     status: string;

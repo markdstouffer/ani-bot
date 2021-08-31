@@ -39,7 +39,9 @@ module.exports = {
         .addField('Avg. score: ', `${media.Media.averageScore}%`, true)
         .addField('# of episodes: ', `${media.Media.episodes}`, true)
         .addField('Status: ', `\`${media.Media.status}\``, true)
-        .setFooter(`${media.Media.format}, by ${media.Media.studios.nodes[0].name} • ${media.Media.season} ${media.Media.seasonYear}`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
+      media.Media.studios.nodes[0]
+        ? embed.setFooter(`${media.Media.format}, by ${media.Media.studios.nodes[0].name} • ${media.Media.season} ${media.Media.seasonYear}`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
+        : embed.setFooter(`${media.Media.format} • ${media.Media.season} ${media.Media.seasonYear}`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
       media.Media.genres[1]
         ? embed.addField('Genres: ', `${media.Media.genres[0]}, ${media.Media.genres[1]}`, true)
         : embed.addField('Genre: ', `${media.Media.genres[0]}`, true)

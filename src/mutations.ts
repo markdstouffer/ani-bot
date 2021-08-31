@@ -23,5 +23,20 @@ module.exports = {
       id
     }
   }
+  `,
+  DELETE: gql`
+  mutation($id: Int) {
+    DeleteMediaListEntry (id: $id) {
+      deleted
+    }
+  }
+  `,
+  STATUS: gql`
+  mutation($mediaId: Int, $status: MediaListStatus) {
+    SaveMediaListEntry (mediaId: $mediaId, status: $status) {
+      id
+      status
+    }
+  }
   `
 }

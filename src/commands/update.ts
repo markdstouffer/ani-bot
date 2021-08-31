@@ -46,8 +46,12 @@ module.exports = {
               .setCustomId('episodes')
               .setStyle('PRIMARY'),
             new MessageButton()
-              .setLabel('Rate')
+              .setLabel('Rating')
               .setCustomId('rate')
+              .setStyle('PRIMARY'),
+            new MessageButton()
+              .setLabel('Status')
+              .setCustomId('status')
               .setStyle('PRIMARY')
           )
         const embed: MessageEmbed = new MessageEmbed()

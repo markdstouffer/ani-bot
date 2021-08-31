@@ -55,6 +55,7 @@ module.exports = {
   GET_MEDIALIST: gql`
   query ($userName: String, $mediaId: Int) {
     MediaList(userName: $userName, mediaId: $mediaId) {
+      id
       score (format: POINT_10)
       progress
       status
