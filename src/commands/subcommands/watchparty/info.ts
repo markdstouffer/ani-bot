@@ -56,7 +56,7 @@ module.exports = {
           const joined = (members.length === 0) ? 'None' : members.map(x => '- ' + x + '\n').join('')
           embed.addField('Joined members:', joined)
 
-          const currentlySet = (titleToView === thisServerParty.server.current) ? 'true' : 'false'
+          const currentlySet = (thisServerParty.server.current.filter(c => c.title === titleToView).length > 0) ? 'true' : 'false'
           embed.addField('Currently set?', currentlySet)
 
           i.reply({ embeds: [embed] })

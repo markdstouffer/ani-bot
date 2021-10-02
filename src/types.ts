@@ -115,10 +115,12 @@ export interface Aliases {
 export interface Parties {
   server: {
     serverId: string;
-    current: string | null;
-    episode: number;
-    episodesToday: number | null;
-    thread: string | null;
+    current: {
+      title: string | null;
+      episode: number;
+      episodesToday: number | null;
+      thread: string | null;
+    }[]
     list: {
       animeId: number;
       members: string[];

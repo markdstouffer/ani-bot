@@ -23,7 +23,7 @@ module.exports = {
   async execute (interaction: CommandInteraction) {
     const title = interaction.options.getString('anime')
     const discord = interaction.user.id
-    if (isAuthenticated(discord)) {
+    if (await isAuthenticated(discord)) {
       const authUser = await getAuthUser(discord)
       try {
         const anime: AniMedia = await client.request(GET_MEDIA, { search: title })

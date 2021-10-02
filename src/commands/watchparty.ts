@@ -27,6 +27,12 @@ module.exports = {
       sub
         .setName('view')
         .setDescription('View watch-party progress')
+        .addStringOption(opt =>
+          opt
+            .setName('title')
+            .setDescription('Anime title')
+            .setRequired(true)
+        )
     )
     .addSubcommand((sub: SlashCommandSubcommandBuilder) =>
       sub
@@ -68,6 +74,11 @@ module.exports = {
       sub
         .setName('leave')
         .setDescription('Leave a watch-party')
+    )
+    .addSubcommand((sub: SlashCommandSubcommandBuilder) =>
+      sub
+        .setName('current')
+        .setDescription('Show information on currently set watchparties')
     ),
   async execute (interaction: CommandInteraction) {
     const serverId = interaction.guildId
@@ -86,10 +97,7 @@ module.exports = {
       const newServer = new Party({
         server: {
           serverId: serverId,
-          current: null,
-          episode: 1,
-          episodesToday: null,
-          thread: null
+          current: []
         }
       })
       await newServer.save()

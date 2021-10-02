@@ -11,36 +11,40 @@ module.exports = {
     name: 'view'
   },
   async execute (interaction: CommandInteraction, thisServerParty: Parties, _serverAliases: undefined, _serverExists: undefined) {
+    const title = interaction.options.getString('title')
     try {
-      const currentTitle = thisServerParty.server.current
-      const currentAnime: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { search: currentTitle })
-      const currentId = currentAnime.Media.id
-      if (!currentAnime) {
-        interaction.reply({ content: 'There is no currently set anime. `/wp set`', ephemeral: true })
+      if (thisServerParty.server.current.length === 0) {
+        interaction.reply({ content: 'There are no currently set anime. `/wp set`', ephemeral: true })
       } else {
-        interaction.deferReply()
-        const embed = new Discord.MessageEmbed()
-          .setColor(currentAnime.Media.coverImage.color)
-          .setTitle('Watch Party')
-          .setDescription(`Progress on [**${currentAnime.Media.title.romaji}**](${currentAnime.Media.siteUrl})`)
-          .setThumbnail(currentAnime.Media.coverImage.large)
-          .setFooter(`requested by ${interaction.user.username}`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
-          .setTimestamp()
+        const currentAnime: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { search: title })
+        if (thisServerParty.server.current.filter(c => c.title === currentAnime.Media.title.romaji).length > 0) {
+          const currentId = currentAnime.Media.id
+          interaction.deferReply()
+          const embed = new Discord.MessageEmbed()
+            .setColor(currentAnime.Media.coverImage.color)
+            .setTitle('Watch Party')
+            .setDescription(`Progress on [**${currentAnime.Media.title.romaji}**](${currentAnime.Media.siteUrl})`)
+            .setThumbnail(currentAnime.Media.coverImage.large)
+            .setFooter(`requested by ${interaction.user.username}`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
+            .setTimestamp()
 
-        thisServerParty.server.list.find(x => x.animeId === currentId)!.members.forEach(async x => {
-          const user: AniUser = await request('https://graphql.anilist.co', GET_USERINFO, { name: x })
-          try {
-            const list: AniList = await request('https://graphql.anilist.co', GET_MEDIALIST, { userName: user.User.name, mediaId: currentAnime!.Media.id })
-            const episodes = list.MediaList.progress
-            embed.addField(user.User.name, `[${episodes}/${currentAnime!.Media.episodes}](${user.User.siteUrl})`, true)
-          } catch {
-            const episodes = 0
-            embed.addField(user.User.name, `[${episodes}/${currentAnime!.Media.episodes}](${user.User.siteUrl})`, true)
-          }
-        })
-        await wait(1000)
+          thisServerParty.server.list.find(x => x.animeId === currentId)!.members.forEach(async x => {
+            const user: AniUser = await request('https://graphql.anilist.co', GET_USERINFO, { name: x })
+            try {
+              const list: AniList = await request('https://graphql.anilist.co', GET_MEDIALIST, { userName: user.User.name, mediaId: currentAnime!.Media.id })
+              const episodes = list.MediaList.progress
+              embed.addField(user.User.name, `[${episodes}/${currentAnime!.Media.episodes}](${user.User.siteUrl})`, true)
+            } catch {
+              const episodes = 0
+              embed.addField(user.User.name, `[${episodes}/${currentAnime!.Media.episodes}](${user.User.siteUrl})`, true)
+            }
+          })
+          await wait(1000)
 
-        interaction.editReply({ embeds: [embed] })
+          interaction.editReply({ embeds: [embed] })
+        } else {
+          interaction.reply({ content: `*${title}* is not currently set as a WP, \`/wp set\``, ephemeral: true })
+        }
       }
     } catch (err) {
       console.log('Failed to use /wp view')
