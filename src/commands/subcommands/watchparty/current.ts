@@ -24,7 +24,7 @@ module.exports = {
         embed.addField(c.title, `Current Ep: ${ep}\nAssigned: ${assigned}`)
       })
       await wait(1000)
-      embed.setDescription('Some information about each the currently set watchparties:')
+      embed.setDescription('Some information about each of the currently set watchparties:')
 
       interaction.editReply({ embeds: [embed] })
     }
