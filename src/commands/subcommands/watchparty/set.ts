@@ -16,7 +16,7 @@ module.exports = {
     } else {
       const oneId: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { id: thisServerParty.server.list[0].animeId })
       const oneTitle = oneId.Media.title.romaji
-      const isCurrent = (oneTitle === thisServerParty.server.current)
+      const isCurrent = (thisServerParty.server.current.filter(c => c.title === oneTitle).length > 0)
       if (thisServerParty.server.list.length === 1 && isCurrent) {
         interaction.reply({ content: 'There are currently no settable watch-party suggestions.', ephemeral: true })
       } else {
@@ -24,7 +24,7 @@ module.exports = {
         thisServerParty.server.list.forEach(async obj => {
           const oneAnime: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { id: obj.animeId })
           const addToTitles = `${oneAnime.Media.title.romaji}`
-          if (!(thisServerParty.server.current === addToTitles)) {
+          if (!(thisServerParty.server.current.filter(c => c.title === addToTitles).length > 0)) {
             titles.push(addToTitles)
           }
         })
@@ -44,16 +44,19 @@ module.exports = {
           })
         })
 
-        await interaction.reply({ content: 'Select a watch-party to set as current:', components: [row], ephemeral: true })
+        await interaction.reply({ content: 'Select a watch-party to set as watching:', components: [row], ephemeral: true })
 
         const filter = async (i: SelectMenuInteraction) => {
           if (i.user.id === interaction.user.id) {
             const titleToSet = i.values[0]
             const anime: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { search: titleToSet })
-            thisServerParty.server.episode = 1
-            thisServerParty.server.episodesToday = null
-            thisServerParty.server.thread = null
-            thisServerParty.server.current = anime.Media.title.romaji
+            const newCurrent = {
+              title: anime.Media.title.romaji,
+              episode: 1,
+              episodesToday: null,
+              thread: null
+            }
+            thisServerParty.server.current.push(newCurrent)
             thisServerParty.save()
             const embed = new Discord.MessageEmbed()
               .setColor(anime.Media.coverImage.color)

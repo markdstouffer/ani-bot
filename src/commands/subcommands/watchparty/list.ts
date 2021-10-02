@@ -23,7 +23,9 @@ module.exports = {
       let titles: string[] = []
       thisServerParty.server.list.forEach(async obj => {
         const oneAnime: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { id: obj.animeId })
-        const addToTitles = (oneAnime.Media.title.romaji === thisServerParty.server.current) ? `[${oneAnime.Media.title.romaji}](${oneAnime.Media.siteUrl}) *` : `[${oneAnime.Media.title.romaji}](${oneAnime.Media.siteUrl})`
+        const addToTitles = (thisServerParty.server.current.filter(c => c.title === oneAnime.Media.title.romaji).length > 0)
+          ? `[${oneAnime.Media.title.romaji}](${oneAnime.Media.siteUrl}) *`
+          : `[${oneAnime.Media.title.romaji}](${oneAnime.Media.siteUrl})`
         titles.push(addToTitles)
       })
       await wait(1000)
