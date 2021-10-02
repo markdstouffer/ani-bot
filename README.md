@@ -12,7 +12,7 @@ The first step is *suggesting* an anime for your group of friends to watch toget
 ## Threads
 
 Discord.js v13 adds support for the new threads feature.
-A user can now set the assigned episodes for the watchparty using `/ep next <# of episodes>`, and a discussion thread will be automatically generated for those episodes - and don't worry, the thread starter message that peeks at the thread's messages is auto-erased to avoid spoilers! The previous discussion thread (if there is one) is automatically archived after setting new episodes.
+A user can now set the assigned episodes for the watchparty using `/ep next <title> <# of episodes>`, and a discussion thread will be automatically generated for those episodes - and don't worry, the thread starter message that peeks at the thread's messages is auto-erased to avoid spoilers! The previous discussion thread (if there is one) is automatically archived after setting new episodes.
 
 ## Invite
 

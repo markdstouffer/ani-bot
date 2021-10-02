@@ -16,7 +16,7 @@ The first step is to alias yourself to an AniList user - the bot won't know your
 
 Once you and your friends have been aliased to AniList users, you can go ahead and suggest an anime with `/wp suggest`. This will return an embed and a 'Join' button (active for 60 minutes following the message). Click the button, and you'll be added to the party! If you miss the button window, a similar action can be done through `/wp join`, which returns a dropdown list of all currently suggested anime.
 
-Once an anime has been suggested, and you and your friends are ready to start watching, use `/wp set` to access a dropdown list of suggested anime, and just click one to set it. You're all done! Using `/wp view` will now return the progress of you and other members of that watch-party.
+Once an anime has been suggested, and you and your friends are ready to start watching, use `/wp set` to access a dropdown list of suggested anime, and just click one to set it. You're all done! Using `/wp view <title>` will now return the progress of you and other members of that watch-party.
 
 ### /ep and Discussion Threads
 
