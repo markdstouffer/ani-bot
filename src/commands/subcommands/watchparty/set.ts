@@ -61,7 +61,7 @@ module.exports = {
             const embed = new Discord.MessageEmbed()
               .setColor(anime.Media.coverImage.color)
               .setTitle('Watch Party')
-              .setDescription(`The upcoming watch-party will be on [**${anime.Media.title.romaji}**](${anime.Media.siteUrl}).`)
+              .setDescription(`An upcoming watch-party will be on [**${anime.Media.title.romaji}**](${anime.Media.siteUrl}).`)
               .setThumbnail(anime.Media.coverImage.large)
               .setFooter(`Set by ${interaction.user.username}`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
               .setTimestamp()

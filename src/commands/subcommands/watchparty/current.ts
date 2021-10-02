@@ -20,7 +20,7 @@ module.exports = {
         .setTimestamp()
       thisServerParty.server.current.forEach(async c => {
         const assigned = (c.episodesToday) ? `next **${c.episodesToday}**` : '*None*'
-        const ep = (c.episodesToday) ? `**${c.episode - c.episodesToday}**` : '**0**'
+        const ep = (c.episodesToday) ? `**${c.episode - c.episodesToday - 1}**` : '**0**'
         embed.addField(c.title, `Current Ep: ${ep}\nAssigned: ${assigned}`)
       })
       await wait(1000)
