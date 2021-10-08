@@ -1,6 +1,8 @@
 import { CommandInteraction } from 'discord.js'
-import { Parties } from '../../../types'
+import { Parties, AniMedia } from '../../../types'
 
+const { GET_MEDIA } = require('../../../queries')
+const { request } = require('graphql-request')
 const Discord = require('discord.js')
 const wait = require('util').promisify(setTimeout)
 
@@ -19,9 +21,13 @@ module.exports = {
         .setColor('#74E6D6')
         .setTimestamp()
       thisServerParty.server.current.forEach(async c => {
-        const assigned = (c.episodesToday) ? `next **${c.episodesToday}**` : '*None*'
-        const ep = (c.episodesToday) ? `**${c.episode - c.episodesToday - 1}**` : '**0**'
-        embed.addField(c.title, `Current Ep: ${ep}\nAssigned: ${assigned}`)
+        const oneAnime: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { search: c.title })
+        const listing = thisServerParty.server.list.find(x => x.animeId === oneAnime.Media.id)
+        const joinedMembers = `**${listing!.members.length}**`
+        const subRange = (c.episodesToday) ? c.episodesToday : 0
+        const range = (c.episodesToday === 1) ? `**${c.episode - 1}**` : `**${c.episode - subRange}** - **${c.episode - 1}**`
+        const eps = (c.episodesToday) ? range : `**${c.episode}**`
+        embed.addField(c.title, `Assigned episode(s): ${eps}\n# of participants: ${joinedMembers}`)
       })
       await wait(1000)
       embed.setDescription('Some information about each of the currently set watchparties:')
