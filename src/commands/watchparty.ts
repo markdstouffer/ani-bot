@@ -52,6 +52,11 @@ module.exports = {
     )
     .addSubcommand((sub: SlashCommandSubcommandBuilder) =>
       sub
+        .setName('unset')
+        .setDescription('Remove one of the currently set watch-parties.')
+    )
+    .addSubcommand((sub: SlashCommandSubcommandBuilder) =>
+      sub
         .setName('delete')
         .setDescription('Delete a suggested watch-party from the list.')
     )
