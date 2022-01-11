@@ -33,7 +33,7 @@ module.exports = {
         hasNextPage
         perPage
       }
-      activities(userId: $userId, type: ANIME_LIST, sort: ID_DESC) {
+      activities(userId: $userId, sort: ID_DESC) {
         ...on ListActivity {
           id
           status
@@ -72,7 +72,7 @@ module.exports = {
   `,
   GET_MEDIA: gql`
   query($search: String, $id: Int) {
-    Media(search: $search, id: $id, type: ANIME) {
+    Media(search: $search, id: $id) {
       isAdult
       season
       seasonYear
