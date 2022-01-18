@@ -73,6 +73,7 @@ module.exports = {
   GET_MEDIA: gql`
   query($search: String, $id: Int) {
     Media(search: $search, id: $id) {
+      type
       isAdult
       season
       seasonYear
@@ -96,6 +97,7 @@ module.exports = {
       }
       id
       episodes
+      chapters
       bannerImage
       coverImage {
         medium

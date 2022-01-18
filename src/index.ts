@@ -42,7 +42,7 @@ client.on('messageCreate', async (message: Message) => {
       try {
         console.log('Started refreshing slash commands...')
         await rest.put(
-          Routes.applicationCommands(process.env.CLIENT_ID),
+          Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
           { body: commands }
         )
         console.log('Successfully refreshed slash commands!')

@@ -63,6 +63,7 @@ export interface AniList {
 
 export interface AniMedia {
   Media: {
+    type: string;
     isAdult: boolean;
     season: string;
     seasonYear: number;
@@ -86,6 +87,7 @@ export interface AniMedia {
     }
     id: number;
     episodes: number;
+    chapters: number;
     bannerImage: string;
     coverImage: {
       medium: string;
