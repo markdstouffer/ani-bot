@@ -1,3 +1,5 @@
+// classic testing command
+
 // import types
 import { CommandInteraction } from 'discord.js'
 

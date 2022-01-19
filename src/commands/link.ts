@@ -1,3 +1,6 @@
+// allow users to authenticate with AniList;
+// gives the option to make mutation requests to API
+
 // import types
 import { CommandInteraction, Message, MessageActionRow, MessageEmbed } from 'discord.js'
 import { authenticate } from '../requests/anilist'
@@ -25,21 +28,22 @@ module.exports = {
           .setStyle('LINK')
       )
     interaction.reply({ content: 'Check DMs!', ephemeral: true })
+    // send the user a LINK button that redirects to AniList auth page
     const reply = await interaction.user.send({ content: 'Click the button below and follow the link to the AniList authentication page. Follow the prompts to log-in if necessary, and then copy the long code. Paste the code you received here!', components: [row] })
 
     const filter = async (m: Message) => {
       const token = m.content
-      const user: Viewer = await authenticate(token, m.author.id)
+      const user: Viewer = await authenticate(token, m.author.id) // encrypt/save user token to Auth collection
       const userInfo: AniUser = await client.request(GET_USERINFO, { name: user.name })
       m.reply('Success! Your token will be encrypted and securely stored so that you can execute AniList-authenticated actions through Discord! Feel free to delete your token from this chat.')
       const embed: MessageEmbed = new Discord.MessageEmbed()
         .setDescription(`<@${interaction.user.id}> just linked their account to AniList user [**${user.name}**](${userInfo.User.siteUrl})!`)
       interaction.followUp({ embeds: [embed] })
 
-      // ADD/EDIT ALIAS
+      // cross-integration with Alias collection
       const query = { 'server.serverId': interaction.guildId }
       const countServerDocs: number = await Alias.find(query).limit(1).countDocuments()
-      if (countServerDocs === 0) {
+      if (countServerDocs === 0) { // if no aliases exist for this server, create one
         const newServer = new Alias({
           server: {
             serverId: interaction.guildId,

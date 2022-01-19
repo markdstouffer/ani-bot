@@ -1,3 +1,7 @@
+// allows users to link their Discord account with an AniList account -
+// - without needing to authenticate with AniList.
+// does not enable mutation requests
+
 // import types
 import { SlashCommandSubcommandBuilder } from '@discordjs/builders'
 import { CommandInteraction, User } from 'discord.js'
@@ -50,7 +54,7 @@ module.exports = {
     const countServerDocs: number = await Alias.find({ 'server.serverId': serverId }).limit(1).countDocuments()
     const serverExists = (countServerDocs > 0)
 
-    if (!serverExists) {
+    if (!serverExists) { // guild not saved in DB
       const newServer = new Alias({
         server: {
           serverId: serverId,
@@ -60,17 +64,17 @@ module.exports = {
       await newServer.save()
     }
 
-    if (sub === 'add') {
+    if (sub === 'add') { // add (also functions as update) alias
       const newUser = {
         username: anilist,
         userId: discord
       }
       const eraseOld = { userId: discord }
-      await Alias.findOneAndUpdate(query, { $pull: { 'server.users': eraseOld } })
+      await Alias.findOneAndUpdate(query, { $pull: { 'server.users': eraseOld } }) // ignores if eraseOld doesn't exist in DB
       await Alias.findOneAndUpdate(query, { $push: { 'server.users': newUser } }, { new: true })
       console.log(`${interaction.user.username} added/edited alias for ${newUser.userId}`)
       interaction.reply({ content: `Aliased ${discord} to ${anilist}`, ephemeral: true })
-    } else if (sub === 'remove') {
+    } else if (sub === 'remove') { // remove alias
       const userToRemove = {
         userId: discord
       }

@@ -1,3 +1,5 @@
+// check progess of a user or all users on an anime
+
 // import types
 import { SlashCommandSubcommandBuilder } from '@discordjs/builders'
 import { CommandInteraction } from 'discord.js'

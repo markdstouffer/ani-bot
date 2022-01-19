@@ -1,3 +1,6 @@
+// allows users to add anime to their AniList viewing activity
+// requires prior AniList authentication
+
 // import types
 import { SlashCommandStringOption } from '@discordjs/builders'
 import { CommandInteraction } from 'discord.js'
@@ -24,12 +27,12 @@ module.exports = {
     const title = interaction.options.getString('anime')
     const discord = interaction.user.id
     if (await isAuthenticated(discord)) {
-      const authUser = await getAuthUser(discord)
+      const authUser = await getAuthUser(discord) // retrieve token and AniList username from Auth collection
       const headers = authUser.headers
       try {
         const anime: AniMedia = await client.request(GET_MEDIA, { search: title })
         const id = anime.Media.id
-        await client.request(ADD, { mediaId: id }, headers)
+        await client.request(ADD, { mediaId: id }, headers) // add anime with id $id to authenticated user's AniList
         interaction.reply({ content: `<@${discord}> added [**${anime.Media.title.romaji}**](${anime.Media.siteUrl}) to their anime list.` })
       } catch (err) {
         console.error(err)

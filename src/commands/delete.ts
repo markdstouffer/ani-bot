@@ -1,3 +1,6 @@
+// allows users to delete anime from their AniList viewing activity
+// requires prior AniList authentication
+
 // import types
 import { SlashCommandStringOption } from '@discordjs/builders'
 import { CommandInteraction } from 'discord.js'
@@ -24,12 +27,12 @@ module.exports = {
     const title = interaction.options.getString('anime')
     const discord = interaction.user.id
     if (await isAuthenticated(discord)) {
-      const authUser = await getAuthUser(discord)
+      const authUser = await getAuthUser(discord) // grab token and AniList username from Auth collection
       try {
         const anime: AniMedia = await client.request(GET_MEDIA, { search: title })
         const listEntry: AniList = await client.request(GET_MEDIALIST, { userName: authUser.username, mediaId: anime.Media.id })
         const id = listEntry.MediaList.id
-        await client.request(DELETE, { id: id }, authUser.headers)
+        await client.request(DELETE, { id: id }, authUser.headers) // mutation - delete from AniList viewing activity
         interaction.reply({ content: `${anime.Media.title.romaji} has been removed from your anime list.`, ephemeral: true })
       } catch {
         interaction.reply({ content: 'This anime is not currently in your anime list.', ephemeral: true })
