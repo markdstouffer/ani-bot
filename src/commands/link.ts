@@ -1,10 +1,8 @@
 // import types
-import { CommandInteraction, Message, MessageActionRow, MessageEmbed } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, CommandInteraction, EmbedBuilder, Message, SlashCommandBuilder } from 'discord.js'
 import { authenticate } from '../requests/anilist'
 import { AniUser, Viewer } from '../types'
 
-const Discord = require('discord.js')
-const { SlashCommandBuilder } = require('@discordjs/builders')
 const { GraphQLClient } = require('graphql-request')
 const client = new GraphQLClient('https://graphql.anilist.co')
 const { GET_USERINFO } = require('../queries')
@@ -17,12 +15,12 @@ module.exports = {
     .setName('link')
     .setDescription('Link your AniList to your Discord.'),
   async execute (interaction: CommandInteraction) {
-    const row: MessageActionRow = new Discord.MessageActionRow()
+    const row = new ActionRowBuilder<ButtonBuilder>()
       .addComponents(
-        new Discord.MessageButton()
+        new ButtonBuilder()
           .setLabel('Link your AniList')
           .setURL(`https://anilist.co/api/v2/oauth/authorize?client_id=${process.env.ANI_CLIENT}&response_type=token`)
-          .setStyle('LINK')
+          .setStyle(ButtonStyle.Link)
       )
     interaction.reply({ content: 'Check DMs!', ephemeral: true })
     const reply = await interaction.user.send({ content: 'Click the button below and follow the link to the AniList authentication page. Follow the prompts to log-in if necessary, and then copy the long code. Paste the code you received here!', components: [row] })
@@ -32,7 +30,7 @@ module.exports = {
       const user: Viewer = await authenticate(token, m.author.id)
       const userInfo: AniUser = await client.request(GET_USERINFO, { name: user.name })
       m.reply('Success! Your token will be encrypted and securely stored so that you can execute AniList-authenticated actions through Discord! Feel free to delete your token from this chat.')
-      const embed: MessageEmbed = new Discord.MessageEmbed()
+      const embed = new EmbedBuilder()
         .setDescription(`<@${interaction.user.id}> just linked their account to AniList user [**${user.name}**](${userInfo.User.siteUrl})!`)
       interaction.followUp({ embeds: [embed] })
 

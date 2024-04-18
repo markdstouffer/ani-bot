@@ -1,8 +1,7 @@
-import { CommandInteraction, SelectMenuInteraction } from 'discord.js'
+import { ActionRowBuilder, CommandInteraction, ComponentType, EmbedBuilder, HexColorString, StringSelectMenuBuilder } from 'discord.js'
 import { AniMedia, Parties } from '../../../types'
 
 const { request } = require('graphql-request')
-const Discord = require('discord.js')
 const wait = require('util').promisify(setTimeout)
 const { GET_MEDIA } = require('../../../queries')
 
@@ -29,9 +28,9 @@ module.exports = {
           }
         })
 
-        const row = new Discord.MessageActionRow()
+        const row = new ActionRowBuilder<StringSelectMenuBuilder>()
           .addComponents(
-            new Discord.MessageSelectMenu()
+            new StringSelectMenuBuilder()
               .setCustomId('select')
               .setPlaceholder('Nothing selected')
           )
@@ -46,7 +45,7 @@ module.exports = {
 
         await interaction.reply({ content: 'Select a watch-party to set as watching:', components: [row], ephemeral: true })
 
-        const filter = async (i: SelectMenuInteraction) => {
+        const filter = async (i: any) => {
           if (i.user.id === interaction.user.id) {
             const titleToSet = i.values[0]
             const anime: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { search: titleToSet })
@@ -58,18 +57,18 @@ module.exports = {
             }
             thisServerParty.server.current.push(newCurrent)
             thisServerParty.save()
-            const embed = new Discord.MessageEmbed()
-              .setColor(anime.Media.coverImage.color)
+            const embed = new EmbedBuilder()
+              .setColor(anime.Media.coverImage.color as HexColorString)
               .setTitle('Watch Party')
               .setDescription(`An upcoming watch-party will be on [**${anime.Media.title.romaji}**](${anime.Media.siteUrl}).`)
               .setThumbnail(anime.Media.coverImage.large)
-              .setFooter(`Set by ${interaction.user.username}`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
+              .setFooter({ text: `Set by ${interaction.user.username}`, iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png` })
               .setTimestamp()
             i.reply({ embeds: [embed] })
           }
           return i.user.id === interaction.user.id
         }
-        interaction.channel!.awaitMessageComponent({ filter, componentType: 'SELECT_MENU', time: 15000 })
+        interaction.channel!.awaitMessageComponent({ filter, componentType: ComponentType.StringSelect, time: 15000 })
       }
     }
   }

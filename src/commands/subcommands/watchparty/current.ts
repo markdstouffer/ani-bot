@@ -1,9 +1,8 @@
-import { CommandInteraction } from 'discord.js'
+import { CommandInteraction, EmbedBuilder } from 'discord.js'
 import { Parties, AniMedia } from '../../../types'
 
 const { GET_MEDIA } = require('../../../queries')
 const { request } = require('graphql-request')
-const Discord = require('discord.js')
 const wait = require('util').promisify(setTimeout)
 
 module.exports = {
@@ -15,9 +14,9 @@ module.exports = {
       interaction.reply('No WPs have been set, `/wp set`')
     } else {
       interaction.deferReply()
-      const embed = new Discord.MessageEmbed()
+      const embed = new EmbedBuilder()
         .setTitle('Current WPs')
-        .setFooter(`Requested by ${interaction.user.username}`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
+        .setFooter({ text: `Requested by ${interaction.user.username}`, iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png` })
         .setColor('#74E6D6')
         .setTimestamp()
       thisServerParty.server.current.forEach(async c => {
@@ -27,7 +26,7 @@ module.exports = {
         const subRange = (c.episodesToday) ? c.episodesToday : 0
         const range = (c.episodesToday === 1) ? `**${c.episode - 1}**` : `**${c.episode - subRange}** - **${c.episode - 1}**`
         const eps = (c.episodesToday) ? range : `**${c.episode}**`
-        embed.addField(c.title, `Assigned episode(s): ${eps}\n# of participants: ${joinedMembers}`)
+        embed.addFields({ name: c.title!, value: `Assigned episode(s): ${eps}\n# of participants: ${joinedMembers}` })
       })
       await wait(1000)
       embed.setDescription('Some information about each of the currently set watchparties:')

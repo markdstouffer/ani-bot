@@ -1,5 +1,5 @@
 // import types
-import { CommandInteraction } from 'discord.js'
+import { ChatInputCommandInteraction } from 'discord.js'
 import { Parties } from '../types'
 
 const conn = require('../connections/anidata_conn')
@@ -10,7 +10,7 @@ module.exports = {
     name: 'remind-quick',
     type: 2
   },
-  async execute (interaction: CommandInteraction) {
+  async execute (interaction: ChatInputCommandInteraction) {
     const discord = interaction.options.getUser('user')
     const id = `<@!${discord!.id}>`
     const serverId = interaction.guildId

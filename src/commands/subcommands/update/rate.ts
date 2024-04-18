@@ -1,4 +1,4 @@
-import { CommandInteraction, Message, MessageActionRow, MessageEmbed, MessageSelectMenu, SelectMenuInteraction } from 'discord.js'
+import { ActionRowBuilder, CommandInteraction, ComponentType, Embed, Message, StringSelectMenuBuilder } from 'discord.js'
 import { getAuthUser } from '../../../requests/anilist'
 import { AniMedia } from '../../../types'
 const { GET_MEDIA } = require('../../../queries')
@@ -10,15 +10,15 @@ module.exports = {
   data: {
     name: 'rate'
   },
-  async execute (interaction: CommandInteraction, discord: string, title: string, embed: MessageEmbed, _reply: Message) {
+  async execute (interaction: CommandInteraction, discord: string, title: string, embed: Embed, _reply: Message) {
     const anime: AniMedia = await client.request(GET_MEDIA, { search: title })
 
     const authUser = await getAuthUser(discord)
     const headers = authUser.headers
     let curScore: number = 0
-    const ratings = new MessageActionRow()
+    const ratings = new ActionRowBuilder<StringSelectMenuBuilder>()
       .addComponents(
-        new MessageSelectMenu()
+        new StringSelectMenuBuilder()
           .setCustomId('select')
           .setPlaceholder('Nothing selected')
           .addOptions([
@@ -71,14 +71,14 @@ module.exports = {
     interaction.editReply({ components: [] })
     const menu = await interaction.followUp({ content: 'Select a rating', components: [ratings] }) as Message
 
-    const filter = async (i: SelectMenuInteraction) => {
+    const filter = async (i: any) => {
       if (i.user.id !== interaction.user.id) {
         i.reply({ content: 'This menu is not for you!', ephemeral: true })
       } else {
         const score = Number(i.values[0])
         curScore = score
         await client.request(RATE, { mediaId: anime.Media.id, score: score }, headers)
-        embed.spliceFields(1, 1, { name: 'Rating', value: `${score}/10`, inline: true })
+        embed.fields[1] = { name: 'Rating', value: `${score}/10`, inline: true }
         i.deferUpdate()
         menu.delete()
         interaction.editReply({ embeds: [embed] })
@@ -89,6 +89,6 @@ module.exports = {
       }
       return i.user.id === interaction.user.id
     }
-    menu.awaitMessageComponent({ filter, componentType: 'SELECT_MENU', time: 30000 })
+    menu.awaitMessageComponent({ filter, componentType: ComponentType.StringSelect, time: 30000 })
   }
 }

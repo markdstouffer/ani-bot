@@ -1,15 +1,20 @@
 // import types
-import { CommandInteraction, Message } from 'discord.js'
-
-const { Client, Collection, Intents } = require('discord.js')
+import { REST } from '@discordjs/rest'
+import { Routes } from 'discord-api-types/v9'
+import { Client, Collection, Events, GatewayIntentBits, Message } from 'discord.js'
+import fs from 'fs'
+import path from 'path'
 require('dotenv').config()
-const { REST } = require('@discordjs/rest')
-const { Routes } = require('discord-api-types/v9')
-const fs = require('fs')
-const path = require('path')
 
-const myIntents = new Intents()
-myIntents.add('GUILDS', 'GUILD_MESSAGES', 'DIRECT_MESSAGES', 'DIRECT_MESSAGE_REACTIONS', 'GUILD_MEMBERS', 'GUILD_EMOJIS_AND_STICKERS', 'GUILD_MESSAGE_REACTIONS')
+const myIntents = [
+  GatewayIntentBits.Guilds,
+  GatewayIntentBits.GuildMessages,
+  GatewayIntentBits.GuildMembers,
+  GatewayIntentBits.GuildEmojisAndStickers,
+  GatewayIntentBits.GuildMessageReactions,
+  GatewayIntentBits.DirectMessages,
+  GatewayIntentBits.DirectMessageReactions
+]
 
 export const client = new Client({ intents: myIntents })
 client.commands = new Collection()
@@ -28,7 +33,7 @@ for (const file of commandFiles) {
 }
 
 client.on('ready', async () => {
-  console.log(`Logged in as ${client.user.tag}!`)
+  console.log(`Logged in as ${client.user!.tag}!`)
 })
 
 process.on('unhandledRejection', error => {
@@ -37,12 +42,12 @@ process.on('unhandledRejection', error => {
 
 client.on('messageCreate', async (message: Message) => {
   if (message.content === '$deploy') {
-    const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
+    const rest = new REST({ version: '9' }).setToken(process.env.TOKEN!);
     (async () => {
       try {
         console.log('Started refreshing slash commands...')
         await rest.put(
-          Routes.applicationCommands(process.env.CLIENT_ID),
+          Routes.applicationCommands(process.env.CLIENT_ID!),
           { body: commands }
         )
         console.log('Successfully refreshed slash commands!')
@@ -53,7 +58,7 @@ client.on('messageCreate', async (message: Message) => {
   }
 })
 
-client.on('interactionCreate', async (interaction: CommandInteraction) => {
+client.on(Events.InteractionCreate, async interaction => {
   if (!interaction.isCommand()) return
   if (!client.commands.has(interaction.commandName)) return
 

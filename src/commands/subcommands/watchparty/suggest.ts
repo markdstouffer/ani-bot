@@ -1,9 +1,8 @@
-import { CommandInteraction, Message, MessageComponentInteraction } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, ComponentType, EmbedBuilder, HexColorString, Message, MessageComponentInteraction } from 'discord.js'
 import { Aliases, AniMedia, Parties } from '../../../types'
 import TurndownService from 'turndown'
 
 const { request } = require('graphql-request')
-const Discord = require('discord.js')
 const { GET_MEDIA } = require('../../../queries')
 const Tds = require('turndown')
 
@@ -14,7 +13,7 @@ module.exports = {
   data: {
     name: 'suggest'
   },
-  async execute (interaction: CommandInteraction, thisServerParty: Parties, serverAliases: Aliases, serverExists: boolean) {
+  async execute (interaction: ChatInputCommandInteraction, thisServerParty: Parties, serverAliases: Aliases, serverExists: boolean) {
     const serverId = interaction.guildId
     const title = interaction.options.getString('title')
     const suggestedAnime: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { search: title })
@@ -31,23 +30,23 @@ module.exports = {
       thisServerParty.server.list.push(newAnime)
       thisServerParty.save()
 
-      const embed = new Discord.MessageEmbed()
-        .setColor(suggestedAnime.Media.coverImage.color)
+      const embed = new EmbedBuilder()
+        .setColor(suggestedAnime.Media.coverImage.color as HexColorString)
         .setTitle('WP Suggestion')
         .setDescription(`[**${suggestedAnime.Media.title.romaji}**](${suggestedAnime.Media.siteUrl}) has been suggested as a watch-party subject.
             \nClick the button to enroll in the party.`)
         .setThumbnail(suggestedAnime.Media.coverImage.large)
-        .setFooter('Enrollments will end in 60 minutes.', `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
+        .setFooter({ text: 'Enrollments will end in 60 minutes.', iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png` })
         .setTimestamp()
 
-      const row = new Discord.MessageActionRow()
+      const row = new ActionRowBuilder<ButtonBuilder>()
         .addComponents(
-          new Discord.MessageButton()
-            .setStyle('PRIMARY')
+          new ButtonBuilder()
+            .setStyle(ButtonStyle.Primary)
             .setCustomId('join')
             .setLabel(`Join ${suggestedAnime.Media.title.romaji}`),
-          new Discord.MessageButton()
-            .setStyle('PRIMARY')
+          new ButtonBuilder()
+            .setStyle(ButtonStyle.Primary)
             .setCustomId('info')
             .setLabel('View description')
         )
@@ -107,7 +106,7 @@ module.exports = {
         }
         return true
       }
-      prompt.createMessageComponentCollector({ filter, componentType: 'BUTTON', time: 3600000 })
+      prompt.createMessageComponentCollector({ filter, componentType: ComponentType.Button, time: 3600000 })
     }
   }
 }

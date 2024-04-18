@@ -1,17 +1,14 @@
 // import types
-import { SlashCommandStringOption } from '@discordjs/builders'
-import { CommandInteraction, Message, MessageActionRow, MessageButton, MessageComponentInteraction, MessageEmbed } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Collection, ComponentType, EmbedBuilder, Message, MessageComponentInteraction, SlashCommandBuilder, SlashCommandStringOption } from 'discord.js'
 
 import { getAuthUser, isAuthenticated } from '../requests/anilist'
 import { AniList, AniMedia } from '../types'
-const { SlashCommandBuilder } = require('@discordjs/builders')
-const { Collection } = require('discord.js')
 const { GET_MEDIALIST, GET_MEDIA } = require('../queries')
 const { GraphQLClient } = require('graphql-request')
 const client = new GraphQLClient('https://graphql.anilist.co')
 const fs = require('fs')
 const path = require('path')
-const subcommands = new Collection()
+const subcommands = new Collection<any, any>()
 const subFiles = fs.readdirSync(path.resolve(__dirname, './subcommands/update')).filter((file: string) => file.endsWith('.ts'))
 
 for (const file of subFiles) {
@@ -29,7 +26,7 @@ module.exports = {
         .setDescription('Anime title')
         .setRequired(true)
     ),
-  async execute (interaction: CommandInteraction) {
+  async execute (interaction: ChatInputCommandInteraction) {
     const discord = interaction.user.id
     const title = interaction.options.getString('anime')
     const anime: AniMedia = await client.request(GET_MEDIA, { search: title })
@@ -39,30 +36,30 @@ module.exports = {
       const username = authUser.username
       try {
         const listEntry: AniList = await client.request(GET_MEDIALIST, { userName: username, mediaId: id })
-        const row: MessageActionRow = new MessageActionRow()
+        const row = new ActionRowBuilder<ButtonBuilder>()
           .addComponents(
-            new MessageButton()
+            new ButtonBuilder()
               .setLabel('Episode Count')
               .setCustomId('episodes')
-              .setStyle('PRIMARY'),
-            new MessageButton()
+              .setStyle(ButtonStyle.Primary),
+            new ButtonBuilder()
               .setLabel('Rating')
               .setCustomId('rate')
-              .setStyle('PRIMARY'),
-            new MessageButton()
+              .setStyle(ButtonStyle.Primary),
+            new ButtonBuilder()
               .setLabel('Status')
               .setCustomId('status')
-              .setStyle('PRIMARY')
+              .setStyle(ButtonStyle.Primary)
           )
-        const embed: MessageEmbed = new MessageEmbed()
+        const embed = new EmbedBuilder()
           .setTitle(anime.Media.title.romaji)
           .setThumbnail(anime.Media.coverImage.large)
           .setDescription(`Update your AniList entry on [**${anime.Media.title.romaji}**](${anime.Media.siteUrl})`)
-          .addField('Progress:', `${listEntry.MediaList.progress}/${anime.Media.episodes}`, true)
+          .addFields({ name: 'Progress:', value: `${listEntry.MediaList.progress}/${anime.Media.episodes}`, inline: true })
         if (listEntry.MediaList.status === 'COMPLETED') {
-          embed.addField('Rating:', `${listEntry.MediaList.score}/10`, true)
+          embed.addFields({ name: 'Rating:', value: `${listEntry.MediaList.score}/10`, inline: true })
         } else {
-          embed.addField('Rating:', `${listEntry.MediaList.score}/10 (unfinished)`, true)
+          embed.addFields({ name: 'Rating:', value: `${listEntry.MediaList.score}/10 (unfinished)`, inline: true })
         }
 
         interaction.reply({ embeds: [embed], components: [row] })
@@ -77,7 +74,7 @@ module.exports = {
           }
           return i.user.id === interaction.user.id
         }
-        reply.awaitMessageComponent({ filter, componentType: 'BUTTON', time: 30000 })
+        reply.awaitMessageComponent({ filter, componentType: ComponentType.Button, time: 30000 })
       } catch {
         interaction.reply({ content: `Make sure you have an existing AniList entry for [**${anime.Media.title.romaji}**](${anime.Media.siteUrl}).`, ephemeral: true })
       }

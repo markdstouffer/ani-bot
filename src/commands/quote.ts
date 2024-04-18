@@ -1,9 +1,7 @@
-import { SlashCommandBuilder, SlashCommandStringOption, SlashCommandSubcommandBuilder } from '@discordjs/builders'
-import { CommandInteraction } from 'discord.js'
-const Discord = require('discord.js')
+import { ChatInputCommandInteraction, Collection, SlashCommandBuilder, SlashCommandStringOption, SlashCommandSubcommandBuilder } from 'discord.js'
 const fs = require('fs')
 const path = require('path')
-const subcommands = new Discord.Collection()
+const subcommands = new Collection<any, any>()
 const subFiles = fs.readdirSync(path.resolve(__dirname, './subcommands/quote')).filter((file: string) => file.endsWith('.ts'))
 
 for (const file of subFiles) {
@@ -42,7 +40,7 @@ module.exports = {
             .setRequired(true)
         )
     ),
-  async execute (interaction: CommandInteraction) {
+  async execute (interaction: ChatInputCommandInteraction) {
     const sub = interaction.options.getSubcommand()
     const name = interaction.options.getString('name')
     const title = interaction.options.getString('title')

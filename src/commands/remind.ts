@@ -1,9 +1,7 @@
 // import types
-import { SlashCommandMentionableOption } from '@discordjs/builders'
-import { CommandInteraction } from 'discord.js'
+import { ChatInputCommandInteraction, SlashCommandBuilder, SlashCommandMentionableOption } from 'discord.js'
 import { Parties } from '../types'
 
-const { SlashCommandBuilder } = require('@discordjs/builders')
 const conn = require('../connections/anidata_conn')
 const Party = conn.models.Party
 
@@ -17,7 +15,7 @@ module.exports = {
         .setDescription('Discord tag')
         .setRequired(true)
     ),
-  async execute (interaction: CommandInteraction) {
+  async execute (interaction: ChatInputCommandInteraction) {
     const serverId = interaction.guildId
     const query = { 'server.serverId': serverId }
     const discord = interaction.options.getMentionable('discord')

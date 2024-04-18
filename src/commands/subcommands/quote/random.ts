@@ -1,7 +1,6 @@
-import { CommandInteraction, MessageActionRow } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, CommandInteraction, EmbedBuilder } from 'discord.js'
 import { Quote } from '../../../types'
 const fetch = require('node-fetch')
-const Discord = require('discord.js')
 const { GET_CHARACTER, GET_MEDIA } = require('../../../queries')
 const { request } = require('graphql-request')
 
@@ -10,7 +9,7 @@ module.exports = {
     name: 'random'
   },
   async execute (interaction: CommandInteraction, _name: undefined, _title: undefined) {
-    const embed = new Discord.MessageEmbed()
+    const embed = new EmbedBuilder()
     fetch('https://animechan.vercel.app/api/random')
       .then((res: { json: () => any }) => res.json())
       .then(async (quote: Quote) => {
@@ -21,12 +20,12 @@ module.exports = {
           .setTitle(`${quote.character} - `)
           .setDescription(`*${quote.quote}*`)
           .setThumbnail(char.Character.image.large)
-        const row: MessageActionRow = new Discord.MessageActionRow()
+        const row = new ActionRowBuilder<ButtonBuilder>()
           .addComponents(
-            new Discord.MessageButton()
+            new ButtonBuilder()
               .setLabel(`${media.Media.title.romaji} on AniList`)
               .setURL(`${media.Media.siteUrl}`)
-              .setStyle('LINK')
+              .setStyle(ButtonStyle.Link)
           )
         interaction.reply({ embeds: [embed], components: [row] })
       })

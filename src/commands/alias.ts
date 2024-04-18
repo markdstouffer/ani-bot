@@ -1,8 +1,5 @@
 // import types
-import { SlashCommandSubcommandBuilder } from '@discordjs/builders'
-import { CommandInteraction, User } from 'discord.js'
-
-const { SlashCommandBuilder } = require('@discordjs/builders')
+import { ChatInputCommandInteraction, SlashCommandBuilder, SlashCommandSubcommandBuilder, User } from 'discord.js'
 
 const conn = require('../connections/anidata_conn')
 const Alias = conn.models.Alias
@@ -39,9 +36,9 @@ module.exports = {
             .setRequired(true)
         )
     ),
-  async execute (interaction: CommandInteraction) {
+  async execute (interaction: ChatInputCommandInteraction) {
     const serverId = interaction.guildId
-    const mentionable: User = interaction.options.getMentionable('discord') as User
+    const mentionable: User = interaction.options.getUser('discord')!
     const discord = `<@!${mentionable!.id}>`
     const anilist = interaction.options.getString('anilist')
     const query = { 'server.serverId': serverId }
