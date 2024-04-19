@@ -1,15 +1,11 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
-    "moduleResolution": "node"
+    "typeRoots": ["src/@types", "node_modules/@types"],
+    "outDir": "dist"
   },
   "include": [
-    "./src/**/*"
-  ]
+    "./src"
+  ],
+  "exclude": ["node_modules"]
 }

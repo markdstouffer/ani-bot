@@ -64,7 +64,7 @@ module.exports = {
         : embed.addFields({ name: 'Streaming: ', value: 'Torrent it!', inline: true })
 
       let full: boolean = false
-      function swapDesc () {
+      const swapDesc = () => {
         if (full) {
           embed.setDescription(trimmedDesc)
           row.components[0].setLabel('Show full description')
