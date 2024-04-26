@@ -1,7 +1,5 @@
 // import types
-import { REST } from '@discordjs/rest'
-import { Routes } from 'discord-api-types/v9'
-import { ChatInputCommandInteraction, Client, Collection, Events, GatewayIntentBits } from 'discord.js'
+import { ChatInputCommandInteraction, Client, Collection, Events, GatewayIntentBits, REST, Routes } from 'discord.js'
 import fs from 'fs'
 import path from 'path'
 require('dotenv').config()
@@ -43,7 +41,7 @@ client.once(Events.ClientReady, readyClient => {
       console.log(`Started refreshing ${commands.length} application (/) commands.`)
 
       const data: any = await rest.put(
-        Routes.applicationGuildCommands(process.env.CLIENT_ID!, process.env.GUILD_ID!),
+        Routes.applicationCommands(process.env.CLIENT_ID),
         { body: commands }
       )
 
