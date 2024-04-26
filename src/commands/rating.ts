@@ -1,12 +1,9 @@
 // import types
-import { SlashCommandSubcommandBuilder } from '@discordjs/builders'
-import { CommandInteraction } from 'discord.js'
+import { ChatInputCommandInteraction, EmbedBuilder, HexColorString, SlashCommandBuilder, SlashCommandSubcommandBuilder } from 'discord.js'
 import { Aliases, AniList, AniMedia, AniUser } from '../types'
 
 const { request } = require('graphql-request')
 const { GET_MEDIA, GET_USERINFO, GET_MEDIALIST } = require('../queries')
-const { SlashCommandBuilder } = require('@discordjs/builders')
-const Discord = require('discord.js')
 const wait = require('util').promisify(setTimeout)
 
 const conn = require('../connections/anidata_conn')
@@ -44,7 +41,7 @@ module.exports = {
             .setRequired(true)
         )
     ),
-  async execute (interaction: CommandInteraction) {
+  async execute (interaction: ChatInputCommandInteraction) {
     function percentToHex (percent: number, start: number, end: number, s: number, l: number): string {
       l /= 100
       const x = (percent / 100)
@@ -76,11 +73,11 @@ module.exports = {
           interaction.deferReply()
           const userList = serverAliases.server.users
 
-          const allEmbed = new Discord.MessageEmbed()
+          const allEmbed = new EmbedBuilder()
             .setTitle('Ratings')
             .setDescription(`Server members' ratings for [**${animeData.Media.title.romaji}**](${animeData.Media.siteUrl})`)
             .setThumbnail(animeData.Media.coverImage.large)
-            .setFooter(`requested by ${interaction.user.username}`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
+            .setFooter({ text: `requested by ${interaction.user.username}`, iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png` })
             .setTimestamp()
           let countRating = 0
           let count = 0
@@ -92,7 +89,7 @@ module.exports = {
               countRating += userRating
               count += 1
               if (oneList.MediaList.status === 'COMPLETED') {
-                allEmbed.addField(user.User.name, `[${userRating}/10](${user.User.siteUrl})`, true)
+                allEmbed.addFields({ name: user.User.name, value: `[${userRating}/10](${user.User.siteUrl})`, inline: true })
               }
             } catch { }
           })
@@ -100,7 +97,7 @@ module.exports = {
 
           const avgScore = (count !== 0) ? countRating / count : 0
           const color = percentToHex(avgScore * 10, 0, 110, 100, 50)
-          allEmbed.setColor(color)
+          allEmbed.setColor(color as HexColorString)
 
           interaction.editReply({ embeds: [allEmbed] })
         } else {
@@ -116,12 +113,12 @@ module.exports = {
               const listData: AniList = await request('https://graphql.anilist.co', GET_MEDIALIST, { userName: userData.User.name, mediaId: animeData.Media.id })
               const score = listData.MediaList.score * 10
               const color = percentToHex(score, 0, 110, 100, 50)
-              const embed = new Discord.MessageEmbed()
-                .setColor(color)
+              const embed = new EmbedBuilder()
+                .setColor(color as HexColorString)
                 .setThumbnail(animeData.Media.coverImage.large)
                 .setDescription(`[**${animeData.Media.title.romaji}**](${animeData.Media.siteUrl})`)
                 .setTitle(userData.User.name)
-                .addField('Score:', `${score / 10}/10`)
+                .addFields({ name: 'Score:', value: `${score / 10}/10` })
               interaction.reply({ embeds: [embed] })
             } catch {
               interaction.reply(`${userData.User.name} has not yet rated this anime.`)
@@ -138,12 +135,12 @@ module.exports = {
           const listData: AniList = await request('https://graphql.anilist.co', GET_MEDIALIST, { userName: userData.User.name, mediaId: animeData.Media.id })
           const score = listData.MediaList.score * 10
           const color = percentToHex(score, 0, 110, 100, 50)
-          const embed = new Discord.MessageEmbed()
-            .setColor(color)
+          const embed = new EmbedBuilder()
+            .setColor(color as HexColorString)
             .setThumbnail(animeData.Media.coverImage.large)
             .setDescription(`[**${animeData.Media.title.romaji}**](${animeData.Media.siteUrl})`)
             .setTitle(userData.User.name)
-            .addField('Score:', `${score / 10}/10`)
+            .addFields({ name: 'Score:', value: `${score / 10}/10` })
           interaction.reply({ embeds: [embed] })
         } catch {
           interaction.reply(`${userData.User.name} has not yet rated this anime.`)

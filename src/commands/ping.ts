@@ -1,7 +1,5 @@
 // import types
-import { CommandInteraction } from 'discord.js'
-
-const { SlashCommandBuilder } = require('@discordjs/builders')
+import { CommandInteraction, SlashCommandBuilder } from 'discord.js'
 
 module.exports = {
   data: new SlashCommandBuilder()

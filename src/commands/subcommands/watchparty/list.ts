@@ -1,7 +1,6 @@
-import { CommandInteraction } from 'discord.js'
+import { CommandInteraction, EmbedBuilder } from 'discord.js'
 import { AniMedia, Parties } from '../../../types'
 
-const Discord = require('discord.js')
 const wait = require('util').promisify(setTimeout)
 const { request } = require('graphql-request')
 const { GET_MEDIA } = require('../../../queries')
@@ -15,9 +14,9 @@ module.exports = {
       interaction.reply('No suggestions have been entered. Use `/watchparty suggest`')
     } else {
       interaction.deferReply()
-      const embed = new Discord.MessageEmbed()
+      const embed = new EmbedBuilder()
         .setTitle('WP List')
-        .setFooter(`Requested by ${interaction.user.username}`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
+        .setFooter({ text: `Requested by ${interaction.user.username}`, iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png` })
         .setColor('#74E6D6')
         .setTimestamp()
       let titles: string[] = []

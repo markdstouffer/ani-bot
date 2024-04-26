@@ -1,7 +1,6 @@
-import { CommandInteraction, SelectMenuInteraction } from 'discord.js'
+import { ActionRowBuilder, CommandInteraction, ComponentType, StringSelectMenuBuilder } from 'discord.js'
 import { AniMedia, Parties } from '../../../types'
 
-const Discord = require('discord.js')
 const wait = require('util').promisify(setTimeout)
 const { request } = require('graphql-request')
 const { GET_MEDIA } = require('../../../queries')
@@ -29,9 +28,9 @@ module.exports = {
           }
         })
 
-        const row = new Discord.MessageActionRow()
+        const row = new ActionRowBuilder<StringSelectMenuBuilder>()
           .addComponents(
-            new Discord.MessageSelectMenu()
+            new StringSelectMenuBuilder()
               .setCustomId('select')
               .setPlaceholder('Nothing selected')
           )
@@ -46,7 +45,8 @@ module.exports = {
 
         await interaction.reply({ content: 'Choose an anime to remove from the queue:', components: [row], ephemeral: true })
 
-        const filter = async (i: SelectMenuInteraction) => {
+        // TODO: idk what this type is
+        const filter = async (i: any) => {
           const titleToDelete = i.values[0]
           const anime: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { search: titleToDelete })
           const id = anime.Media.id
@@ -57,7 +57,7 @@ module.exports = {
 
           return i.user.id === interaction.user.id
         }
-        interaction.channel!.awaitMessageComponent({ filter, componentType: 'SELECT_MENU', time: 15000 })
+        interaction.channel!.awaitMessageComponent({ filter, componentType: ComponentType.StringSelect, time: 15000 })
       }
     }
   }

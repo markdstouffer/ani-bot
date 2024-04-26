@@ -1,11 +1,9 @@
 // import types
-import { SlashCommandStringOption } from '@discordjs/builders'
-import { CommandInteraction } from 'discord.js'
+import { ChatInputCommandInteraction, SlashCommandBuilder, SlashCommandStringOption } from 'discord.js'
 import { Aliases } from '../types'
 
 const { request } = require('graphql-request')
 const { GET_USERINFO } = require('../queries')
-const { SlashCommandBuilder } = require('@discordjs/builders')
 const conn = require('../connections/anidata_conn')
 const Alias = conn.models.Alias
 
@@ -19,7 +17,7 @@ module.exports = {
         .setDescription('AniList username or Discord tag')
         .setRequired(true)
     ),
-  async execute (interaction: CommandInteraction) {
+  async execute (interaction: ChatInputCommandInteraction) {
     const name = interaction.options.getString('user')
     const serverId = interaction.guildId
     const countServerDocs: number = await Alias.find({ 'server.serverId': serverId }).limit(1).countDocuments()

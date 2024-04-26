@@ -1,8 +1,6 @@
 // import types
-import { CommandInteraction } from 'discord.js'
-import { removeAuthentication, isAuthenticated, getAuthUser } from '../requests/anilist'
-
-const { SlashCommandBuilder } = require('@discordjs/builders')
+import { CommandInteraction, SlashCommandBuilder } from 'discord.js'
+import { getAuthUser, isAuthenticated, removeAuthentication } from '../requests/anilist'
 
 module.exports = {
   data: new SlashCommandBuilder()

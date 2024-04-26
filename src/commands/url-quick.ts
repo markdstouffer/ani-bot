@@ -15,7 +15,7 @@ module.exports = {
   },
   async execute (interaction: CommandInteraction) {
     const discord = interaction.options.getUser('user')
-    const id = `<@!${discord!.id}>`
+    const id = `<@${discord!.id}>`
     const serverId = interaction.guildId
     const countServerDocs: number = await Alias.find({ 'server.serverId': serverId }).limit(1).countDocuments()
     const serverExists = (countServerDocs > 0)

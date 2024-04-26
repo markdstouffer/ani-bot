@@ -1,10 +1,8 @@
 // import types
-import { SlashCommandStringOption } from '@discordjs/builders'
-import { CommandInteraction } from 'discord.js'
+import { ChatInputCommandInteraction, SlashCommandBuilder, SlashCommandStringOption } from 'discord.js'
 
 import { getAuthUser, isAuthenticated } from '../requests/anilist'
 import { AniList, AniMedia } from '../types'
-const { SlashCommandBuilder } = require('@discordjs/builders')
 const { GET_MEDIA, GET_MEDIALIST } = require('../queries')
 const { DELETE } = require('../mutations')
 const { GraphQLClient } = require('graphql-request')
@@ -20,7 +18,7 @@ module.exports = {
         .setDescription('Anime title')
         .setRequired(true)
     ),
-  async execute (interaction: CommandInteraction) {
+  async execute (interaction: ChatInputCommandInteraction) {
     const title = interaction.options.getString('anime')
     const discord = interaction.user.id
     if (await isAuthenticated(discord)) {

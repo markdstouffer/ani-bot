@@ -1,12 +1,9 @@
 // import types
-import { SlashCommandSubcommandBuilder } from '@discordjs/builders'
-import { CommandInteraction } from 'discord.js'
+import { ChatInputCommandInteraction, EmbedBuilder, HexColorString, SlashCommandBuilder, SlashCommandSubcommandBuilder } from 'discord.js'
 import { Aliases, AniList, AniMedia, AniUser } from '../types'
 
 const { request } = require('graphql-request')
 const { GET_MEDIA, GET_USERINFO, GET_MEDIALIST } = require('../queries')
-const { SlashCommandBuilder } = require('@discordjs/builders')
-const Discord = require('discord.js')
 const wait = require('util').promisify(setTimeout)
 
 const conn = require('../connections/anidata_conn')
@@ -44,7 +41,7 @@ module.exports = {
             .setRequired(true)
         )
     ),
-  async execute (interaction: CommandInteraction) {
+  async execute (interaction: ChatInputCommandInteraction) {
     const serverId = interaction.guildId
     const countServerDocs: number = await Alias.find({ 'server.serverId': serverId }).limit(1).countDocuments()
     const serverExists = (countServerDocs > 0)
@@ -59,12 +56,12 @@ module.exports = {
           interaction.deferReply()
           const userList = serverAliases.server.users
 
-          const allEmbed = new Discord.MessageEmbed()
-            .setColor(animeData.Media.coverImage.color)
+          const allEmbed = new EmbedBuilder()
+            .setColor(animeData.Media.coverImage.color as HexColorString)
             .setTitle('Progress')
             .setDescription(`Server members' progress on [**${animeData.Media.title.romaji}**](${animeData.Media.siteUrl})`)
             .setThumbnail(animeData.Media.coverImage.large)
-            .setFooter(`requested by ${interaction.user.username}`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
+            .setFooter({ text: `requested by ${interaction.user.username}`, iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png` })
             .setTimestamp()
 
           userList.forEach(async u => {
@@ -72,10 +69,10 @@ module.exports = {
             try {
               const oneList: AniList = await request('https://graphql.anilist.co', GET_MEDIALIST, { userName: user.User.name, mediaId: animeData.Media.id })
               const oneEpisodes = oneList.MediaList.progress
-              allEmbed.addField(user.User.name, `[${oneEpisodes}/${animeData.Media.episodes}](${user.User.siteUrl})`, true)
+              allEmbed.addFields({ name: user.User.name, value: `[${oneEpisodes}/${animeData.Media.episodes}](${user.User.siteUrl})`, inline: true })
             } catch {
               const oneEpisodes = 0
-              allEmbed.addField(user.User.name, `[${oneEpisodes}/${animeData.Media.episodes}](${user.User.siteUrl})`, true)
+              allEmbed.addFields({ name: user.User.name, value: `[${oneEpisodes}/${animeData.Media.episodes}](${user.User.siteUrl})`, inline: true })
             }
           })
 
@@ -88,7 +85,9 @@ module.exports = {
         if (user!.startsWith('<')) {
           if (serverExists) {
             const userList = serverAliases.server.users
+            console.log(userList)
             const u = userList.find(x => x.userId === user)
+            console.log('server exists, ', user, u)
             if (u) {
               const anilist = u.username
               const userData: AniUser = await request('https://graphql.anilist.co', GET_USERINFO, { name: anilist })
@@ -103,12 +102,12 @@ module.exports = {
                           : (listData.MediaList.status === 'PAUSED')
                               ? 'Paused watching'
                               : null
-                const embed = new Discord.MessageEmbed()
+                const embed = new EmbedBuilder()
                   .setTitle(userData.User.name)
-                  .setColor(animeData.Media.coverImage.color)
+                  .setColor(animeData.Media.coverImage.color as HexColorString)
                   .setThumbnail(animeData.Media.coverImage.large)
                   .setDescription(`Progress on [**${animeData.Media.title.romaji}**](${animeData.Media.siteUrl})`)
-                  .addField(stat, `${listData.MediaList.progress}/${animeData.Media.episodes}`)
+                  .addFields({ name: stat!, value: `${listData.MediaList.progress}/${animeData.Media.episodes}` })
                 interaction.reply({ embeds: [embed] })
               } catch {
                 interaction.reply(`${userData.User.name} has not yet watched any episodes of this anime.`)
@@ -133,12 +132,12 @@ module.exports = {
                         : (listData.MediaList.status === 'PAUSED')
                             ? 'Paused watching'
                             : null
-            const embed = new Discord.MessageEmbed()
+            const embed = new EmbedBuilder()
               .setTitle(userData.User.name)
-              .setColor(animeData.Media.coverImage.color)
+              .setColor(animeData.Media.coverImage.color as HexColorString)
               .setThumbnail(animeData.Media.coverImage.large)
               .setDescription(`Progress on [**${animeData.Media.title.romaji}**](${animeData.Media.siteUrl})`)
-              .addField(stat, `${listData.MediaList.progress}/${animeData.Media.episodes}`)
+              .addFields({ name: stat!, value: `${listData.MediaList.progress}/${animeData.Media.episodes}` })
             interaction.reply({ embeds: [embed] })
           } catch {
             interaction.reply(`${userData.User.name} has not yet watched any episodes of this anime.`)

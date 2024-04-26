@@ -1,12 +1,9 @@
 // import types
-import { SlashCommandStringOption } from '@discordjs/builders'
-import { CommandInteraction } from 'discord.js'
+import { ChatInputCommandInteraction, EmbedBuilder, HexColorString, SlashCommandBuilder, SlashCommandStringOption } from 'discord.js'
 import { Aliases, AniActivity, AniUser } from '../types'
 
 const { request } = require('graphql-request')
 const { GET_ACTIVITY, GET_USERINFO } = require('../queries')
-const { SlashCommandBuilder } = require('@discordjs/builders')
-const Discord = require('discord.js')
 
 const conn = require('../connections/anidata_conn')
 const Alias = conn.models.Alias
@@ -21,7 +18,7 @@ module.exports = {
         .setDescription('AniList username or Discord tag')
         .setRequired(true)
     ),
-  async execute (interaction: CommandInteraction) {
+  async execute (interaction: ChatInputCommandInteraction) {
     const name = interaction.options.getString('name')
     const serverId = interaction.guildId
     const countServerDocs: number = await Alias.find({ 'server.serverId': serverId }).limit(1).countDocuments()
@@ -46,11 +43,11 @@ module.exports = {
                 ? `${stat} ${activity.progress} of`
                 : `${stat}`
 
-              const embed = new Discord.MessageEmbed()
+              const embed = new EmbedBuilder()
                 .setTitle(userData.User.name)
-                .setColor(activity.media.coverImage.color)
+                .setColor(activity.media.coverImage.color as HexColorString)
                 .setThumbnail(userData.User.avatar.large)
-                .addField(statProg, `[**${activity.media.title.romaji}**](${activity.media.siteUrl})`)
+                .addFields({ name: statProg, value: `[**${activity.media.title.romaji}**](${activity.media.siteUrl})` })
               interaction.reply({ embeds: [embed] })
             } else { interaction.reply('This user has no recent activity :(') }
           } else {
@@ -71,11 +68,11 @@ module.exports = {
             ? `${stat} ${activity.progress} of`
             : `${stat}`
 
-          const embed = new Discord.MessageEmbed()
+          const embed = new EmbedBuilder()
             .setTitle(userData.User.name)
-            .setColor(activity.media.coverImage.color)
+            .setColor(activity.media.coverImage.color as HexColorString)
             .setThumbnail(userData.User.avatar.large)
-            .addField(statProg, `[**${activity.media.title.romaji}**](${activity.media.siteUrl})`)
+            .addFields({ name: statProg, value: `[**${activity.media.title.romaji}**](${activity.media.siteUrl})` })
           interaction.reply({ embeds: [embed] })
         } else { interaction.reply('This user has no recent activity :(') }
       }

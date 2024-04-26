@@ -1,12 +1,10 @@
 // import types
-import { SlashCommandStringOption } from '@discordjs/builders'
-import { CommandInteraction, Message, MessageActionRow, MessageEmbed, TextChannel } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, ComponentType, EmbedBuilder, HexColorString, Message, SlashCommandBuilder, SlashCommandStringOption, TextChannel } from 'discord.js'
 import TurndownService from 'turndown'
 import { AniMedia } from '../types'
 
 const Discord = require('discord.js')
 const { request } = require('graphql-request')
-const { SlashCommandBuilder } = require('@discordjs/builders')
 const { GET_MEDIA } = require('../queries')
 const Tds = require('turndown')
 
@@ -20,7 +18,7 @@ module.exports = {
         .setDescription('Anime title')
         .setRequired(true)
     ),
-  async execute (interaction: CommandInteraction) {
+  async execute (interaction: ChatInputCommandInteraction) {
     const td: TurndownService = new Tds()
     const title: string | null = interaction.options.getString('title')
     const media: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { search: title })
@@ -31,57 +29,65 @@ module.exports = {
       const description: string = (td.turndown(media.Media.description))
       const trimmedDesc: string = (description.length > 200) ? `${description.substring(0, 200).trim()}...` : `${description}`
 
-      const embed: MessageEmbed = new Discord.MessageEmbed()
-        .setColor(media.Media.coverImage.color)
+      const generalFields = [
+        {
+          name: 'Avg. score: ',
+          value: `${media.Media.averageScore}%`,
+          inline: true
+        },
+        {
+          name: '# of episodes: ',
+          value: `${media.Media.episodes}`,
+          inline: true
+        },
+        {
+          name: 'Status: ',
+          value: `\`${media.Media.status}\``,
+          inline: true
+        }
+      ]
+
+      const embed = new EmbedBuilder()
+        .setColor(media.Media.coverImage.color as HexColorString)
         .setDescription(trimmedDesc)
         .setTitle(media.Media.title.romaji)
         .setThumbnail(media.Media.coverImage.large)
-        .addField('Avg. score: ', `${media.Media.averageScore}%`, true)
-        .addField('# of episodes: ', `${media.Media.episodes}`, true)
-        .addField('Status: ', `\`${media.Media.status}\``, true)
+        .addFields(generalFields)
       media.Media.studios.nodes[0]
-        ? embed.setFooter(`${media.Media.format}, by ${media.Media.studios.nodes[0].name} • ${media.Media.season} ${media.Media.seasonYear}`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
-        : embed.setFooter(`${media.Media.format} • ${media.Media.season} ${media.Media.seasonYear}`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
+        ? embed.setFooter({ text: `${media.Media.format}, by ${media.Media.studios.nodes[0].name} • ${media.Media.season} ${media.Media.seasonYear}`, iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png` })
+        : embed.setFooter({ text: `${media.Media.format} • ${media.Media.season} ${media.Media.seasonYear}`, iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png` })
       media.Media.genres[1]
-        ? embed.addField('Genres: ', `${media.Media.genres[0]}, ${media.Media.genres[1]}`, true)
-        : embed.addField('Genre: ', `${media.Media.genres[0]}`, true)
+        ? embed.addFields({ name: 'Genres: ', value: `${media.Media.genres[0]}, ${media.Media.genres[1]}`, inline: true })
+        : embed.addFields({ name: 'Genre: ', value: `${media.Media.genres[0]}`, inline: true })
       media.Media.streamingEpisodes[0]
-        ? embed.addField('Streaming: ', `[${media.Media.streamingEpisodes[0].site}](${media.Media.streamingEpisodes[0].url})`, true)
-        : embed.addField('Streaming: ', 'Torrent it!', true)
+        ? embed.addFields({ name: 'Streaming: ', value: `[${media.Media.streamingEpisodes[0].site}](${media.Media.streamingEpisodes[0].url})`, inline: true })
+        : embed.addFields({ name: 'Streaming: ', value: 'Torrent it!', inline: true })
 
       let full: boolean = false
-      function swapDesc () {
+      const swapDesc = () => {
         if (full) {
           embed.setDescription(trimmedDesc)
-          row.spliceComponents(0, 1, [
-            new Discord.MessageButton()
-              .setCustomId('toggle')
-              .setLabel('Show full description')
-              .setStyle('PRIMARY')
-          ])
+          row.components[0].setLabel('Show full description')
+          row.setComponents(row.components)
           full = false
         } else {
           embed.setDescription(description)
-          row.spliceComponents(0, 1, [
-            new Discord.MessageButton()
-              .setCustomId('toggle')
-              .setLabel('Shorten description')
-              .setStyle('PRIMARY')
-          ])
+          row.components[0].setLabel('Shorten description')
+          row.setComponents(row.components)
           full = true
         }
       }
 
-      const row: MessageActionRow = new Discord.MessageActionRow()
+      const row = new ActionRowBuilder<ButtonBuilder>()
         .addComponents(
-          new Discord.MessageButton()
+          new ButtonBuilder()
             .setCustomId('toggle')
             .setLabel('Show full description')
-            .setStyle('PRIMARY'),
-          new Discord.MessageButton()
+            .setStyle(ButtonStyle.Primary),
+          new ButtonBuilder()
             .setLabel(`${media.Media.title.romaji} on AniList`)
             .setURL(`${media.Media.siteUrl}`)
-            .setStyle('LINK')
+            .setStyle(ButtonStyle.Link)
         )
 
       interaction.reply({ embeds: [embed], components: [row] })
@@ -90,9 +96,9 @@ module.exports = {
         interaction.editReply({ components: [row] })
       }, 120000)
 
-      const response: Message = await interaction.fetchReply() as Message
+      const response: Message = await interaction.fetchReply()
 
-      const collector = response.createMessageComponentCollector({ componentType: 'BUTTON', time: 120000 })
+      const collector = response.createMessageComponentCollector({ componentType: ComponentType.Button, time: 120000 })
       collector.on('collect', async (i: typeof Discord.Interaction) => {
         swapDesc()
         await i.update({ components: [row] })

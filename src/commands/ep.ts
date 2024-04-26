@@ -1,11 +1,9 @@
 // import types
-import { SlashCommandSubcommandBuilder } from '@discordjs/builders'
-import { CommandInteraction, TextChannel } from 'discord.js'
+import { ChatInputCommandInteraction, SlashCommandBuilder, SlashCommandSubcommandBuilder, TextChannel } from 'discord.js'
 import { AniMedia, Parties } from '../types'
 
 const { request } = require('graphql-request')
 const { GET_MEDIA } = require('../queries')
-const { SlashCommandBuilder } = require('@discordjs/builders')
 
 const conn = require('../connections/anidata_conn')
 const Party = conn.models.Party
@@ -42,7 +40,7 @@ module.exports = {
             .setRequired(true)
         )
     ),
-  async execute (interaction: CommandInteraction) {
+  async execute (interaction: ChatInputCommandInteraction) {
     const sub = interaction.options.getSubcommand()
     const amount = interaction.options.getInteger('amount')
     const title = interaction.options.getString('title')

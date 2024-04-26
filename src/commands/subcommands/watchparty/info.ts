@@ -1,7 +1,6 @@
-import { CommandInteraction, SelectMenuInteraction } from 'discord.js'
+import { ActionRowBuilder, CommandInteraction, ComponentType, EmbedBuilder, HexColorString, StringSelectMenuBuilder } from 'discord.js'
 import { AniMedia, Parties } from '../../../types'
 
-const Discord = require('discord.js')
 const wait = require('util').promisify(setTimeout)
 const { request } = require('graphql-request')
 const { GET_MEDIA } = require('../../../queries')
@@ -21,9 +20,9 @@ module.exports = {
         titles.push(addToTitles)
       })
 
-      const row = new Discord.MessageActionRow()
+      const row = new ActionRowBuilder<StringSelectMenuBuilder>()
         .addComponents(
-          new Discord.MessageSelectMenu()
+          new StringSelectMenuBuilder()
             .setCustomId('select')
             .setPlaceholder('Nothing selected')
         )
@@ -38,32 +37,32 @@ module.exports = {
 
       await interaction.reply({ content: 'Select a watch-party to view its information:', components: [row], ephemeral: true })
 
-      const filter = async (i: SelectMenuInteraction) => {
+      const filter = async (i: any) => {
         if (i.user.id === interaction.user.id) {
           const titleToView = i.values[0]
           const anime: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { search: titleToView })
           const id = anime.Media.id
 
-          const embed = new Discord.MessageEmbed()
-            .setColor(anime.Media.coverImage.color)
+          const embed = new EmbedBuilder()
+            .setColor(anime.Media.coverImage.color as HexColorString)
             .setTitle(`WP on ${anime.Media.title.romaji}`)
             .setDescription(`Information on the watch-party for [**${anime.Media.title.romaji}**](${anime.Media.siteUrl})`)
             .setThumbnail(anime.Media.coverImage.large)
-            .setFooter(`Requested by ${interaction.user.username}`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
+            .setFooter({ text: `Requested by ${interaction.user.username}`, iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png` })
             .setTimestamp()
 
           const members = thisServerParty.server.list.find(x => x.animeId === id)!.members
           const joined = (members.length === 0) ? 'None' : members.map(x => '- ' + x + '\n').join('')
-          embed.addField('Joined members:', joined)
+          embed.addFields({ name: 'Joined members:', value: joined })
 
           const currentlySet = (thisServerParty.server.current.filter(c => c.title === titleToView).length > 0) ? 'true' : 'false'
-          embed.addField('Currently set?', currentlySet)
+          embed.addFields({ name: 'Currently set?', value: currentlySet })
 
           i.reply({ embeds: [embed] })
         }
         return i.user.id === interaction.user.id
       }
-      interaction.channel!.awaitMessageComponent({ filter, componentType: 'SELECT_MENU', time: 15000 })
+      interaction.channel!.awaitMessageComponent({ filter, componentType: ComponentType.StringSelect, time: 15000 })
     }
   }
 }

@@ -1,4 +1,4 @@
-import { CommandInteraction, Message, MessageActionRow, MessageButton, MessageComponentInteraction, MessageEmbed } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, CommandInteraction, ComponentType, Embed, Message, MessageComponentInteraction } from 'discord.js'
 import { getAuthUser } from '../../../requests/anilist'
 import { AniMedia } from '../../../types'
 const { GET_MEDIA } = require('../../../queries')
@@ -10,24 +10,24 @@ module.exports = {
   data: {
     name: 'status'
   },
-  async execute (interaction: CommandInteraction, discord: string, title: string, _embed: MessageEmbed, reply: Message) {
+  async execute (interaction: CommandInteraction, discord: string, title: string, _embed: Embed, reply: Message) {
     const anime: AniMedia = await client.request(GET_MEDIA, { search: title })
     const id = anime.Media.id
     const authUser = await getAuthUser(discord)
-    const statusButtons: MessageActionRow = new MessageActionRow()
+    const statusButtons = new ActionRowBuilder<ButtonBuilder>()
       .addComponents(
-        new MessageButton()
+        new ButtonBuilder()
           .setLabel('WATCHING')
           .setCustomId('current')
-          .setStyle('SUCCESS'),
-        new MessageButton()
+          .setStyle(ButtonStyle.Success),
+        new ButtonBuilder()
           .setLabel('PAUSED')
           .setCustomId('paused')
-          .setStyle('SECONDARY'),
-        new MessageButton()
+          .setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder()
           .setLabel('DROPPED')
           .setCustomId('dropped')
-          .setStyle('DANGER')
+          .setStyle(ButtonStyle.Danger)
       )
     interaction.editReply({ components: [statusButtons] })
     const exited = (status: string) => {
@@ -65,6 +65,6 @@ module.exports = {
         interaction.followUp({ content: 'You didn\'t select a status in time!', ephemeral: true })
       }
     }, 30000)
-    reply.createMessageComponentCollector({ filter, componentType: 'BUTTON', time: 30000 })
+    reply.createMessageComponentCollector({ filter, componentType: ComponentType.Button, time: 30000 })
   }
 }

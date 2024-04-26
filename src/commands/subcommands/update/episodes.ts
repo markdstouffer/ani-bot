@@ -1,4 +1,4 @@
-import { CommandInteraction, Message, MessageActionRow, MessageButton, MessageComponentInteraction, MessageEmbed } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, CommandInteraction, ComponentType, Embed, Message, MessageComponentInteraction } from 'discord.js'
 import { getAuthUser } from '../../../requests/anilist'
 import { AniList, AniMedia } from '../../../types'
 const { GET_MEDIALIST, GET_MEDIA } = require('../../../queries')
@@ -10,7 +10,7 @@ module.exports = {
   data: {
     name: 'episodes'
   },
-  async execute (interaction: CommandInteraction, discord: string, title: string, embed: MessageEmbed, reply: Message) {
+  async execute (interaction: CommandInteraction, discord: string, title: string, embed: Embed, reply: Message) {
     const anime: AniMedia = await client.request(GET_MEDIA, { search: title })
 
     const authUser = await getAuthUser(discord)
@@ -22,20 +22,20 @@ module.exports = {
       let currentProgress = listEntry.MediaList.progress
       const initialProgress = listEntry.MediaList.progress
 
-      const math: MessageActionRow = new MessageActionRow()
+      const math = new ActionRowBuilder<ButtonBuilder>()
         .addComponents(
-          new MessageButton()
+          new ButtonBuilder()
             .setLabel('-')
             .setCustomId('subtract')
-            .setStyle('DANGER'),
-          new MessageButton()
+            .setStyle(ButtonStyle.Danger),
+          new ButtonBuilder()
             .setLabel('+')
             .setCustomId('add')
-            .setStyle('SUCCESS'),
-          new MessageButton()
+            .setStyle(ButtonStyle.Success),
+          new ButtonBuilder()
             .setLabel('Done!')
             .setCustomId('done')
-            .setStyle('SECONDARY')
+            .setStyle(ButtonStyle.Secondary)
         )
       interaction.editReply({ embeds: [embed], components: [math] })
 
@@ -53,7 +53,7 @@ module.exports = {
               })
             } else {
               await client.request(INCREMENT_EP, { mediaId: anime.Media.id, progress: progToSet }, headers)
-              embed.spliceFields(0, 1, { name: 'Progress:', value: `${progToSet}/${anime.Media.episodes}`, inline: true })
+              // embed.fields[0] = { name: 'Progress:', value: `${progToSet}/${anime.Media.episodes}`, inline: true }
               currentProgress = progToSet
               i.deferUpdate()
               interaction.editReply({ embeds: [embed] })
@@ -64,7 +64,7 @@ module.exports = {
             } else {
               const progToSet = currentProgress - 1
               await client.request(INCREMENT_EP, { mediaId: anime.Media.id, progress: progToSet }, headers)
-              embed.spliceFields(0, 1, { name: 'Progress:', value: `${progToSet}/${anime.Media.episodes}`, inline: true })
+              // embed.fields[0] = { name: 'Progress:', value: `${progToSet}/${anime.Media.episodes}`, inline: true }
               currentProgress = progToSet
               i.deferUpdate()
               interaction.editReply({ embeds: [embed] })
@@ -95,7 +95,7 @@ module.exports = {
           }
         }
       }, 30000)
-      reply.createMessageComponentCollector({ filter, componentType: 'BUTTON', time: 30000 })
+      reply.createMessageComponentCollector({ filter, componentType: ComponentType.Button, time: 30000 })
     } catch (err) {
       console.error(err)
       console.error(username, 'failed to use /update episodes with query', title)

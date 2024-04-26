@@ -1,67 +1,80 @@
 // import types
-import { CommandInteraction, Message } from 'discord.js'
-
-const { Client, Collection, Intents } = require('discord.js')
+import { ChatInputCommandInteraction, Client, Collection, Events, GatewayIntentBits, REST, Routes } from 'discord.js'
+import fs from 'fs'
+import path from 'path'
 require('dotenv').config()
-const { REST } = require('@discordjs/rest')
-const { Routes } = require('discord-api-types/v9')
-const fs = require('fs')
-const path = require('path')
 
-const myIntents = new Intents()
-myIntents.add('GUILDS', 'GUILD_MESSAGES', 'DIRECT_MESSAGES', 'DIRECT_MESSAGE_REACTIONS', 'GUILD_MEMBERS', 'GUILD_EMOJIS_AND_STICKERS', 'GUILD_MESSAGE_REACTIONS')
+const myIntents = [
+  GatewayIntentBits.Guilds,
+  GatewayIntentBits.GuildMessages,
+  GatewayIntentBits.GuildMembers,
+  GatewayIntentBits.GuildEmojisAndStickers,
+  GatewayIntentBits.GuildMessageReactions,
+  GatewayIntentBits.DirectMessages,
+  GatewayIntentBits.DirectMessageReactions
+]
 
 export const client = new Client({ intents: myIntents })
 client.commands = new Collection()
-
 const commands: any[] = []
-const commandFiles = fs.readdirSync(path.resolve(__dirname, './commands')).filter((file: string) => file.endsWith('.ts'))
 
+const commandsPath = path.join(__dirname, 'commands')
+
+const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.ts'))
 for (const file of commandFiles) {
-  const command = require(`./commands/${file}`)
-  client.commands.set(command.data.name, command)
-  if (!command.data.options) {
+  const filePath = path.join(commandsPath, file)
+  const command = require(filePath)
+  if ('data' in command && 'execute' in command) {
+    client.commands.set(command.data.name, command)
     commands.push(command.data)
   } else {
-    commands.push(command.data.toJSON())
+    console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`)
   }
 }
 
-client.on('ready', async () => {
-  console.log(`Logged in as ${client.user.tag}!`)
+client.once(Events.ClientReady, readyClient => {
+  console.log(`Logged in as ${readyClient.user.tag}!`)
+
+  const rest = new REST({ version: '9' }).setToken(process.env.TOKEN!);
+  (async () => {
+    try {
+      console.log(`Started refreshing ${commands.length} application (/) commands.`)
+
+      const data: any = await rest.put(
+        Routes.applicationCommands(process.env.CLIENT_ID),
+        { body: commands }
+      )
+
+      console.log(`Successfully reloaded ${data.length} application (/) commands.`)
+    } catch (error) {
+      console.error(error)
+    }
+  })()
 })
 
 process.on('unhandledRejection', error => {
   console.error('Unhandled promise rejection:', error)
 })
 
-client.on('messageCreate', async (message: Message) => {
-  if (message.content === '$deploy') {
-    const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
-    (async () => {
-      try {
-        console.log('Started refreshing slash commands...')
-        await rest.put(
-          Routes.applicationCommands(process.env.CLIENT_ID),
-          { body: commands }
-        )
-        console.log('Successfully refreshed slash commands!')
-      } catch (error) {
-        console.error(error)
-      }
-    })()
-  }
-})
+client.on(Events.InteractionCreate, async interaction => {
+  if (!interaction.isChatInputCommand()) return
 
-client.on('interactionCreate', async (interaction: CommandInteraction) => {
-  if (!interaction.isCommand()) return
-  if (!client.commands.has(interaction.commandName)) return
+  const command = interaction.client.commands.get(interaction.commandName)
+
+  if (!command) {
+    console.error(`No command matching ${interaction.commandName} was found.`)
+    return
+  }
 
   try {
-    await client.commands.get(interaction.commandName).execute(interaction)
+    await command.execute(interaction as ChatInputCommandInteraction)
   } catch (error) {
     console.error(error)
-    await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true })
+    if (interaction.replied || interaction.deferred) {
+      await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true })
+    } else {
+      await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true })
+    }
   }
 })
 

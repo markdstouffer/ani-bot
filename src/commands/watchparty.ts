@@ -1,13 +1,10 @@
 // import types
-import { SlashCommandSubcommandBuilder } from '@discordjs/builders'
-import { CommandInteraction } from 'discord.js'
+import { ChatInputCommandInteraction, Collection, SlashCommandBuilder, SlashCommandSubcommandBuilder } from 'discord.js'
 import { Parties, Aliases } from '../types'
 
-const Discord = require('discord.js')
 const fs = require('fs')
 const path = require('path')
-const { SlashCommandBuilder } = require('@discordjs/builders')
-const subcommands = new Discord.Collection()
+const subcommands = new Collection<any, any>()
 const subFiles = fs.readdirSync(path.resolve(__dirname, './subcommands/watchparty')).filter((file: string) => file.endsWith('.ts'))
 
 for (const file of subFiles) {
@@ -85,7 +82,7 @@ module.exports = {
         .setName('current')
         .setDescription('Show information on currently set watchparties')
     ),
-  async execute (interaction: CommandInteraction) {
+  async execute (interaction: ChatInputCommandInteraction) {
     const serverId = interaction.guildId
     const sub = interaction.options.getSubcommand()
     const query = { 'server.serverId': serverId }
