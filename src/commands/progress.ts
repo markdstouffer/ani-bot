@@ -85,7 +85,9 @@ module.exports = {
         if (user!.startsWith('<')) {
           if (serverExists) {
             const userList = serverAliases.server.users
+            console.log(userList)
             const u = userList.find(x => x.userId === user)
+            console.log('server exists, ', user, u)
             if (u) {
               const anilist = u.username
               const userData: AniUser = await request('https://graphql.anilist.co', GET_USERINFO, { name: anilist })

@@ -78,10 +78,10 @@ module.exports = {
         const score = Number(i.values[0])
         curScore = score
         await client.request(RATE, { mediaId: anime.Media.id, score: score }, headers)
-        embed.fields[1] = { name: 'Rating', value: `${score}/10`, inline: true }
+        // embed.fields[1] = { name: 'Rating', value: `${score}/10`, inline: true }
         i.deferUpdate()
         menu.delete()
-        interaction.editReply({ embeds: [embed] })
+        // interaction.editReply({ embeds: [embed] })
         setTimeout(() => {
           interaction.deleteReply()
           interaction.followUp(`<@${interaction.user.id}> gave **${anime.Media.title.romaji}** a ${curScore}/10.`)

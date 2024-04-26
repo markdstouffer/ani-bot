@@ -19,7 +19,7 @@ module.exports = {
       .addComponents(
         new ButtonBuilder()
           .setLabel('Link your AniList')
-          .setURL(`https://anilist.co/api/v2/oauth/authorize?client_id=${process.env.ANI_CLIENT}&response_type=token`)
+          .setURL(`https://anilist.co/api/v2/oauth/authorize?client_id=${process.env.ANILIST_CLIENT_ID}&response_type=token`)
           .setStyle(ButtonStyle.Link)
       )
     interaction.reply({ content: 'Check DMs!', ephemeral: true })
@@ -48,9 +48,9 @@ module.exports = {
       }
       const newUser = {
         username: user.name,
-        userId: `<@!${interaction.user.id}>`
+        userId: `<@${interaction.user.id}>`
       }
-      const eraseOld = { userId: `<@!${interaction.user.id}>` }
+      const eraseOld = { userId: `<@${interaction.user.id}>` }
       await Alias.findOneAndUpdate(query, { $pull: { 'server.users': eraseOld } })
       await Alias.findOneAndUpdate(query, { $push: { 'server.users': newUser } }, { new: true })
 

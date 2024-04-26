@@ -10,7 +10,7 @@ module.exports = {
     name: 'leave'
   },
   async execute (interaction: CommandInteraction, thisServerParty: Parties, serverAliases: Aliases, serverExists: boolean) {
-    const id = `<@!${interaction.user.id}>`
+    const id = `<@${interaction.user.id}>`
     if (serverExists) {
       const userList = serverAliases.server.users
       const user = userList.find(x => x.userId === id)

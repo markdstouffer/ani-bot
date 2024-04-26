@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, ComponentType, EmbedBuilder, HexColorString, Message, MessageComponentInteraction } from 'discord.js'
-import { Aliases, AniMedia, Parties } from '../../../types'
 import TurndownService from 'turndown'
+import { Aliases, AniMedia, Parties } from '../../../types'
 
 const { request } = require('graphql-request')
 const { GET_MEDIA } = require('../../../queries')
@@ -57,7 +57,7 @@ module.exports = {
       // ADD THE SUGGESTER TO THE WP BY DEFAULT - if they are aliased.
       if (serverExists) {
         const userList = serverAliases.server.users
-        const authorId = `<@!${interaction.user.id}>`
+        const authorId = `<@${interaction.user.id}>`
         const user = userList.find(x => x.userId === authorId)
         if (user) {
           const anilist = user.username
@@ -82,7 +82,7 @@ module.exports = {
             console.log('failed at !serverExists')
             i.reply({ content: 'You have not yet been aliased to an AniList user. `/alias add`', ephemeral: true })
           } else {
-            const id = `<@!${i.user.id}>`
+            const id = `<@${i.user.id}>`
             const userList = serverAliases.server.users
             const user = userList.find(x => x.userId === id)
             if (!user) {

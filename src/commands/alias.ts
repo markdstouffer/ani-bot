@@ -39,7 +39,7 @@ module.exports = {
   async execute (interaction: ChatInputCommandInteraction) {
     const serverId = interaction.guildId
     const mentionable: User = interaction.options.getUser('discord')!
-    const discord = `<@!${mentionable!.id}>`
+    const discord = mentionable.toString()
     const anilist = interaction.options.getString('anilist')
     const query = { 'server.serverId': serverId }
     const sub = interaction.options.getSubcommand()

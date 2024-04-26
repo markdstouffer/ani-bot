@@ -53,7 +53,7 @@ module.exports = {
               })
             } else {
               await client.request(INCREMENT_EP, { mediaId: anime.Media.id, progress: progToSet }, headers)
-              embed.fields[0] = { name: 'Progress:', value: `${progToSet}/${anime.Media.episodes}`, inline: true }
+              // embed.fields[0] = { name: 'Progress:', value: `${progToSet}/${anime.Media.episodes}`, inline: true }
               currentProgress = progToSet
               i.deferUpdate()
               interaction.editReply({ embeds: [embed] })
@@ -64,7 +64,7 @@ module.exports = {
             } else {
               const progToSet = currentProgress - 1
               await client.request(INCREMENT_EP, { mediaId: anime.Media.id, progress: progToSet }, headers)
-              embed.fields[0] = { name: 'Progress:', value: `${progToSet}/${anime.Media.episodes}`, inline: true }
+              // embed.fields[0] = { name: 'Progress:', value: `${progToSet}/${anime.Media.episodes}`, inline: true }
               currentProgress = progToSet
               i.deferUpdate()
               interaction.editReply({ embeds: [embed] })

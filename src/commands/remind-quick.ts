@@ -12,7 +12,7 @@ module.exports = {
   },
   async execute (interaction: ChatInputCommandInteraction) {
     const discord = interaction.options.getUser('user')
-    const id = `<@!${discord!.id}>`
+    const id = `<@${discord!.id}>`
     const serverId = interaction.guildId
     const query = { 'server.serverId': serverId }
 
