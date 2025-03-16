@@ -16,14 +16,17 @@ module.exports = {
       const user = userList.find(x => x.userId === id)
       if (user) {
         if (thisServerParty.server.list.length === 0) {
-          interaction.reply({ content: 'There are no joinable watch-parties at the moment. `/watchparty suggest`', ephemeral: true })
+          await interaction.reply({
+            content: 'There are no joinable watch-parties at the moment. `/watchparty suggest`',
+            ephemeral: true
+          })
         } else {
           const titles: string[] = []
-          thisServerParty.server.list.forEach(async obj => {
+          for (const obj of thisServerParty.server.list) {
             const oneAnime: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { id: obj.animeId })
             const addToTitles = `${oneAnime.Media.title.romaji}`
             titles.push(addToTitles)
-          })
+          }
 
           const row = new ActionRowBuilder<StringSelectMenuBuilder>()
             .addComponents(
@@ -61,10 +64,16 @@ module.exports = {
           interaction.channel!.awaitMessageComponent({ filter, componentType: ComponentType.StringSelect, time: 15000 })
         }
       } else {
-        interaction.reply({ content: 'You have not yet been aliased to an AniList user. `/alias add`', ephemeral: true })
+        await interaction.reply({
+          content: 'You have not yet been aliased to an AniList user. `/alias add`',
+          ephemeral: true
+        })
       }
     } else {
-      interaction.reply({ content: 'You have not yet been aliased to an AniList user. `/alias add`', ephemeral: true })
+      await interaction.reply({
+        content: 'You have not yet been aliased to an AniList user. `/alias add`',
+        ephemeral: true
+      })
     }
   }
 }

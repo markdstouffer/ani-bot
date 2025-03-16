@@ -11,14 +11,17 @@ module.exports = {
   },
   async execute (interaction: CommandInteraction, thisServerParty: Parties, _serverAliases: undefined, _serverExists: undefined) {
     if (thisServerParty.server.list.length === 0) {
-      interaction.reply({ content: 'There are currently no watch-party suggestions. `/wp suggest`', ephemeral: true })
+      await interaction.reply({
+        content: 'There are currently no watch-party suggestions. `/wp suggest`',
+        ephemeral: true
+      })
     } else {
       const titles: string[] = []
-      thisServerParty.server.list.forEach(async obj => {
+      for (const obj of thisServerParty.server.list) {
         const oneAnime: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { id: obj.animeId })
         const addToTitles = `${oneAnime.Media.title.romaji}`
         titles.push(addToTitles)
-      })
+      }
 
       const row = new ActionRowBuilder<StringSelectMenuBuilder>()
         .addComponents(

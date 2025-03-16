@@ -12,9 +12,9 @@ module.exports = {
       const auth = await getAuthUser(discord)
       const anilist = auth.username
       await removeAuthentication(discord)
-      interaction.reply({ content: `You are no longer logged in as ${anilist}.`, ephemeral: true })
+      await interaction.reply({content: `You are no longer logged in as ${anilist}.`, ephemeral: true})
     } else {
-      interaction.reply({ content: 'You aren\'t currently logged in as any AniList user.' })
+      await interaction.reply({content: 'You aren\'t currently logged in as any AniList user.'})
     }
   }
 }

@@ -32,20 +32,23 @@ module.exports = {
           if (user) {
             const anilist = user.username
             const userData = await request('https://graphql.anilist.co', GET_USERINFO, { name: anilist })
-            interaction.reply(userData.User.siteUrl)
+            await interaction.reply(userData.User.siteUrl)
           } else {
-            interaction.reply('This user has not yet been aliased to an Anilist user. `/alias add`')
+            await interaction.reply('This user has not yet been aliased to an Anilist user. `/alias add`')
           }
         } else {
-          interaction.reply('This user has not yet been aliased to an Anilist user. `/alias add`')
+          await interaction.reply('This user has not yet been aliased to an Anilist user. `/alias add`')
         }
       } else {
         const userData = await request('https://graphql.anilist.co', GET_USERINFO, { name })
-        interaction.reply(userData.User.siteUrl)
+        await interaction.reply(userData.User.siteUrl)
       }
     } catch (err) {
       console.error(err)
-      interaction.reply({ content: 'Command failed, check that the user is aliased or you spelled it right. `/alias add`', ephemeral: true })
+      await interaction.reply({
+        content: 'Command failed, check that the user is aliased or you spelled it right. `/alias add`',
+        ephemeral: true
+      })
     }
   }
 }

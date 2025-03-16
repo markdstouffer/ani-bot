@@ -68,7 +68,7 @@ module.exports = {
             }
           ])
       )
-    interaction.editReply({ components: [] })
+    await interaction.editReply({components: []})
     const menu = await interaction.followUp({ content: 'Select a rating', components: [ratings] }) as Message
 
     const filter = async (i: any) => {
@@ -80,7 +80,7 @@ module.exports = {
         await client.request(RATE, { mediaId: anime.Media.id, score: score }, headers)
         // embed.fields[1] = { name: 'Rating', value: `${score}/10`, inline: true }
         i.deferUpdate()
-        menu.delete()
+        await menu.delete()
         // interaction.editReply({ embeds: [embed] })
         setTimeout(() => {
           interaction.deleteReply()
@@ -89,6 +89,6 @@ module.exports = {
       }
       return i.user.id === interaction.user.id
     }
-    menu.awaitMessageComponent({ filter, componentType: ComponentType.StringSelect, time: 30000 })
+    await menu.awaitMessageComponent({filter, componentType: ComponentType.StringSelect, time: 30000})
   }
 }

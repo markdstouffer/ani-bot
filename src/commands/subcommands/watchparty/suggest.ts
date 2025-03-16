@@ -21,7 +21,10 @@ module.exports = {
     const found = thisServerParty.server.list.find(x => x.animeId === animeId)
 
     if (found) {
-      interaction.reply({ content: 'This anime has already been suggested. Use `/watchparty set` to set this as the current anime.', ephemeral: true })
+      await interaction.reply({
+        content: 'This anime has already been suggested. Use `/watchparty set` to set this as the current anime.',
+        ephemeral: true
+      })
     } else {
       const newAnime = {
         animeId: animeId,
@@ -63,7 +66,7 @@ module.exports = {
           const anilist = user.username
           thisServerParty.server.list.find(x => x.animeId === animeId)!.members.push(anilist)
           thisServerParty.save()
-          interaction.user.send(`You've chosen to join the watch-party for ${suggestedAnime.Media.title.romaji}. Follow along in chat for updates on daily episodes/discussion threads!`)
+          await interaction.user.send(`You've chosen to join the watch-party for ${suggestedAnime.Media.title.romaji}. Follow along in chat for updates on daily episodes/discussion threads!`)
         } else {
           console.log('Unaliased user created a watch-party.')
         }
@@ -80,20 +83,23 @@ module.exports = {
 
           if (!serverExists) {
             console.log('failed at !serverExists')
-            i.reply({ content: 'You have not yet been aliased to an AniList user. `/alias add`', ephemeral: true })
+            await i.reply({content: 'You have not yet been aliased to an AniList user. `/alias add`', ephemeral: true})
           } else {
             const id = `<@${i.user.id}>`
             const userList = serverAliases.server.users
             const user = userList.find(x => x.userId === id)
             if (!user) {
               console.log('failed at !user')
-              i.reply({ content: 'You have not yet been aliased to an AniList user. `/alias add`', ephemeral: true })
+              await i.reply({
+                content: 'You have not yet been aliased to an AniList user. `/alias add`',
+                ephemeral: true
+              })
             } else {
               const name = user.username
               if (!thisServerParty.server.list.find(x => x.animeId === animeId)!.members.includes(name)) {
                 thisServerParty.server.list.find(x => x.animeId === animeId)!.members.push(name)
                 thisServerParty.save()
-                i.user.send(`You've chosen to join the watch-party for ${suggestedAnime.Media.title.romaji}. Follow along in chat for updates on daily episodes/discussion threads!`)
+                await i.user.send(`You've chosen to join the watch-party for ${suggestedAnime.Media.title.romaji}. Follow along in chat for updates on daily episodes/discussion threads!`)
               } else {
                 await i.reply({ content: 'You\'re already in this watch-party!', ephemeral: true })
               }
@@ -102,7 +108,7 @@ module.exports = {
         } else if (i.customId === 'info') {
           const td: TurndownService = new Tds()
           const description: string = (td.turndown(suggestedAnime.Media.description))
-          i.reply({ content: description, ephemeral: true })
+          await i.reply({content: description, ephemeral: true})
         }
         return true
       }

@@ -22,9 +22,9 @@ module.exports = {
     const title = thisServerParty.server.current
 
     if (partyServerExists && title) {
-      interaction.reply({ content: `Ummm... ${id}.. please don't forget to watch today's episodes of **${title}**, UwU.. Arigato! ^_^` })
+      await interaction.reply({content: `Ummm... ${id}.. please don't forget to watch today's episodes of **${title}**, UwU.. Arigato! ^_^`})
     } else {
-      interaction.reply({ content: 'There is no current watch-party. `/wp set`', ephemeral: true })
+      await interaction.reply({content: 'There is no current watch-party. `/wp set`', ephemeral: true})
     }
   }
 }

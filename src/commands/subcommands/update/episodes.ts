@@ -37,17 +37,17 @@ module.exports = {
             .setCustomId('done')
             .setStyle(ButtonStyle.Secondary)
         )
-      interaction.editReply({ embeds: [embed], components: [math] })
+      await interaction.editReply({embeds: [embed], components: [math]})
 
       let done: boolean = false
       const filter = async (i: MessageComponentInteraction) => {
         if (i.user.id !== interaction.user.id) {
-          i.reply({ content: 'This button is not for you!', ephemeral: true })
+          await i.reply({content: 'This button is not for you!', ephemeral: true})
         } else {
           if (i.customId === 'add') {
             const progToSet = currentProgress + 1
             if (progToSet > listEntry.MediaList.media.episodes) {
-              i.reply({
+              await i.reply({
                 content: `You tried to set your ep. count for [**${anime.Media.title.romaji}**](${anime.Media.siteUrl}) to ${progToSet}, but it only has ${listEntry.MediaList.media.episodes} episodes!`,
                 ephemeral: true
               })
@@ -55,28 +55,28 @@ module.exports = {
               await client.request(INCREMENT_EP, { mediaId: anime.Media.id, progress: progToSet }, headers)
               // embed.fields[0] = { name: 'Progress:', value: `${progToSet}/${anime.Media.episodes}`, inline: true }
               currentProgress = progToSet
-              i.deferUpdate()
-              interaction.editReply({ embeds: [embed] })
+              await i.deferUpdate()
+              await interaction.editReply({embeds: [embed]})
             }
           } else if (i.customId === 'subtract') {
             if (currentProgress === 0) {
-              i.reply({ content: 'You\'re already at 0!', ephemeral: true })
+              await i.reply({content: 'You\'re already at 0!', ephemeral: true})
             } else {
               const progToSet = currentProgress - 1
               await client.request(INCREMENT_EP, { mediaId: anime.Media.id, progress: progToSet }, headers)
               // embed.fields[0] = { name: 'Progress:', value: `${progToSet}/${anime.Media.episodes}`, inline: true }
               currentProgress = progToSet
-              i.deferUpdate()
-              interaction.editReply({ embeds: [embed] })
+              await i.deferUpdate()
+              await interaction.editReply({embeds: [embed]})
             }
           } else if (i.customId === 'done') {
             done = true
-            interaction.deleteReply()
+            await interaction.deleteReply()
             if (currentProgress > initialProgress) {
               if ((initialProgress + 1) === currentProgress) {
-                interaction.followUp(`<@${interaction.user.id}> watched episode ${currentProgress} of **${anime.Media.title.romaji}**`)
+                await interaction.followUp(`<@${interaction.user.id}> watched episode ${currentProgress} of **${anime.Media.title.romaji}**`)
               } else {
-                interaction.followUp(`<@${interaction.user.id}> watched episodes ${initialProgress + 1}-${currentProgress} of **${anime.Media.title.romaji}**`)
+                await interaction.followUp(`<@${interaction.user.id}> watched episodes ${initialProgress + 1}-${currentProgress} of **${anime.Media.title.romaji}**`)
               }
             }
           }
@@ -99,7 +99,10 @@ module.exports = {
     } catch (err) {
       console.error(err)
       console.error(username, 'failed to use /update episodes with query', title)
-      interaction.reply({ content: `Command failed. Make sure you have an existing list entry for [**${anime.Media.title.romaji}**](${anime.Media.siteUrl}).`, ephemeral: true })
+      await interaction.reply({
+        content: `Command failed. Make sure you have an existing list entry for [**${anime.Media.title.romaji}**](${anime.Media.siteUrl}).`,
+        ephemeral: true
+      })
     }
   }
 }

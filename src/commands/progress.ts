@@ -53,7 +53,7 @@ module.exports = {
       const animeData: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { search: title })
       if (sub === 'all') {
         if (serverExists) {
-          interaction.deferReply()
+          await interaction.deferReply()
           const userList = serverAliases.server.users
 
           const allEmbed = new EmbedBuilder()
@@ -64,7 +64,7 @@ module.exports = {
             .setFooter({ text: `requested by ${interaction.user.username}`, iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png` })
             .setTimestamp()
 
-          userList.forEach(async u => {
+          for (const u of userList) {
             const user: AniUser = await request('https://graphql.anilist.co', GET_USERINFO, { name: u.username })
             try {
               const oneList: AniList = await request('https://graphql.anilist.co', GET_MEDIALIST, { userName: user.User.name, mediaId: animeData.Media.id })
@@ -74,12 +74,12 @@ module.exports = {
               const oneEpisodes = 0
               allEmbed.addFields({ name: user.User.name, value: `[${oneEpisodes}/${animeData.Media.episodes}](${user.User.siteUrl})`, inline: true })
             }
-          })
+          }
 
           await wait(1000)
-          interaction.editReply({ embeds: [allEmbed] })
+          await interaction.editReply({embeds: [allEmbed]})
         } else {
-          interaction.reply('You must alias at least one user first. `/alias add`')
+          await interaction.reply('You must alias at least one user first. `/alias add`')
         }
       } else {
         if (user!.startsWith('<')) {
@@ -108,15 +108,15 @@ module.exports = {
                   .setThumbnail(animeData.Media.coverImage.large)
                   .setDescription(`Progress on [**${animeData.Media.title.romaji}**](${animeData.Media.siteUrl})`)
                   .addFields({ name: stat!, value: `${listData.MediaList.progress}/${animeData.Media.episodes}` })
-                interaction.reply({ embeds: [embed] })
+                await interaction.reply({embeds: [embed]})
               } catch {
-                interaction.reply(`${userData.User.name} has not yet watched any episodes of this anime.`)
+                await interaction.reply(`${userData.User.name} has not yet watched any episodes of this anime.`)
               }
             } else {
-              interaction.reply('This user has not yet been aliased to an Anilist user. `/alias add`')
+              await interaction.reply('This user has not yet been aliased to an Anilist user. `/alias add`')
             }
           } else {
-            interaction.reply('This user has not yet been aliased to an Anilist user. `/alias add`')
+            await interaction.reply('This user has not yet been aliased to an Anilist user. `/alias add`')
           }
         } else {
           const userData: AniUser = await request('https://graphql.anilist.co', GET_USERINFO, { name: user })
@@ -138,16 +138,16 @@ module.exports = {
               .setThumbnail(animeData.Media.coverImage.large)
               .setDescription(`Progress on [**${animeData.Media.title.romaji}**](${animeData.Media.siteUrl})`)
               .addFields({ name: stat!, value: `${listData.MediaList.progress}/${animeData.Media.episodes}` })
-            interaction.reply({ embeds: [embed] })
+            await interaction.reply({embeds: [embed]})
           } catch {
-            interaction.reply(`${userData.User.name} has not yet watched any episodes of this anime.`)
+            await interaction.reply(`${userData.User.name} has not yet watched any episodes of this anime.`)
           }
         }
       }
     } catch (err) {
       console.log('Failed to use /progress... sub: ', sub, ' title: ', title, ' user?: ', user)
       console.error(err)
-      interaction.reply('Command failed, check usage.')
+      await interaction.reply('Command failed, check usage.')
     }
   }
 }

@@ -11,15 +11,15 @@ module.exports = {
   },
   async execute (interaction: CommandInteraction, thisServerParty: Parties, _serverAliases: undefined, _serverExists: undefined) {
     if (thisServerParty.server.current.length === 0) {
-      interaction.reply('No WPs have been set, `/wp set`')
+      await interaction.reply('No WPs have been set, `/wp set`')
     } else {
-      interaction.deferReply()
+      await interaction.deferReply()
       const embed = new EmbedBuilder()
         .setTitle('Current WPs')
         .setFooter({ text: `Requested by ${interaction.user.username}`, iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png` })
         .setColor('#74E6D6')
         .setTimestamp()
-      thisServerParty.server.current.forEach(async c => {
+      for (const c of thisServerParty.server.current) {
         const oneAnime: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { search: c.title })
         const listing = thisServerParty.server.list.find(x => x.animeId === oneAnime.Media.id)
         const joinedMembers = `**${listing!.members.length}**`
@@ -27,11 +27,11 @@ module.exports = {
         const range = (c.episodesToday === 1) ? `**${c.episode - 1}**` : `**${c.episode - subRange}** - **${c.episode - 1}**`
         const eps = (c.episodesToday) ? range : `**${c.episode}**`
         embed.addFields({ name: c.title!, value: `Assigned episode(s): ${eps}\n# of participants: ${joinedMembers}` })
-      })
+      }
       await wait(1000)
       embed.setDescription('Some information about each of the currently set watchparties:')
 
-      interaction.editReply({ embeds: [embed] })
+      await interaction.editReply({embeds: [embed]})
     }
   }
 }

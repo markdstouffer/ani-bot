@@ -70,7 +70,7 @@ module.exports = {
 
       if (sub === 'all') {
         if (serverExists) {
-          interaction.deferReply()
+          await interaction.deferReply()
           const userList = serverAliases.server.users
 
           const allEmbed = new EmbedBuilder()
@@ -81,7 +81,7 @@ module.exports = {
             .setTimestamp()
           let countRating = 0
           let count = 0
-          userList.forEach(async u => {
+          for (const u of userList) {
             const user: AniUser = await request('https://graphql.anilist.co', GET_USERINFO, { name: u.username })
             try {
               const oneList: AniList = await request('https://graphql.anilist.co', GET_MEDIALIST, { userName: user.User.name, mediaId: animeData.Media.id })
@@ -92,16 +92,16 @@ module.exports = {
                 allEmbed.addFields({ name: user.User.name, value: `[${userRating}/10](${user.User.siteUrl})`, inline: true })
               }
             } catch { }
-          })
+          }
           await wait(1000)
 
           const avgScore = (count !== 0) ? countRating / count : 0
           const color = percentToHex(avgScore * 10, 0, 110, 100, 50)
           allEmbed.setColor(color as HexColorString)
 
-          interaction.editReply({ embeds: [allEmbed] })
+          await interaction.editReply({embeds: [allEmbed]})
         } else {
-          interaction.reply('You must alias at least one user first. `/alias add`')
+          await interaction.reply('You must alias at least one user first. `/alias add`')
         }
       } else if (name!.startsWith('<')) {
         if (serverExists) {
@@ -119,15 +119,15 @@ module.exports = {
                 .setDescription(`[**${animeData.Media.title.romaji}**](${animeData.Media.siteUrl})`)
                 .setTitle(userData.User.name)
                 .addFields({ name: 'Score:', value: `${score / 10}/10` })
-              interaction.reply({ embeds: [embed] })
+              await interaction.reply({embeds: [embed]})
             } catch {
-              interaction.reply(`${userData.User.name} has not yet rated this anime.`)
+              await interaction.reply(`${userData.User.name} has not yet rated this anime.`)
             }
           } else {
-            interaction.reply('This user has not yet been aliased to an Anilist user. `/alias add`')
+            await interaction.reply('This user has not yet been aliased to an Anilist user. `/alias add`')
           }
         } else {
-          interaction.reply('This user has not yet been aliased to an Anilist user. `/alias add`')
+          await interaction.reply('This user has not yet been aliased to an Anilist user. `/alias add`')
         }
       } else {
         const userData: AniUser = await request('https://graphql.anilist.co', GET_USERINFO, { name })
@@ -141,15 +141,15 @@ module.exports = {
             .setDescription(`[**${animeData.Media.title.romaji}**](${animeData.Media.siteUrl})`)
             .setTitle(userData.User.name)
             .addFields({ name: 'Score:', value: `${score / 10}/10` })
-          interaction.reply({ embeds: [embed] })
+          await interaction.reply({embeds: [embed]})
         } catch {
-          interaction.reply(`${userData.User.name} has not yet rated this anime.`)
+          await interaction.reply(`${userData.User.name} has not yet rated this anime.`)
         }
       }
     } catch (err) {
       console.log('User failed to use /score... sub: ', sub, ' name: ', name, ' title: ', title)
       console.error(err)
-      interaction.reply({ content: 'Command failed, check usage.', ephemeral: true })
+      await interaction.reply({content: 'Command failed, check usage.', ephemeral: true})
     }
   }
 }

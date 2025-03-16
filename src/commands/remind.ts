@@ -27,12 +27,12 @@ module.exports = {
     if (partyServerExists) {
       const currentAnime = thisServerParty.server.current
       if (currentAnime) {
-        interaction.reply({ content: `Ummm... ${discord}.. please don't forget to watch today's episodes of **${currentAnime}**, UwU.. Arigato! ^_^` })
+        await interaction.reply({content: `Ummm... ${discord}.. please don't forget to watch today's episodes of **${currentAnime}**, UwU.. Arigato! ^_^`})
       } else {
-        interaction.reply('There is no current watch-party.')
+        await interaction.reply('There is no current watch-party.')
       }
     } else {
-      interaction.reply('There is no current watch-party.')
+      await interaction.reply('There is no current watch-party.')
     }
   }
 }

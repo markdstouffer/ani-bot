@@ -8,7 +8,7 @@ const myIntents = [
   GatewayIntentBits.Guilds,
   GatewayIntentBits.GuildMessages,
   GatewayIntentBits.GuildMembers,
-  GatewayIntentBits.GuildEmojisAndStickers,
+  GatewayIntentBits.GuildExpressions,
   GatewayIntentBits.GuildMessageReactions,
   GatewayIntentBits.DirectMessages,
   GatewayIntentBits.DirectMessageReactions

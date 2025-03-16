@@ -28,13 +28,13 @@ module.exports = {
         const anime: AniMedia = await client.request(GET_MEDIA, { search: title })
         const id = anime.Media.id
         await client.request(ADD, { mediaId: id }, headers)
-        interaction.reply({ content: `<@${discord}> added [**${anime.Media.title.romaji}**](${anime.Media.siteUrl}) to their anime list.` })
+        await interaction.reply({content: `<@${discord}> added [**${anime.Media.title.romaji}**](${anime.Media.siteUrl}) to their anime list.`})
       } catch (err) {
         console.error(err)
-        interaction.reply({ content: 'Error - does this anime exist on AniList?', ephemeral: true })
+        await interaction.reply({content: 'Error - does this anime exist on AniList?', ephemeral: true})
       }
     } else {
-      interaction.reply({ content: 'You are not authenticated! `/link`', ephemeral: true })
+      await interaction.reply({content: 'You are not authenticated! `/link`', ephemeral: true})
     }
   }
 }

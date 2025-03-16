@@ -62,24 +62,27 @@ module.exports = {
           embed.addFields({ name: 'Rating:', value: `${listEntry.MediaList.score}/10 (unfinished)`, inline: true })
         }
 
-        interaction.reply({ embeds: [embed], components: [row] })
+        await interaction.reply({embeds: [embed], components: [row]})
         const reply = await interaction.fetchReply() as Message
 
         const filter = async (i: MessageComponentInteraction) => {
           if (i.user.id !== interaction.user.id) {
-            i.reply({ content: 'This button is not for you!', ephemeral: true })
+            await i.reply({content: 'This button is not for you!', ephemeral: true})
           } else {
-            i.deferUpdate()
+            await i.deferUpdate()
             await subcommands.get(i.customId).execute(interaction, discord, title, embed, reply)
           }
           return i.user.id === interaction.user.id
         }
-        reply.awaitMessageComponent({ filter, componentType: ComponentType.Button, time: 30000 })
+        await reply.awaitMessageComponent({filter, componentType: ComponentType.Button, time: 30000})
       } catch {
-        interaction.reply({ content: `Make sure you have an existing AniList entry for [**${anime.Media.title.romaji}**](${anime.Media.siteUrl}).`, ephemeral: true })
+        await interaction.reply({
+          content: `Make sure you have an existing AniList entry for [**${anime.Media.title.romaji}**](${anime.Media.siteUrl}).`,
+          ephemeral: true
+        })
       }
     } else {
-      interaction.reply({ content: 'You are not authenticated! `/link`', ephemeral: true })
+      await interaction.reply({content: 'You are not authenticated! `/link`', ephemeral: true})
     }
   }
 }

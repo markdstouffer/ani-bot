@@ -11,22 +11,22 @@ module.exports = {
   },
   async execute (interaction: CommandInteraction, thisServerParty: Parties, _serverAliases: undefined, _serverExists: undefined) {
     if (thisServerParty.server.list.length === 0) {
-      interaction.reply({ content: 'There are currently no settable watch-party suggestions.', ephemeral: true })
+      await interaction.reply({content: 'There are currently no settable watch-party suggestions.', ephemeral: true})
     } else {
       const oneId: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { id: thisServerParty.server.list[0].animeId })
       const oneTitle = oneId.Media.title.romaji
       const isCurrent = (thisServerParty.server.current.filter(c => c.title === oneTitle).length > 0)
       if (thisServerParty.server.list.length === 1 && isCurrent) {
-        interaction.reply({ content: 'There are currently no settable watch-party suggestions.', ephemeral: true })
+        await interaction.reply({content: 'There are currently no settable watch-party suggestions.', ephemeral: true})
       } else {
         const titles: string[] = []
-        thisServerParty.server.list.forEach(async obj => {
+        for (const obj of thisServerParty.server.list) {
           const oneAnime: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { id: obj.animeId })
           const addToTitles = `${oneAnime.Media.title.romaji}`
           if (!(thisServerParty.server.current.filter(c => c.title === addToTitles).length > 0)) {
             titles.push(addToTitles)
           }
-        })
+        }
 
         const row = new ActionRowBuilder<StringSelectMenuBuilder>()
           .addComponents(

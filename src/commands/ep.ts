@@ -51,7 +51,7 @@ module.exports = {
     const thisServerParty: Parties = await Party.findOne(query)
 
     if (!partyServerExists || thisServerParty.server.current.length === 0) {
-      interaction.reply('There is no current watchparty. `/watchparty suggest`')
+      await interaction.reply('There is no current watchparty. `/watchparty suggest`')
     } else {
       const currentAnime: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { search: title })
       let current = thisServerParty.server.current.find(c => c.title === currentAnime.Media.title.romaji)
@@ -61,12 +61,12 @@ module.exports = {
 
         if (sub === 'today') {
           if (!todayEp) {
-            interaction.reply('Today\'s episodes have not yet been set. `$episode next <title> <# of episodes>`')
+            await interaction.reply('Today\'s episodes have not yet been set. `$episode next <title> <# of episodes>`')
           } else {
             if (todayEp > 1) {
-              interaction.reply(`Today's **${current!.title}** episodes are **${currentEpisode - todayEp}-${currentEpisode - 1}**.`)
+              await interaction.reply(`Today's **${current!.title}** episodes are **${currentEpisode - todayEp}-${currentEpisode - 1}**.`)
             } else {
-              interaction.reply(`Today's **${current!.title}** episode is **${currentEpisode - 1}**.`)
+              await interaction.reply(`Today's **${current!.title}** episode is **${currentEpisode - 1}**.`)
             }
           }
         } else if (sub === 'next') {
@@ -97,7 +97,7 @@ module.exports = {
           thisServerParty.save()
         }
       } else {
-        interaction.reply({ content: 'This anime is not currently set, `/wp set`', ephemeral: true })
+        await interaction.reply({content: 'This anime is not currently set, `/wp set`', ephemeral: true})
       }
     }
   }

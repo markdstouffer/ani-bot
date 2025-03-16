@@ -24,7 +24,10 @@ module.exports = {
     const media: AniMedia = await request('https://graphql.anilist.co', GET_MEDIA, { search: title })
     const channel: TextChannel = interaction.channel as TextChannel
     if (media.Media.isAdult && !channel.nsfw) {
-      interaction.reply({ content: `${media.Media.title.romaji} is an adult-themed anime, and this channel does not support NSFW content!`, ephemeral: true })
+      await interaction.reply({
+        content: `${media.Media.title.romaji} is an adult-themed anime, and this channel does not support NSFW content!`,
+        ephemeral: true
+      })
     } else {
       const description: string = (td.turndown(media.Media.description))
       const trimmedDesc: string = (description.length > 200) ? `${description.substring(0, 200).trim()}...` : `${description}`
@@ -90,7 +93,7 @@ module.exports = {
             .setStyle(ButtonStyle.Link)
         )
 
-      interaction.reply({ embeds: [embed], components: [row] })
+      await interaction.reply({embeds: [embed], components: [row]})
       setTimeout(() => {
         row.components[0].setDisabled(true)
         interaction.editReply({ components: [row] })
@@ -102,7 +105,7 @@ module.exports = {
       collector.on('collect', async (i: typeof Discord.Interaction) => {
         swapDesc()
         await i.update({ components: [row] })
-        interaction.editReply({ embeds: [embed] })
+        await interaction.editReply({embeds: [embed]})
       })
     }
   }

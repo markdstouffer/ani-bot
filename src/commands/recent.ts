@@ -48,13 +48,13 @@ module.exports = {
                 .setColor(activity.media.coverImage.color as HexColorString)
                 .setThumbnail(userData.User.avatar.large)
                 .addFields({ name: statProg, value: `[**${activity.media.title.romaji}**](${activity.media.siteUrl})` })
-              interaction.reply({ embeds: [embed] })
-            } else { interaction.reply('This user has no recent activity :(') }
+              await interaction.reply({embeds: [embed]})
+            } else { await interaction.reply('This user has no recent activity :(') }
           } else {
-            interaction.reply('This user has not yet been aliased to an Anilist user. `/alias add`')
+            await interaction.reply('This user has not yet been aliased to an Anilist user. `/alias add`')
           }
         } else {
-          interaction.reply('This user has not yet been aliased to an Anilist user. `/alias add`')
+          await interaction.reply('This user has not yet been aliased to an Anilist user. `/alias add`')
         }
       } else {
         const userData: AniUser = await request('https://graphql.anilist.co', GET_USERINFO, { name })
@@ -73,13 +73,13 @@ module.exports = {
             .setColor(activity.media.coverImage.color as HexColorString)
             .setThumbnail(userData.User.avatar.large)
             .addFields({ name: statProg, value: `[**${activity.media.title.romaji}**](${activity.media.siteUrl})` })
-          interaction.reply({ embeds: [embed] })
-        } else { interaction.reply('This user has no recent activity :(') }
+          await interaction.reply({embeds: [embed]})
+        } else { await interaction.reply('This user has no recent activity :(') }
       }
     } catch (err) {
       console.log('User failed to use /recent, name: ', name)
       console.error(err)
-      interaction.reply({ content: 'Command failed, check usage', ephemeral: true })
+      await interaction.reply({content: 'Command failed, check usage', ephemeral: true})
     }
   }
 }

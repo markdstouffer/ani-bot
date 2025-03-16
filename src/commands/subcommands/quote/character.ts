@@ -29,7 +29,7 @@ module.exports = {
               .setURL(`${media.Media.siteUrl}`)
               .setStyle(ButtonStyle.Link)
           )
-        interaction.reply({ embeds: [embed], components: [row] })
+        await interaction.reply({embeds: [embed], components: [row]})
       })
       .catch((err: any) => {
         console.log(err)

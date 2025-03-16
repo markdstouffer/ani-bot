@@ -29,7 +29,7 @@ module.exports = {
           .setCustomId('dropped')
           .setStyle(ButtonStyle.Danger)
       )
-    interaction.editReply({ components: [statusButtons] })
+    await interaction.editReply({components: [statusButtons]})
     const exited = (status: string) => {
       interaction.deleteReply()
       interaction.followUp({ content: `<@${discord}> set **${anime.Media.title.romaji}** to *${status}*.` })
@@ -38,22 +38,22 @@ module.exports = {
     let clicked: boolean = false
     const filter = async (i: MessageComponentInteraction) => {
       if (i.user.id !== interaction.user.id) {
-        i.reply({ content: 'This button is not for you!', ephemeral: true })
+        await i.reply({content: 'This button is not for you!', ephemeral: true})
       } else {
         if (i.customId === 'current') {
           await client.request(STATUS, { mediaId: id, status: 'CURRENT' }, authUser.headers)
           clicked = true
-          i.deferUpdate()
+          await i.deferUpdate()
           await exited('WATCHING')
         } else if (i.customId === 'paused') {
           await client.request(STATUS, { mediaId: id, status: 'PAUSED' }, authUser.headers)
           clicked = true
-          i.deferUpdate()
+          await i.deferUpdate()
           await exited('PAUSED')
         } else if (i.customId === 'dropped') {
           await client.request(STATUS, { mediaId: id, status: 'DROPPED' }, authUser.headers)
           clicked = true
-          i.deferUpdate()
+          await i.deferUpdate()
           await exited('DROPPED')
         }
       }
